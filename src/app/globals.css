@@ -1,27 +1,35 @@
 @tailwind base;
+h2 {
+  @apply text-[20px] md:text-[24px] font-semibold  text-black;
+}
+
+h3 {
+  @apply text-[16px] md:text-[18.72px] font-semibold  text-black;
+}
+
+a {
+  @apply text-black;
+}
+
+h1 {
+  @apply text-4xl;
+  @apply font-bold  text-black;
+}
+h4 {
+  @apply text-xl;
+  @apply font-semibold  text-black;
+}
+h5 {
+  @apply text-lg;
+  @apply font-semibold  text-black;
+}
+h6 {
+  @apply text-sm;
+  @apply font-semibold  text-black;
+}
+
+p {
+  @apply font-normal text-black;
+}
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
