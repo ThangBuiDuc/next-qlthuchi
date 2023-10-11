@@ -6,7 +6,11 @@ import Image from "next/image";
 
 export default function Index() {
 
-    const [tongle,setTongle] = useState(true);
+    const [tongle,setTongle] = useState(false);
+    const handleTogle = () => {
+      setTongle(true);
+    }
+
     return(
         <>
             {tongle ? 
@@ -17,8 +21,14 @@ export default function Index() {
                 </> 
                 : 
                 <>
-                    <button className="btn btn-sm">Small</button>
-                </>}
+                  <button 
+                    className="btn btn-sm" 
+                    onClick={handleTogle}
+                  >
+                    Đăng nhập
+                  </button>
+                </>
+            }
         </>
     );
 }
