@@ -1,3 +1,6 @@
+import { IoSettingsOutline } from "react-icons/io5"
+
+
 export const sideBarData = [
     // {
     //     id: 1,
@@ -7,32 +10,33 @@ export const sideBarData = [
     // },
     {
         id: 2,
+        icon: <IoSettingsOutline/>,
         title: "Hệ thống",
-        path: "/home",
+        path: "",
         subNav : [
             {
                 title: "Thông tin đơn vị",
-                path: "/home",
+                path: "",
             },
             {
                 title: "Nhật ký người dùng",
-                path: "/home",
+                path: "",
             },
             {
                 title: "Tạo người dùng",
-                path: "/home",
+                path: "",
             },
             {
                 title: "Sửa thông tin người dùng",
-                path: "/home",
+                path: "",
             },
             {
                 title: "Tạo nhóm người dùng",
-                path: "/home",
+                path: "",
             },
             {
                 title: "Phân nhóm người dùng",
-                path: "/home",
+                path: "",
             },
         ]
     },

@@ -1,5 +1,5 @@
 "use client";
-import { AiOutlineRight } from "react-icons/ai";
+import { BiChevronDown } from "react-icons/bi";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSpring, animated } from "@react-spring/web";
@@ -17,8 +17,8 @@ const NestedNav = ({ data, setRootData }) => {
   return (
     <>
       <button
-        className={`text-[#BDE0EC] w-full h-[5vh] items-center justify-between flex pl-[15px] pr-[15px] hover:bg-[#46546C] ${
-          data.isChecked ? "bg-[#303C50]" : ""
+        className={`text-[#000000] w-full h-[5vh] items-center justify-between flex pl-[15px] pr-[15px] hover:bg-[#ECECEC] ${
+          data.isChecked ? "bg-[#ECECEC]" : ""
         }`}
         onClick={() => {
           setRootData((pre) =>
@@ -31,9 +31,11 @@ const NestedNav = ({ data, setRootData }) => {
         }}
       >
         {data.title}
-        <AiOutlineRight
+        <BiChevronDown
+          size={20}
+          color="#7D7D7D"
           className={`float-right !duration-100 transition-all ${
-            data.isChecked ? "rotate-90" : ""
+            data.isChecked ? "rotate-180" : ""
           }`}
         />
       </button>
@@ -41,15 +43,15 @@ const NestedNav = ({ data, setRootData }) => {
         <div
           ref={ref}
           className={`flex flex-col w-full ${
-            data.isChecked ? "bg-[#303C50]" : ""
+            data.isChecked ? "bg-[#ECECEC]" : ""
           }`}
         >
           {data.subNav.map((item, index) => {
             return (
               <Link
                 key={index}
-                className={`text-[#BDE0EC] w-full h-[8vh] items-center flex pl-[15px]  ${
-                  pathName === item.path ? "bg-[#46546C]" : "hover:bg-[#46546C]"
+                className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
+                  pathName === item.path ? "bg-[#ffffff]" : "hover:bg-[#ffffff]" 
                 }`}
                 href={item.path}
               >

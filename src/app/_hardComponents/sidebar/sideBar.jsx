@@ -10,19 +10,19 @@ const SideBar = ({ isOpen }) => {
   const [rootData, setRootData] = useState(
     sideBarData.map((item) =>
       pathName.includes(item.path)
-        ? { ...item, isChecked: true }
-        : { ...item, isChecked: false }
+        ? { ...item, isChecked: false }
+        : { ...item, isChecked: true }
     )
   );
   return (
     <div
-      className={`w-[18%] h-screen flex flex-col fixed transition-all duration-300 ${
+      className={`w-[18%] border-r-2 h-screen flex flex-col fixed transition-all duration-300 ${
         isOpen ? "translate-x-0" : "translate-x-[-100%]"
       }`}
     >
-      <div className="flex justify-center h-[80px] border-b-2">
-        <Link href="/home" className="self-center">
-          <div className="flex gap-[10px]">
+      {/* <div className=" "> */}
+        <Link href="/home" className="flex items-center justify-center h-[9%] gap-[10px]">
+          {/* <div className="flex "> */}
             <Image
               src="/logo2.png"
               alt=""
@@ -34,15 +34,15 @@ const SideBar = ({ isOpen }) => {
               <span className="font-semibold text-[#CA2627]">HUU NGHI</span>
               <span className="font-semibold text-[#134A9A]">SCHOOL</span>
             </p>
-          </div>
+          {/* </div> */}
         </Link>
-      </div>
+      {/* </div> */}
       {rootData.map((item) => {
         if (!item.subNav) {
           return (
             <Link
               key={item.id}
-              className={`text-[#BDE0EC] w-full h-[8vh] items-center flex pl-[15px]  ${
+              className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
                 pathName === item.path ? "bg-[#46546C]" : "hover:bg-[#46546C]"
               }`}
               href={item.path}

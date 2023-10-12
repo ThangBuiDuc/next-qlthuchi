@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { FcMenu } from 'react-icons/fc';
 export default function Index({ setIsOpen }) {
     return(
-        <div className="flex items-center border-b-2 h-[80px] w-full justify-between">
+        <div className="flex items-center border-b-2 h-[9%] w-full justify-between">
             <div className="flex items-center gap-[40px]">
                 <FcMenu 
                     size={30} 
