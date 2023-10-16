@@ -30,6 +30,7 @@ const NestedNav = ({ data, setRootData }) => {
           );
         }}
       >
+        {data.icon}
         {data.title}
         <BiChevronDown
           size={20}
