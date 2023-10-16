@@ -10,32 +10,35 @@ const SideBar = ({ isOpen }) => {
   const [rootData, setRootData] = useState(
     sideBarData.map((item) =>
       pathName.includes(item.path)
-        ? { ...item, isChecked: false }
-        : { ...item, isChecked: true }
+        ? { ...item, isChecked: true }
+        : { ...item, isChecked: false }
     )
   );
   return (
     <div
-      className={`w-[18%] border-r-2 h-screen flex flex-col fixed transition-all duration-300 ${
-        isOpen ? "translate-x-0" : "translate-x-[-100%]"
+      className={`w-[18%] border-r-[1px] h-screen flex flex-col fixed transition-all duration-300 ${
+        isOpen ? "" : "translate-x-[-100%]"
       }`}
     >
       {/* <div className=" "> */}
-        <Link href="/home" className="flex items-center justify-center h-[9%] gap-[10px]">
-          {/* <div className="flex "> */}
-            <Image
-              src="/logo2.png"
-              alt=""
-              width="70"
-              height="70"
-              className="w-[70px] h-[70px] object-scale-down cursor-pointer"
-            />
-            <p className="flex flex-col items-center justify-center">
-              <span className="font-semibold text-[#CA2627]">HUU NGHI</span>
-              <span className="font-semibold text-[#134A9A]">SCHOOL</span>
-            </p>
-          {/* </div> */}
-        </Link>
+      <Link
+        href="/home"
+        className="flex items-center justify-center h-[10vh] gap-[10px]"
+      >
+        {/* <div className="flex "> */}
+        <Image
+          src="/logo2.png"
+          alt=""
+          width="70"
+          height="70"
+          className="w-[70px] h-[70px] object-scale-down cursor-pointer"
+        />
+        <p className="flex flex-col items-center justify-center">
+          <span className="font-semibold text-[#CA2627]">HUU NGHI</span>
+          <span className="font-semibold text-[#134A9A]">SCHOOL</span>
+        </p>
+        {/* </div> */}
+      </Link>
       {/* </div> */}
       {rootData.map((item) => {
         if (!item.subNav) {

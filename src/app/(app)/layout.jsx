@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import Header from "../_hardComponents/header";
 import SideBar from "../_hardComponents/sidebar/sideBar";
 import { sideBarData } from "../_hardComponents/sidebar/sideBarData";
 import { usePathname } from "next/navigation";
-
 
 export default function RootLayout({ children }) {
   const pathName = usePathname();
@@ -21,23 +20,34 @@ export default function RootLayout({ children }) {
           isOpen ? "ml-[18%]" : "!w-[100%]"
         }`}
       >
-        <Header setIsOpen={setIsOpen} />
-        <div className="text-sm breadcrumbs h-[5%] pl-[10px] flex items-center border-t-bordercl border-[1px]">
-          <ul>
-            {pathName === '/home'?<li>Trang chủ</li>:<><li>{breadCrumbs.title}</li>
-            {breadCrumbs.subNav ? (
-              <li>
-                {
-                  breadCrumbs.subNav.find((item) => item.path === pathName)
-                    .title
-                }
-              </li>
-            ) : (
-              <></>
-            )}</>}
-          </ul>
+        <div className="flex flex-col h-[18vh]">
+          <Header setIsOpen={setIsOpen} isOpen={isOpen} />
+          <div className="text-sm breadcrumbs h-[8vh] pl-[10px] flex items-center border-t-bordercl border-t-[1px]">
+            <ul>
+              {pathName === "/home" ? (
+                <li>Trang chủ</li>
+              ) : (
+                <>
+                  <li>{breadCrumbs.title}</li>
+                  {breadCrumbs.subNav ? (
+                    <li>
+                      {
+                        breadCrumbs.subNav.find(
+                          (item) => item.path === pathName
+                        ).title
+                      }
+                    </li>
+                  ) : (
+                    <></>
+                  )}
+                </>
+              )}
+            </ul>
+          </div>
         </div>
-        <div className="bg-[#EBEDEF] w-full h-[85%]">{children}</div>
+        <div className="bg-[#EBEDEF] w-full min-h-[82vh] p-[10px]">
+          {children}
+        </div>
       </div>
     </div>
   );

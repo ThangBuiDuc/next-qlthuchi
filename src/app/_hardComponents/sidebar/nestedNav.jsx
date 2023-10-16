@@ -17,7 +17,7 @@ const NestedNav = ({ data, setRootData }) => {
   return (
     <>
       <button
-        className={`text-[#000000] w-full h-[5vh] items-center justify-between flex pl-[15px] pr-[15px] hover:bg-[#ECECEC] ${
+        className={`text-[#000000] w-full h-[8vh] items-center justify-between flex pl-[15px] pr-[15px] hover:bg-[#ECECEC] ${
           data.isChecked ? "bg-[#ECECEC]" : ""
         }`}
         onClick={() => {
@@ -51,7 +51,7 @@ const NestedNav = ({ data, setRootData }) => {
               <Link
                 key={index}
                 className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
-                  pathName === item.path ? "bg-[#ffffff]" : "hover:bg-[#ffffff]" 
+                  pathName === item.path ? "bg-[#ffffff]" : "hover:bg-[#ffffff]"
                 }`}
                 href={item.path}
               >
