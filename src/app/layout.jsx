@@ -1,7 +1,21 @@
 import "./globals.css";
-import { Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const montserrat = localFont({
+  src: [
+    {
+      path: "./Montserrat-VariableFont_wght.ttf",
+      style: "normal",
+    },
+    {
+      path: "./Montserrat-Italic-VariableFont_wght.ttf",
+      style: "italic",
+    },
+  ],
+});
+// import { Montserrat } from "next/font/google";
+
+// const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Create Next App",
