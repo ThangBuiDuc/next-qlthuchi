@@ -27,6 +27,13 @@ function reducer(state, action) {
       };
     }
 
+    case "change_classCode": {
+      return {
+        ...state,
+        classCode: action.payload,
+      };
+    }
+
     case "change_first_name": {
       return {
         ...state,
@@ -116,6 +123,7 @@ const Add = () => {
               value={infor.code}
               dispatch={dispatchInfor}
               isRequire={true}
+              id={"code"}
               action={"change_code"}
             />
             <div className="flex w-full gap-[10px]">
@@ -125,6 +133,7 @@ const Add = () => {
                 dispatch={dispatchInfor}
                 action={"change_class"}
                 className={"w-[20%]"}
+                id={"class"}
                 type={"number"}
               />
 
@@ -132,7 +141,8 @@ const Add = () => {
                 label={"Mã lớp"}
                 value={infor.classCode}
                 dispatch={dispatchInfor}
-                action={"change_class"}
+                action={"change_classCode"}
+                id={"classCode"}
                 className={"w-[80%]"}
               />
             </div>
@@ -142,6 +152,7 @@ const Add = () => {
                 value={infor.firtsName}
                 dispatch={dispatchInfor}
                 action={"change_first_name"}
+                id={"first_name"}
                 className={"w-[70%]"}
               />
 
@@ -150,6 +161,7 @@ const Add = () => {
                 value={infor.lastName}
                 dispatch={dispatchInfor}
                 action={"change_last_name"}
+                id={"last_name"}
                 className={"w-[30%]"}
               />
             </div>
@@ -193,6 +205,7 @@ const Add = () => {
               value={infor.address}
               dispatch={dispatchInfor}
               action={"change_address"}
+              id={"address"}
             />
 
             <TextInput
@@ -201,6 +214,7 @@ const Add = () => {
               value={infor.email}
               dispatch={dispatchInfor}
               action={"change_email"}
+              id="email"
             />
 
             <TextInput
@@ -208,6 +222,7 @@ const Add = () => {
               value={infor.phoneNumber}
               dispatch={dispatchInfor}
               action={"change_phoneNumber"}
+              id="phoneNumber"
             />
 
             <div className="relative w-full">
