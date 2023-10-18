@@ -5,7 +5,7 @@ import { GoPersonAdd } from "react-icons/go";
 import TextInput from "@/app/component/textInput";
 
 const Content = () => {
-  const [code, setCode] = useState("");
+  const [query, setQuery] = useState("");
   return (
     <div className="flex flex-col gap-[30px]">
       <button
@@ -20,8 +20,9 @@ const Content = () => {
         <TextInput
           className={"!w-[70%]"}
           label={"Tìm kiếm bằng mã sinh viên"}
-          value={code}
-          action={setCode}
+          value={query}
+          id={"query"}
+          action={setQuery}
         />
         <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl">
           Tìm kiếm
