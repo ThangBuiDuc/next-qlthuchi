@@ -1,5 +1,5 @@
 import { IoSettingsOutline } from "react-icons/io5";
-
+import { BiFile } from "react-icons/bi";
 export const sideBarData = [
   // {
   //     id: 1,
@@ -42,6 +42,7 @@ export const sideBarData = [
   {
     id: 2,
     title: "Hồ sơ",
+    icon: <BiFile size={24}/>,
     path: "/resume",
     subNav: [
       {

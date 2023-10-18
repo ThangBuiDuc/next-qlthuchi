@@ -17,8 +17,8 @@ const NestedNav = ({ data, setRootData }) => {
   return (
     <>
       <button
-        className={`text-[#000000] w-full h-[8vh] items-center justify-between flex pl-[15px] pr-[15px] hover:bg-[#ECECEC] ${
-          data.isChecked ? "bg-[#ECECEC]" : ""
+        className={`text-[#000000] font-semibold w-full h-[8vh] items-center justify-between flex pl-[25px] pr-[25px] hover:bg-[#ECECEC] ${
+          data.isChecked ? "bg-[#ECECEC] " : ""
         }`}
         onClick={() => {
           setRootData((pre) =>
@@ -30,8 +30,10 @@ const NestedNav = ({ data, setRootData }) => {
           );
         }}
       >
-        {data.icon}
-        {data.title}
+        <p className="flex gap-[10px] items-center font-medium">
+          {data.icon}
+          {data.title}
+        </p>
         <BiChevronDown
           size={20}
           color="#7D7D7D"
@@ -51,7 +53,7 @@ const NestedNav = ({ data, setRootData }) => {
             return (
               <Link
                 key={index}
-                className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
+                className={`text-[#000000] w-full h-[8vh] items-center flex pl-[59px]  ${
                   pathName === item.path ? "bg-[#ffffff]" : "hover:bg-[#ffffff]"
                 }`}
                 href={item.path}
