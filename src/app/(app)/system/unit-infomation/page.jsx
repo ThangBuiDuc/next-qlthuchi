@@ -1,64 +1,48 @@
 'use client'
 import TextInput from "@/app/component/textInput"
-import { useReducer } from "react"
+import { useState } from "react"
 
-function reducer(state, action) {
-    switch (action.type) {
-        case "change_code": {
-            return {
-                ...state,
-                school_code: action.payload,
-            };
-        }
+export default function Page() {
 
-        case "change_name": {
-            return {
-                ...state,
-                school_name: action.payload,
-            };
-        }
-
-        // case "change_address": {
-        //     return {
-        //         ...state,
-        //         address: action.payload,
-        //     };
-        // }
-
-        // case "change_contact": {
-        //     return {
-        //         ...state,
-        //         contact: action.payload,
-        //     };
-        // }
-    }
-}
-
-export default async function Page() {
-
-    const [infor, dispatchInfor] = useReducer(reducer, {
-        school_code: "HI8JG8GGD",
-        school_name: "Trường đại học Quản lý và Công nghệ Hải Phòng",
-        address: "Số 36, đường Dân lập, phường Dư Hàng Kênh, quận Lê Chân, thành phố Hải Phòng",
-        contact: "0936 821 821"
-    })
+    const [code, setCode] = useState('HI8JG8GGD');
+    const [name, setName] = useState('Trường đại học Quản lý và Công nghệ Hải Phòng');
+    const [address, setAddress] = useState('Số 36, đường Dân lập, phường Dư Hàng Kênh, quận Lê Chân, thành phố Hải Phòng');
+    const [contact, setContact] = useState('0936 821 821');
 
     return (
-        <div className="flex-col">
-            <div className="grid grid-col-2 gap-[25px]">
+        <div className="grid grid-cols-1 gap-[25px]">
+            <div className="grid grid-cols-2 grid-rows-1 gap-[25px]">
                 <TextInput
+                    className="w-[80%]"
                     label={'Tên trường'}
-                    value={infor.school_name}
-                    dispatch={dispatchInfor}
+                    value={name}
                     isRequire={false}
-                    action={"change_name"}
+                    action={setName}
                 />
                 <TextInput
+                    className="w-[80%]"
                     label={'Mã trường'}
-                    value={infor.school_code}
-                    dispatch={dispatchInfor}
+                    value={code}
                     isRequire={false}
-                    action={"change_code"}
+                    action={setCode}
+                />
+            </div>
+            <div className="">
+                <TextInput
+                    className="w-[80%]"
+                    label={'Địa chỉ'}
+                    value={address}
+                    isRequire={false}
+                    action={setAddress}
+                />
+            </div>
+            <div className="">
+                <TextInput
+                    className="w-[80%]"
+                    label={'Liên hệ'}
+                    value={contact}
+                    isRequire={false}
+                    action={setContact}
                 />
             </div>
         </div>

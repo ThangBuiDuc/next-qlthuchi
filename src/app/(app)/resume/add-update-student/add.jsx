@@ -97,7 +97,7 @@ const Add = () => {
     classCode: "",
     dob: new Date(),
     address: "",
-    phoneNumber: "",
+    phoneNumber: ""
   });
 
   return (
