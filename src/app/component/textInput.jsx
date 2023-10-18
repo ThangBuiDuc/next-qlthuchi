@@ -23,14 +23,18 @@ const TextInput = ({
         type={type ? type : "text"}
         id={action}
         className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer"
-        placeholder=" "
+        placeholder=""
         value={value}
-        onChange={(e) =>
-          dispatch({
-            type: action,
-            payload: e.target.value,
-          })
-        }
+        onChange={(e) => {
+          if (typeof action === "function") {
+            action(e.target.value);
+          } else {
+            dispatch({
+              type: action,
+              payload: e.target.value,
+            });
+          }
+        }}
       />
       <label
         htmlFor={action}
