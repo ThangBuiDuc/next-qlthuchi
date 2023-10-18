@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         <div className="flex flex-col h-[18vh]">
           <Header setIsOpen={setIsOpen} isOpen={isOpen} />
           <div className="text-sm breadcrumbs h-[8vh] pl-[10px] flex items-center border-t-bordercl border-t-[1px]">
-            <ul>
+            <ul className="text-[#7D7D7D]">
               {pathName === "/home" ? (
                 <li>Trang chủ</li>
               ) : (
@@ -45,9 +45,7 @@ export default function RootLayout({ children }) {
             </ul>
           </div>
         </div>
-        <div className="bg-[#EBEDEF] w-full min-h-[82vh] p-[10px]">
-          {children}
-        </div>
+        <div className="bg-white w-full min-h-[82vh] p-[10px]">{children}</div>
       </div>
     </div>
   );

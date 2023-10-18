@@ -33,3 +33,7 @@ p {
 }
 @tailwind components;
 @tailwind utilities;
+
+.react-datepicker-wrapper {
+  width: 100%;
+}

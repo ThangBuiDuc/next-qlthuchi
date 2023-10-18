@@ -41,17 +41,12 @@ export const sideBarData = [
   //   },
   {
     id: 2,
-    title: "Hồ sơ",
-    icon: <BiFile size={24}/>,
+    title: "Hồ sơ học sinh",
     path: "/resume",
     subNav: [
       {
-        title: "Thêm học sinh mới",
-        path: "/resume/add-student",
-      },
-      {
-        title: "Cập nhật hồ sơ học sinh",
-        path: "/resume/update-student",
+        title: "Thêm mới/ Cập nhật",
+        path: "/resume/add-update-student",
       },
       {
         title: "Biến động học sinh",
