@@ -7,38 +7,38 @@ export const sideBarData = [
   //     path: "/home",
   //     subNav : null
   // },
-  //   {
-  //     id: 1,
-  //     icon: <IoSettingsOutline />,
-  //     title: "Hệ thống",
-  //     path: "",
-  //     subNav: [
-  //       {
-  //         title: "Thông tin đơn vị",
-  //         path: "",
-  //       },
-  //       {
-  //         title: "Nhật ký người dùng",
-  //         path: "",
-  //       },
-  //       {
-  //         title: "Tạo người dùng",
-  //         path: "",
-  //       },
-  //       {
-  //         title: "Sửa thông tin người dùng",
-  //         path: "",
-  //       },
-  //       {
-  //         title: "Tạo nhóm người dùng",
-  //         path: "",
-  //       },
-  //       {
-  //         title: "Phân nhóm người dùng",
-  //         path: "",
-  //       },
-  //     ],
-  //   },
+  {
+    id: 1,
+    icon: <IoSettingsOutline />,
+    title: "Hệ thống",
+    path: "/system",
+    subNav: [
+      {
+        title: "Thông tin đơn vị",
+        path: "/system/unit-infomation",
+      },
+      //       {
+      //         title: "Nhật ký người dùng",
+      //         path: "",
+      //       },
+      //       {
+      //         title: "Tạo người dùng",
+      //         path: "",
+      //       },
+      //       {
+      //         title: "Sửa thông tin người dùng",
+      //         path: "",
+      //       },
+      //       {
+      //         title: "Tạo nhóm người dùng",
+      //         path: "",
+      //       },
+      //       {
+      //         title: "Phân nhóm người dùng",
+      //         path: "",
+      //       },
+    ],
+  },
   {
     id: 2,
     title: "Hồ sơ học sinh",
@@ -53,5 +53,5 @@ export const sideBarData = [
         path: "/resume/dynamic-student",
       },
     ],
-  },
+  }
 ];
