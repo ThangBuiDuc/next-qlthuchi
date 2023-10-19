@@ -11,6 +11,7 @@ const UpdateDelete = ({ data, setData }) => {
         <span className="w-[20%] flex justify-end"><BiEdit size={30} className="text-black cursor-pointer" /></span>
         {/* <span className="w-[10%] flex justify-end"><MdDeleteForever size={30} className="text-black cursor-pointer" /></span> */}
       </div>
+      
     </>
   );
 };
