@@ -1,5 +1,5 @@
 import { IoSettingsOutline } from "react-icons/io5";
-
+import { BiFile } from "react-icons/bi";
 export const sideBarData = [
   // {
   //     id: 1,
@@ -53,5 +53,16 @@ export const sideBarData = [
         path: "/resume/dynamic-student",
       },
     ],
-  }
+  },
+  {
+    id: 3,
+    title: "Danh mục",
+    path: "/catalog",
+    subNav: [
+      {
+        title: "Cấp",
+        path: "/catalog/class",
+      },
+    ],
+  },
 ];

@@ -16,77 +16,77 @@ function reducer(state, action) {
     case "change_code": {
       return {
         ...state,
-        code: action.payload,
+        code: action.payload.value,
       };
     }
 
     case "change_class": {
       return {
         ...state,
-        class: action.payload,
+        class: action.payload.value,
       };
     }
 
     case "change_classCode": {
       return {
         ...state,
-        classCode: action.payload,
+        classCode: action.payload.value,
       };
     }
 
     case "change_first_name": {
       return {
         ...state,
-        firtsName: action.payload,
+        firtsName: action.payload.value,
       };
     }
 
     case "change_last_name": {
       return {
         ...state,
-        lastName: action.payload,
+        lastName: action.payload.value,
       };
     }
 
     case "change_dob": {
       return {
         ...state,
-        dob: action.payload,
+        dob: action.payload.value,
       };
     }
 
     case "change_gender": {
       return {
         ...state,
-        gender: action.payload,
+        gender: action.payload.value,
       };
     }
 
     case "change_address": {
       return {
         ...state,
-        address: action.payload,
+        address: action.payload.value,
       };
     }
 
     case "change_email": {
       return {
         ...state,
-        email: action.payload,
+        email: action.payload.value,
       };
     }
 
     case "change_phoneNumber": {
       return {
         ...state,
-        phoneNumber: action.payload,
+        phoneNumber: action.payload.value,
       };
     }
 
     case "change_joinDate": {
       return {
         ...state,
-        joinDate: action.payload,
+        joinDate: action.payload.value,
       };
     }
   }
