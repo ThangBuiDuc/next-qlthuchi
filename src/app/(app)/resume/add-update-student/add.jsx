@@ -27,6 +27,13 @@ function reducer(state, action) {
       };
     }
 
+    case "change_classCode": {
+      return {
+        ...state,
+        classCode: action.payload,
+      };
+    }
+
     case "change_first_name": {
       return {
         ...state,
@@ -87,7 +94,7 @@ function reducer(state, action) {
 
 const Add = () => {
   const [infor, dispatchInfor] = useReducer(reducer, {
-    code: "",
+    code: "1",
     firtsName: "",
     lastName: "",
     gender: null,
@@ -113,9 +120,11 @@ const Add = () => {
           <div className="grid grid-cols-2 grid-rows-2 gap-[25px] mt-[20px]">
             <TextInput
               label={"Mã học sinh"}
+              disable={true}
               value={infor.code}
               dispatch={dispatchInfor}
               isRequire={true}
+              id={"add_code"}
               action={"change_code"}
             />
             <div className="flex w-full gap-[10px]">
@@ -125,6 +134,7 @@ const Add = () => {
                 dispatch={dispatchInfor}
                 action={"change_class"}
                 className={"w-[20%]"}
+                id={"add_class"}
                 type={"number"}
               />
 
@@ -132,7 +142,8 @@ const Add = () => {
                 label={"Mã lớp"}
                 value={infor.classCode}
                 dispatch={dispatchInfor}
-                action={"change_class"}
+                action={"change_classCode"}
+                id={"add_classCode"}
                 className={"w-[80%]"}
               />
             </div>
@@ -142,6 +153,7 @@ const Add = () => {
                 value={infor.firtsName}
                 dispatch={dispatchInfor}
                 action={"change_first_name"}
+                id={"add_first_name"}
                 className={"w-[70%]"}
               />
 
@@ -150,6 +162,7 @@ const Add = () => {
                 value={infor.lastName}
                 dispatch={dispatchInfor}
                 action={"change_last_name"}
+                id={"add_last_name"}
                 className={"w-[30%]"}
               />
             </div>
@@ -158,14 +171,14 @@ const Add = () => {
                 autoComplete="off"
                 popperClassName="!z-[11]"
                 className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300"
-                id="change_dob"
+                id="add_change_dob"
                 selected={infor.dob}
                 onChange={(date) =>
                   dispatchInfor({ type: "change_dob", payload: date })
                 }
               />
               <label
-                htmlFor={"change_dob"}
+                htmlFor={"add_change_dob"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
               >
                 Ngày sinh
@@ -193,6 +206,7 @@ const Add = () => {
               value={infor.address}
               dispatch={dispatchInfor}
               action={"change_address"}
+              id={"add_address"}
             />
 
             <TextInput
@@ -201,6 +215,7 @@ const Add = () => {
               value={infor.email}
               dispatch={dispatchInfor}
               action={"change_email"}
+              id="add_email"
             />
 
             <TextInput
@@ -208,6 +223,7 @@ const Add = () => {
               value={infor.phoneNumber}
               dispatch={dispatchInfor}
               action={"change_phoneNumber"}
+              id="add_phoneNumber"
             />
 
             <div className="relative w-full">
@@ -215,14 +231,14 @@ const Add = () => {
                 autoComplete="off"
                 popperClassName="!z-[11]"
                 className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300 focus:outline-none "
-                id="change_joinDate"
+                id="add_change_joinDate"
                 selected={infor.joinDate}
                 onChange={(date) =>
                   dispatchInfor({ type: "change_joinDate", payload: date })
                 }
               />
               <label
-                htmlFor={"change_joinDate"}
+                htmlFor={"add_change_joinDate"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2  left-1"
               >
                 Ngày nhập học

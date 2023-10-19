@@ -53,7 +53,7 @@ const NestedNav = ({ data, setRootData }) => {
             return (
               <Link
                 key={index}
-                className={` w-full h-[8vh] items-center flex pl-[15px]  ${
+                className={` w-full h-[8vh] items-center flex pl-[15px]  group ${
                   pathName === item.path
                     ? "bg-[#134a9abf] "
                     : "hover:bg-[#134a9abf]"
@@ -62,7 +62,9 @@ const NestedNav = ({ data, setRootData }) => {
               >
                 <p
                   className={`${
-                    pathName === item.path ? "text-white " : "hover:text-white"
+                    pathName === item.path
+                      ? "text-white "
+                      : "group-hover:text-white"
                   }`}
                 >
                   {item.title}
