@@ -1,11 +1,39 @@
 "use client";
-import React, { useState } from "react";
+import { useState, Fragment } from "react";
 import Add from "./add";
 import { GoPersonAdd } from "react-icons/go";
 import TextInput from "@/app/component/textInput";
+import UpdateDelete from "./updateDelete";
+
+const rawData = [
+  {
+    isEddit: false,
+    code: "123",
+    class: "1A1",
+    first_name: "Bùi Đức",
+    last_name: "Thắng",
+    parents: [
+      {
+        first_name: "",
+        last_name: "",
+        relation: "",
+        phoneNumber: "",
+      },
+    ],
+  },
+  {
+    isEddit: false,
+    code: "1234",
+    class: "1A1",
+    first_name: "Bùi Đức",
+    last_name: "Thắng",
+    parents: [],
+  },
+];
 
 const Content = () => {
   const [query, setQuery] = useState("");
+  const [data, setData] = useState(rawData);
   return (
     <div className="flex flex-col gap-[30px]">
       <button
@@ -28,6 +56,13 @@ const Content = () => {
           Tìm kiếm
         </button>
       </form>
+      <div className="flex flex-col p-[20px]">
+        {data.map((item) => (
+          <Fragment key={item.code}>
+            <UpdateDelete data={item} setData={setData} />
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 };
