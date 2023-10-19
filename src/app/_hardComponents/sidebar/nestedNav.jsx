@@ -2,17 +2,13 @@
 import { BiChevronDown } from "react-icons/bi";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSpring, animated } from "@react-spring/web";
 import { memo } from "react";
 import useMeasure from "react-use-measure";
+import { motion } from "framer-motion";
 
 const NestedNav = ({ data, setRootData }) => {
   const pathName = usePathname();
   const [ref, { height }] = useMeasure();
-  const style = useSpring({
-    height: data.isChecked ? height : 0,
-    config: { duration: 100 },
-  });
 
   return (
     <>
@@ -39,7 +35,11 @@ const NestedNav = ({ data, setRootData }) => {
           }`}
         />
       </button>
-      <animated.div style={style} className="overflow-hidden">
+      <motion.div
+        animate={{ height: data.isChecked ? height : 0 }}
+        initial={false}
+        className="overflow-hidden"
+      >
         <div
           ref={ref}
           className={`flex flex-col w-full ${
@@ -70,7 +70,7 @@ const NestedNav = ({ data, setRootData }) => {
             );
           })}
         </div>
-      </animated.div>
+      </motion.div>
     </>
   );
 };

@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
   const pathName = usePathname();
   const breadCrumbs = sideBarData.find((item) => pathName.includes(item.path));
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="flex">

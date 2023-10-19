@@ -1,9 +1,7 @@
 "use client";
 import { BiEdit, BiMessageAltAdd } from "react-icons/bi";
-import { MdDeleteForever } from "react-icons/md";
 import { AiOutlineLine } from "react-icons/ai";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import useMeasure from "react-use-measure";
 import TextInput from "@/app/component/textInput";
 import { useReducer } from "react";
@@ -135,7 +133,7 @@ function reducer(state, action) {
   }
 }
 
-const UpdateDelete = ({ data, setData }) => {
+const Update = ({ data, setData }) => {
   const [infor, dispatchInfor] = useReducer(reducer, {
     code: "1",
     firtsName: "",
@@ -157,9 +155,23 @@ const UpdateDelete = ({ data, setData }) => {
         key={data.code}
         className="flex border-t-2 border-bordercl  justify-between items-center pt-[5px]"
       >
-        <h3 className="w-[25%]">{data.class}</h3>
-        <h3 className="w-[25%]">{data.code}</h3>
-        <h3 className="w-[30%]">{`${data.first_name} ${data.last_name}`}</h3>
+        <div className="w-[25%]">
+          <h3 className=" tooltip" data-tip="Mã lớp">
+            {data.class}
+          </h3>
+        </div>
+        <div className="w-[25%]">
+          <h3 className=" tooltip" data-tip="Mã học sinh">
+            {data.code}
+          </h3>
+        </div>
+
+        <div className="w-[30%]">
+          <h3 className=" tooltip" data-tip="Họ và tên">
+            {`${data.first_name} ${data.last_name}`}
+          </h3>
+        </div>
+
         <div className="flex justify-end gap-[10px] w-[20%]">
           <BiEdit
             size={30}
@@ -174,7 +186,6 @@ const UpdateDelete = ({ data, setData }) => {
               )
             }
           />
-          <MdDeleteForever size={30} className="text-black cursor-pointer" />
         </div>
       </div>
       <motion.div
@@ -427,4 +438,4 @@ const UpdateDelete = ({ data, setData }) => {
   );
 };
 
-export default UpdateDelete;
+export default Update;

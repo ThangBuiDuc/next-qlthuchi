@@ -3,7 +3,7 @@ import { useState, Fragment } from "react";
 import Add from "./add";
 import { GoPersonAdd } from "react-icons/go";
 import TextInput from "@/app/component/textInput";
-import UpdateDelete from "./updateDelete";
+import Update from "./update";
 
 const rawData = [
   {
@@ -59,7 +59,7 @@ const Content = () => {
       <div className="flex flex-col p-[20px]">
         {data.map((item) => (
           <Fragment key={item.code}>
-            <UpdateDelete data={item} setData={setData} />
+            <Update data={item} setData={setData} />
           </Fragment>
         ))}
       </div>
