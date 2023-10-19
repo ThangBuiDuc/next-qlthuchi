@@ -21,10 +21,10 @@ export const sideBarData = [
       //         title: "Nhật ký người dùng",
       //         path: "",
       //       },
-      //       {
-      //         title: "Tạo người dùng",
-      //         path: "",
-      //       },
+      {
+        title: "Tạo người dùng",
+        path: "/system/create-user",
+      },
       //       {
       //         title: "Sửa thông tin người dùng",
       //         path: "",
