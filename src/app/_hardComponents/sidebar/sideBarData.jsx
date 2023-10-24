@@ -9,10 +9,13 @@ export const sideBarData = [
   // },
   {
     id: 1,
-    icon: <IoSettingsOutline />,
     title: "Hệ thống",
     path: "/system",
     subNav: [
+      {
+        title: "Thông tin đơn vị",
+        path: "/system/create-user",
+      },
       {
         title: "Thông tin đơn vị",
         path: "/system/unit-infomation",
@@ -41,6 +44,33 @@ export const sideBarData = [
   },
   {
     id: 2,
+    title: "Danh mục",
+    path: "/catalog",
+    subNav: [
+      {
+        title: "Cấp",
+        path: "/catalog/class",
+      },
+      {
+        title: "Đối tượng chính sách",
+        path: "/catalog/policy-object",
+      },
+      {
+        title: "Ưu đãi",
+        path: "/catalog/voucher",
+      },
+      {
+        title: "Quan hệ gia đình",
+        path: "/catalog/relationship",
+      },
+      {
+        title: "Tình trạng học tập",
+        path: "/catalog/study-status",
+      },
+    ],
+  },
+  {
+    id: 3,
     title: "Hồ sơ học sinh",
     path: "/resume",
     subNav: [
@@ -51,17 +81,6 @@ export const sideBarData = [
       {
         title: "Biến động học sinh",
         path: "/resume/dynamic-student",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Danh mục",
-    path: "/catalog",
-    subNav: [
-      {
-        title: "Cấp",
-        path: "/catalog/class",
       },
     ],
   },

@@ -252,7 +252,12 @@ const Update = ({ data, setData }) => {
                 id={`change_dob_${data.code}`}
                 selected={infor.dob}
                 onChange={(date) =>
-                  dispatchInfor({ type: "change_dob", payload: date })
+                  dispatchInfor({
+                    type: "change_dob",
+                    payload: {
+                      value: date,
+                    },
+                  })
                 }
               />
               <label
@@ -275,7 +280,12 @@ const Update = ({ data, setData }) => {
               options={gender}
               value={infor.gender}
               onChange={(e) => {
-                dispatchInfor({ type: "change_gender", payload: e });
+                dispatchInfor({
+                  type: "change_gender",
+                  payload: {
+                    value: e,
+                  },
+                });
               }}
             />
 
@@ -312,7 +322,12 @@ const Update = ({ data, setData }) => {
                 id={`change_joindate_${data.code}`}
                 selected={infor.joinDate}
                 onChange={(date) =>
-                  dispatchInfor({ type: "change_joinDate", payload: date })
+                  dispatchInfor({
+                    type: "change_joinDate",
+                    payload: {
+                      value: date,
+                    },
+                  })
                 }
               />
               <label

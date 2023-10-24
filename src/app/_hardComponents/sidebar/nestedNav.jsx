@@ -1,13 +1,11 @@
 "use client";
 import { BiChevronDown } from "react-icons/bi";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { memo } from "react";
 import useMeasure from "react-use-measure";
 import { motion } from "framer-motion";
 
-const NestedNav = ({ data, setRootData }) => {
-  const pathName = usePathname();
+const NestedNav = ({ data, setRootData, pathName }) => {
   const [ref, { height }] = useMeasure();
 
   return (

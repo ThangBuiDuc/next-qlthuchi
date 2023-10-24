@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
 
   return (
     <div className="flex">
-      <SideBar isOpen={isOpen} />
+      <SideBar isOpen={isOpen} pathName={pathName} />
       <div
         className={`flex flex-col w-[82%] h-screen transition-all duration-300 ${
           isOpen ? "ml-[18%]" : "!w-[100%]"

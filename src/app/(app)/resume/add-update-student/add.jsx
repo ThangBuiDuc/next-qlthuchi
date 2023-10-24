@@ -104,7 +104,7 @@ const Add = () => {
     classCode: "",
     dob: new Date(),
     address: "",
-    phoneNumber: ""
+    phoneNumber: "",
   });
 
   return (
@@ -174,7 +174,12 @@ const Add = () => {
                 id="add_change_dob"
                 selected={infor.dob}
                 onChange={(date) =>
-                  dispatchInfor({ type: "change_dob", payload: date })
+                  dispatchInfor({
+                    type: "change_dob",
+                    payload: {
+                      value: date,
+                    },
+                  })
                 }
               />
               <label
@@ -197,7 +202,12 @@ const Add = () => {
               options={gender}
               value={infor.gender}
               onChange={(e) => {
-                dispatchInfor({ type: "change_gender", payload: e });
+                dispatchInfor({
+                  type: "change_gender",
+                  payload: {
+                    value: e,
+                  },
+                });
               }}
             />
 
@@ -234,7 +244,12 @@ const Add = () => {
                 id="add_change_joinDate"
                 selected={infor.joinDate}
                 onChange={(date) =>
-                  dispatchInfor({ type: "change_joinDate", payload: date })
+                  dispatchInfor({
+                    type: "change_joinDate",
+                    payload: {
+                      value: date,
+                    },
+                  })
                 }
               />
               <label

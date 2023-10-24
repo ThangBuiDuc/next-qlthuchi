@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { sideBarData } from "./sideBarData";
 import NestedNav from "./nestedNav";
 import { useState } from "react";
 import Image from "next/image";
+import { memo } from "react";
 
-const SideBar = ({ isOpen }) => {
-  const pathName = usePathname();
+const SideBar = ({ isOpen, pathName }) => {
   const [rootData, setRootData] = useState(
     sideBarData.map((item) =>
       pathName.includes(item.path)
@@ -14,6 +13,7 @@ const SideBar = ({ isOpen }) => {
         : { ...item, isChecked: false }
     )
   );
+
   return (
     <div
       className={`w-[18%] border-r-[1px] h-screen flex flex-col fixed transition-all duration-300 ${
@@ -56,11 +56,16 @@ const SideBar = ({ isOpen }) => {
         }
 
         return (
-          <NestedNav key={item.id} data={item} setRootData={setRootData} />
+          <NestedNav
+            key={item.id}
+            data={item}
+            setRootData={setRootData}
+            pathName={pathName}
+          />
         );
       })}
     </div>
   );
 };
 
-export default SideBar;
+export default memo(SideBar);
