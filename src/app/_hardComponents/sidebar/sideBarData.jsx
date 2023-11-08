@@ -7,80 +7,80 @@ export const sideBarData = [
   //     path: "/home",
   //     subNav : null
   // },
-  {
-    id: 1,
-    title: "Hệ thống",
-    path: "/system",
-    subNav: [
-      {
-        title: "Thông tin đơn vị",
-        path: "/system/create-user",
-      },
-      {
-        title: "Thông tin đơn vị",
-        path: "/system/unit-infomation",
-      },
-      //       {
-      //         title: "Nhật ký người dùng",
-      //         path: "",
-      //       },
-      //       {
-      //         title: "Tạo người dùng",
-      //         path: "",
-      //       },
-      //       {
-      //         title: "Sửa thông tin người dùng",
-      //         path: "",
-      //       },
-      //       {
-      //         title: "Tạo nhóm người dùng",
-      //         path: "",
-      //       },
-      //       {
-      //         title: "Phân nhóm người dùng",
-      //         path: "",
-      //       },
-    ],
-  },
+  // {
+  //   id: 1,
+  //   title: "Hệ thống",
+  //   path: "system",
+  //   subNav: [
+  //     {
+  //       title: "Thông tin đơn vị",
+  //       path: "system/create-user",
+  //     },
+  //     {
+  //       title: "Thông tin đơn vị",
+  //       path: "system/unit-infomation",
+  //     },
+  //           {
+  //             title: "Nhật ký người dùng",
+  //             path: "",
+  //           },
+  //           {
+  //             title: "Tạo người dùng",
+  //             path: "",
+  //           },
+  //           {
+  //             title: "Sửa thông tin người dùng",
+  //             path: "",
+  //           },
+  //           {
+  //             title: "Tạo nhóm người dùng",
+  //             path: "",
+  //           },
+  //           {
+  //             title: "Phân nhóm người dùng",
+  //             path: "",
+  //           },
+  //   ],
+  // },
   {
     id: 2,
     title: "Danh mục",
-    path: "/catalog",
+    path: "catalog",
     subNav: [
-      {
-        title: "Cấp",
-        path: "/catalog/class",
-      },
+      // {
+      //   title: "Khối",
+      //   path: "catalog/class",
+      // },
       {
         title: "Đối tượng chính sách",
-        path: "/catalog/policy-object",
+        path: "catalog/policy-object",
       },
       {
         title: "Ưu đãi",
-        path: "/catalog/voucher",
+        path: "catalog/voucher",
       },
       {
         title: "Quan hệ gia đình",
-        path: "/catalog/relationship",
+        path: "catalog/relationship",
       },
       {
         title: "Tình trạng học tập",
-        path: "/catalog/study-status",
+        path: "catalog/study-status",
       },
     ],
   },
   {
     id: 3,
     title: "Hồ sơ học sinh",
-    path: "/resume",
+    path: "resume",
     subNav: [
       {
         title: "Thêm mới/ Cập nhật",
-        path: "/resume/add-update-student",
+        path: "resume/add-update-student",
       },
       {
         title: "Biến động học sinh",
-        path: "/resume/dynamic-student",
+        path: "resume/dynamic-student",
       },
     ],
   },

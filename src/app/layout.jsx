@@ -1,5 +1,7 @@
 import "./globals.css";
 import localFont from "next/font/local";
+import { ClerkProvider } from "@clerk/nextjs";
+import { viVN } from "@clerk/localizations";
 
 const montserrat = localFont({
   src: [
@@ -24,8 +26,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi">
-      <body className={montserrat.className}>{children}</body>
-    </html>
+    <ClerkProvider localization={viVN}>
+      <html lang="vi">
+        <body className={`${montserrat.className} bg-white`}>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

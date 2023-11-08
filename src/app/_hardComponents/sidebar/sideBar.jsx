@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { memo } from "react";
 
-const SideBar = ({ isOpen, pathName }) => {
+const SideBar = ({ isOpen, pathName, code }) => {
   const [rootData, setRootData] = useState(
     sideBarData.map((item) =>
       pathName.includes(item.path)
@@ -22,7 +22,7 @@ const SideBar = ({ isOpen, pathName }) => {
     >
       {/* <div className=" "> */}
       <Link
-        href="/home"
+        href={`/app/${code}`}
         className="flex items-center justify-center h-[10vh] gap-[10px]"
       >
         {/* <div className="flex "> */}
@@ -48,7 +48,7 @@ const SideBar = ({ isOpen, pathName }) => {
               className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
                 pathName === item.path ? "bg-[#46546C]" : "hover:bg-[#46546C]"
               }`}
-              href={item.path}
+              href={`/app/${code}/${item.path}`}
             >
               <p>{item.title}</p>
             </Link>
@@ -61,6 +61,7 @@ const SideBar = ({ isOpen, pathName }) => {
             data={item}
             setRootData={setRootData}
             pathName={pathName}
+            code={code}
           />
         );
       })}

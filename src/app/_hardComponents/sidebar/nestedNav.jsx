@@ -2,12 +2,9 @@
 import { BiChevronDown } from "react-icons/bi";
 import Link from "next/link";
 import { memo } from "react";
-import useMeasure from "react-use-measure";
 import { motion } from "framer-motion";
 
-const NestedNav = ({ data, setRootData, pathName }) => {
-  const [ref, { height }] = useMeasure();
-
+const NestedNav = ({ data, setRootData, pathName, code }) => {
   return (
     <>
       <button
@@ -37,12 +34,11 @@ const NestedNav = ({ data, setRootData, pathName }) => {
         />
       </button>
       <motion.div
-        animate={{ height: data.isChecked ? height : 0 }}
+        animate={{ height: data.isChecked ? "fit-content" : 0 }}
         initial={false}
         className="overflow-hidden"
       >
         <div
-          ref={ref}
           className={`flex flex-col w-full ${
             data.isChecked ? "bg-[#ECECEC]" : ""
           }`}
@@ -56,7 +52,7 @@ const NestedNav = ({ data, setRootData, pathName }) => {
                     ? "bg-[#134a9abf] "
                     : "hover:bg-[#134a9abf]"
                 }`}
-                href={item.path}
+                href={`/app/${code}/${item.path}`}
               >
                 <p
                   className={`${
