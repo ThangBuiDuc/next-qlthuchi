@@ -33,6 +33,48 @@ export const getCatalogStudent = async (token, code) => {
   return res;
 };
 
+//Lay danh sách tỉnh thành phố
+export const getProvinces = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PROVINCES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lay danh sách quận huyện
+export const getDistricts = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISTRICTS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lay danh sách phường xã
+export const getWards = async (token,id) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_HASURA_GET_WARDS}${id}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+}
+
 //UPDATE---------------------------------------------------------------------
 
 //INSERT---------------------------------------------------------------------

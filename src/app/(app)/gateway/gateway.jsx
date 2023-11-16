@@ -20,7 +20,7 @@ const GateWay = ({ listSchoolData }) => {
           </Link>
         ))}
       <Link
-        href={`/app/23646`}
+        href={`/system`}
         className="cursor-pointer h-full flex flex-col p-2 bg-[#134a9abf] shadow-md border border-bordercl rounded justify-center items-center gap-2"
       >
         <AiOutlineSetting size={80} className="text-white" />
