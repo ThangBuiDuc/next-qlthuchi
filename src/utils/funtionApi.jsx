@@ -62,7 +62,7 @@ export const getDistricts = async (token) => {
 };
 
 //Lay danh sách phường xã
-export const getWards = async (token,id) => {
+export const getWards = async (token, id) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_HASURA_GET_WARDS}${id}`,
     method: "get",
@@ -73,7 +73,7 @@ export const getWards = async (token,id) => {
   });
 
   return res;
-}
+};
 
 //UPDATE---------------------------------------------------------------------
 
@@ -93,3 +93,25 @@ export const createStudent = async (token, data) => {
 
   return res;
 };
+
+// Tạo clerk user
+export const createClerkUser = async (first_name,last_name,email) => {
+  const res = await axios({
+    url: process.env.NEXT_CLERK_CREATE_USER,
+    method: "post",
+    data: {
+      "first_name": first_name,
+      "last_name": last_name,
+      "email-address": email,
+      "password" : "Abc@123654"
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+    },
+  });
+
+  return res;
+};
+
+

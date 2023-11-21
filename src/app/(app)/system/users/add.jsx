@@ -16,13 +16,13 @@ function reducer(state, action) {
     case "change_first_name": {
       return {
         ...state,
-        code: action.payload.value,
+        firtsName: action.payload.value,
       };
     }
     case "change_last_name": {
       return {
         ...state,
-        code: action.payload.value,
+        lastName: action.payload.value,
       };
     }
     case "change_dob": {
@@ -37,6 +37,12 @@ function reducer(state, action) {
         address: action.payload.value,
       };
     }
+    case "change_phoneNumber": {
+      return {
+        ...state,
+        phoneNumber: action.payload.value,
+      };
+    }
   }
 }
 
@@ -45,6 +51,7 @@ const Add = ({ provinces, districts, jwt }) => {
     firtsName: "",
     lastName: "",
     address: "",
+    phoneNumber: "",
     province: null,
     district: null,
     ward: null,
@@ -103,28 +110,38 @@ const Add = ({ provinces, districts, jwt }) => {
                 className={"w-[30%]"}
               />
             </div>
-            <div className="relative w-full">
-              <DatePicker
-                autoComplete="off"
-                popperClassName="!z-[11]"
-                className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300"
-                id="add_change_dob"
-                selected={infor.dob}
-                onChange={(date) =>
-                  dispatchInfor({
-                    type: "change_dob",
-                    payload: {
-                      value: date,
-                    },
-                  })
-                }
-              />
-              <label
-                htmlFor={"add_change_dob"}
-                className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-              >
-                Ngày sinh
-              </label>
+            <div className="flex w-full gap-[10px]">
+              <div className="relative w-full">
+                <DatePicker
+                  autoComplete="off"
+                  popperClassName="!z-[11]"
+                  className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300"
+                  id="add_change_dob"
+                  selected={infor.dob}
+                  onChange={(date) =>
+                    dispatchInfor({
+                      type: "change_dob",
+                      payload: {
+                        value: date,
+                      },
+                    })
+                  }
+                />
+                <label
+                  htmlFor={"add_change_dob"}
+                  className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                >
+                  Ngày sinh
+                </label>
+              </div>
+              <TextInput
+                  label={"Số điện thoại"}
+                  value={infor.phoneNumber}
+                  dispatch={dispatchInfor}
+                  action={"change_phoneNumber"}
+                  id={"add_phoneNumber"}
+                  className={"w-[70%]"}
+                />
             </div>
             <TextInput
               label={"Địa chỉ"}
@@ -194,7 +211,10 @@ const Add = ({ provinces, districts, jwt }) => {
             />
           </div>
 
-          <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
+          <button 
+            className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
+            // onClick={handleInsert()}
+          >
             Thêm mới
           </button>
         </form>
