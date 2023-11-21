@@ -4,7 +4,7 @@ import Link from "next/link";
 import { memo } from "react";
 import { motion } from "framer-motion";
 
-const NestedNav = ({ data, setRootData, pathName, code }) => {
+const NestedNav = ({ data, setRootData, pathName }) => {
   return (
     <>
       <button
@@ -52,7 +52,7 @@ const NestedNav = ({ data, setRootData, pathName, code }) => {
                     ? "bg-[#134a9abf] "
                     : "hover:bg-[#134a9abf]"
                 }`}
-                href={`/app/${code}/${item.path}`}
+                href={`${item.path}`}
               >
                 <p
                   className={`${
