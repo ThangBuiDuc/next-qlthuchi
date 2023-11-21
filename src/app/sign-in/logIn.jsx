@@ -33,7 +33,8 @@ const LogIn = () => {
             setActive({
               session: result.createdSessionId,
               beforeEmit: () => {
-                if (searchParams.get("redirect_url")) router.push("/gateway");
+                if (searchParams.get("redirect_url"))
+                  router.push(searchParams.get("redirect_url"));
                 else router.push("/");
               },
             });
@@ -102,7 +103,9 @@ const LogIn = () => {
         </div>
         <div>
           {!isLoaded ? (
-            <span className="loading loading-spinner loading-sm bg-primary"></span>
+            <button>
+              <span className="loading loading-spinner loading-sm bg-primary"></span>
+            </button>
           ) : (
             <button className="btn btn-primary text-white">Đăng nhập</button>
           )}

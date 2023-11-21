@@ -33,3 +33,4 @@ const GateWay = ({ listSchoolData }) => {
 };
 
 export default GateWay;
+

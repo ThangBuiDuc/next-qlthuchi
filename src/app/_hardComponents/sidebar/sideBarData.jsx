@@ -45,7 +45,7 @@ export const sideBarData = [
   {
     id: 2,
     title: "Danh mục",
-    path: "catalog",
+    path: "/catalog",
     subNav: [
       // {
       //   title: "Khối",
@@ -53,35 +53,41 @@ export const sideBarData = [
       // },
       {
         title: "Đối tượng chính sách",
-        path: "catalog/policy-object",
+        path: "/catalog/policy-object",
       },
       {
         title: "Ưu đãi",
-        path: "catalog/voucher",
+        path: "/catalog/voucher",
       },
       {
         title: "Quan hệ gia đình",
-        path: "catalog/relationship",
+        path: "/catalog/relationship",
       },
       {
         title: "Tình trạng học tập",
-        path: "catalog/study-status",
+        path: "/catalog/study-status",
       },
     ],
   },
   {
     id: 3,
     title: "Hồ sơ học sinh",
-    path: "resume",
+    path: "/resume",
     subNav: [
       {
         title: "Thêm mới/ Cập nhật",
-        path: "resume/add-update-student",
+        path: "/resume/add-update-student",
       },
       {
         title: "Biến động học sinh",
-        path: "resume/dynamic-student",
+        path: "/resume/dynamic-student",
       },
     ],
+  },
+  {
+    id: 4,
+    title: "Định mức thu",
+    path: "/norm",
+    subNav: [{ title: "Lập định mức thu", path: "/norm/create" }],
   },
 ];
