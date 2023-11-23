@@ -147,27 +147,6 @@ export const getStudent = async (token, where) => {
   return res;
 };
 
-// Tạo clerk user
-export const createClerkUser = async (first_name,last_name,email) => {
-  const res = await axios({
-    url: process.env.NEXT_CLERK_CREATE_USER,
-    method: "post",
-    data: {
-      "first_name": first_name,
-      "last_name": last_name,
-      "email-address": email,
-      "password" : "Abc@123654"
-    },
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-    },
-  });
-
-  return res;
-};
-
-
 
 //Lấy thông tin danh mục cấp, khối, lớp phục vụ tìm kiếm học sinh
 export const getListSearch = async () => {

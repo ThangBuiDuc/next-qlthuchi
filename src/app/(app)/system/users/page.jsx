@@ -11,9 +11,6 @@ const Page = async () => {
 
   const apiGetDistricts = await getDistricts(jwt);
 
-  let first_name = "ngoc"
-  let last_name = "dao"
-  let email = "phong@hpu.edu.vn"
 
 
   if (apiGetProvinces.status !== 200 || apiGetDistricts.status !== 200)

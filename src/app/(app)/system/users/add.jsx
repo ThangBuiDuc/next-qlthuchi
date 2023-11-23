@@ -1,5 +1,5 @@
 "use client";
-import TextInput from "@/app/component/textInput";
+import TextInput from "@/app/_component/textInput";
 import { useReducer, useState, useEffect } from "react";
 
 import DatePicker from "react-datepicker";

@@ -43,6 +43,17 @@ export const sideBarData = [
   //   ],
   // },
   {
+    id : 1,
+    title: "Hệ thống",
+    path: "/system",
+    subNav: [
+      {
+        title: "Users",
+        path: "/system/users",
+      }
+    ]
+  },
+  {
     id: 2,
     title: "Danh mục",
     path: "/catalog",
