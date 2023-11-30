@@ -1,5 +1,5 @@
 "use client";
-import { useState, Fragment, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Add from "./add";
 import { GoPersonAdd } from "react-icons/go";
 import TextInput from "@/app/_component/textInput";
@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getCountStudent } from "@/utils/funtionApi";
 import Select from "react-select";
 import { useAuth } from "@clerk/nextjs";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Content = (props) => {
@@ -73,7 +72,6 @@ const Content = (props) => {
 
   return (
     <>
-      <ToastContainer />
       <div className="flex flex-col gap-[30px]">
         {countStudent.isFetching && countStudent.isLoading ? (
           <div>loading...</div>
