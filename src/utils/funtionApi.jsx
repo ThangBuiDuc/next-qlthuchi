@@ -2,6 +2,20 @@ import axios from "axios";
 
 //GET---------------------------------------------------------------------
 
+//Lấy role
+export const getRole = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //Lấy thông tin năm học và kỳ học
 export const getSchoolYear = async (where) => {
   const res = await axios({
@@ -165,6 +179,9 @@ export const getListSearch = async () => {
 
 //INSERT---------------------------------------------------------------------
 
+
+
+
 // Tạo mới học sinh
 export const createStudent = async (token, objects) => {
   return await axios({
@@ -177,3 +194,20 @@ export const createStudent = async (token, objects) => {
     },
   });
 };
+
+
+// Tạo mới người dùng
+export const createUser = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
+    method: "post",
+    data: {objects},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
+
