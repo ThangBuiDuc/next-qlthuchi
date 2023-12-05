@@ -60,9 +60,9 @@ export const getListRevenue = async () => {
 };
 
 //Lấy thông tin các đơn vị tính
-export const getCaculationUnit = async () => {
+export const getCalculationUnit = async () => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_CACULATION_UNIT,
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CALCULATION_UNIT,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -210,4 +210,56 @@ export const createUser = async (token, objects) => {
 };
 
 
+export const createRevenueNorm = async (token, objects, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
+    method: "post",
+    data: { objects, log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
 
+
+
+//-------------------------------THIRD PARTY------------------------------
+//GET---------------------------------------
+
+//Lấy meilisearch token
+export const meilisearchGetToken = async () => {
+  const res = await axios({
+    url: "/api/meilisearch",
+    method: "get",
+  });
+
+  return res.data.key;
+};
+
+//Tìm kiếm học sinh qua Meilisearch
+export const meilisearchSearch = async (data, token, pageParam) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/search`,
+    method: "post",
+    data: {
+      q: data.query,
+      hitsPerPage: 15,
+      page: pageParam,
+      filter: `year_active=true AND status_id = 1 ${
+        data.school ? `AND school_level_id= ${data.school.value}` : ""
+      } ${data.class_level ? `AND class_id= ${data.class_level.value}` : ""} ${
+        data.class ? `AND class_name= ${data.class.label}` : ""
+      }`,
+      attributesToHighlight: ["code", "first_name", "last_name", "class_name"],
+      highlightPreTag: '<span class="highlight">',
+      highlightPostTag: "</span>",
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};

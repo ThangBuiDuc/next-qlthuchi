@@ -1,6 +1,6 @@
 import Content from "./content";
 import {
-  getCaculationUnit,
+  getCalculationUnit,
   getListRevenue,
   getListSearch,
   getSchoolYear,
@@ -13,13 +13,13 @@ const Page = async () => {
 
   const apiListRevenue = await getListRevenue();
 
-  const apiCaculationUnit = await getCaculationUnit();
+  const apiCalculationUnit = await getCalculationUnit();
 
   if (
     apiListSearch.status !== 200 ||
     present.status !== 200 ||
     apiListRevenue.status !== 200 ||
-    apiCaculationUnit.status !== 200
+    apiCalculationUnit.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -28,7 +28,7 @@ const Page = async () => {
       listSearch={apiListSearch.data}
       present={present.data}
       listRevenue={apiListRevenue.data}
-      caculationUnit={apiCaculationUnit.data}
+      calculationUnit={apiCalculationUnit.data}
     />
   );
 };
