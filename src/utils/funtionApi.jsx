@@ -175,6 +175,22 @@ export const getListSearch = async () => {
   return res;
 };
 
+
+
+//Lấy danh sách người dùng
+export const getUsers = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_USERS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //INSERT---------------------------------------------------------------------

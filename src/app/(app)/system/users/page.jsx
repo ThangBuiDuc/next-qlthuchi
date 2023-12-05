@@ -1,5 +1,5 @@
 import Content from "./content";
-import { getProvinces, getDistricts, getRole } from "@/utils/funtionApi";
+import { getProvinces, getDistricts, getRole, getUsers } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
@@ -30,14 +30,22 @@ const Page = async () => {
 
   const apiGetDistricts = await getDistricts(jwt);
 
+  const apiGetUsers = await getUsers(jwt);
 
-  if (apiGetProvinces.status !== 200 || apiGetDistricts.status !== 200)
+  // console.log(apiGetUsers.data)
+
+  if (
+      apiGetProvinces.status !== 200 
+      || apiGetDistricts.status !== 200 
+      || apiGetUsers.status !== 200
+    )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
       provinces={apiGetProvinces.data}
       districts={apiGetDistricts.data}
+      usersData={apiGetUsers.data}
       jwt={jwt}
     />
   );
