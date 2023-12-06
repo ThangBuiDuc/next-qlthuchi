@@ -118,7 +118,35 @@ export const getListSearch = async () => {
   return res;
 };
 
+//Lấy thông tin định mức thu
+export const getRevenueNorms = async (token, where) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_NORMS,
+    method: "post",
+    data: { where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
+
+//Cập nhật định mức thu
+export const updateRevenueNorm = async (token, updates, objects, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_DELETE_REVENUE_NORM,
+    method: "patch",
+    data: { updates: updates, objects: objects, log: log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
 
 //INSERT---------------------------------------------------------------------
 
@@ -135,11 +163,27 @@ export const createStudent = async (token, objects) => {
   });
 };
 
+//Tạo mới định mức thu
 export const createRevenueNorm = async (token, objects, log) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
-    method: "post",
+    method: "put",
     data: { objects, log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//DELETE---------------------------------------------------------------------
+
+//Huỷ định mức thu
+export const deleteRevenueNorm = async (token, _set, where, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_DELETE_REVENUE_NORM,
+    method: "delete",
+    data: { _set: _set, where: where, log: log },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,

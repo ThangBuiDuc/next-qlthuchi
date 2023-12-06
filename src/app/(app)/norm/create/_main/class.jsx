@@ -11,6 +11,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 const Item = ({ norm, setNorm }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
@@ -219,7 +220,7 @@ const Class = () => {
     mutationFn: ({ token, objects, log }) =>
       createRevenueNorm(token, objects, log),
     onSuccess: () => {
-      toast.success("Tạo mới định mức thu cho cấp học thành công!", {
+      toast.success("Tạo mới định mức thu cho lớp học thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -238,7 +239,7 @@ const Class = () => {
       setMutating(false);
     },
     onError: () => {
-      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+      toast.error("Tạo mới định mức thu cho lớp học không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -251,6 +252,7 @@ const Class = () => {
 
   const handleOnclick = useCallback(async () => {
     setMutating(true);
+    let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
       batch_id: selectPresent.value,
@@ -259,7 +261,7 @@ const Class = () => {
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
-      start_at: moment().format(),
+      start_at: time,
     };
 
     let log = {
@@ -274,7 +276,7 @@ const Class = () => {
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
-        start_at: moment().format(),
+        start_at: time,
       },
     };
 
@@ -323,9 +325,23 @@ const Class = () => {
                 norm.price &&
                 norm.quantity &&
                 norm.total ? (
-                  <button className="btn w-fit" onClick={() => handleOnclick()}>
-                    Hoàn thành
-                  </button>
+                  <>
+                    <button
+                      className="btn w-fit"
+                      onClick={() => handleOnclick()}
+                    >
+                      Hoàn thành
+                    </button>
+                    <div
+                      className="tooltip flex items-center justify-center"
+                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                    >
+                      <IoIosInformationCircleOutline
+                        size={20}
+                        className="text-red-500"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <></>
                 )}

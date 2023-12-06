@@ -11,6 +11,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 const Item = ({ norm, setNorm }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
@@ -251,6 +252,7 @@ const School = () => {
 
   const handleOnclick = useCallback(async () => {
     setMutating(true);
+    let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
       batch_id: selectPresent.value,
@@ -259,7 +261,7 @@ const School = () => {
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
-      start_at: moment().format(),
+      start_at: time,
     };
 
     let log = {
@@ -274,7 +276,7 @@ const School = () => {
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
-        start_at: moment().format(),
+        start_at: time,
       },
     };
 
@@ -323,9 +325,23 @@ const School = () => {
                 norm.price &&
                 norm.quantity &&
                 norm.total ? (
-                  <button className="btn w-fit" onClick={() => handleOnclick()}>
-                    Hoàn thành
-                  </button>
+                  <>
+                    <button
+                      className="btn w-fit"
+                      onClick={() => handleOnclick()}
+                    >
+                      Hoàn thành
+                    </button>
+                    <div
+                      className="tooltip flex items-center justify-center"
+                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                    >
+                      <IoIosInformationCircleOutline
+                        size={20}
+                        className="text-red-500"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <></>
                 )}

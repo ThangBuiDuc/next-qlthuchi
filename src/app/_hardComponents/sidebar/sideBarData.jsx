@@ -88,6 +88,9 @@ export const sideBarData = [
     id: 4,
     title: "Định mức thu",
     path: "/norm",
-    subNav: [{ title: "Lập định mức thu", path: "/norm/create" }],
+    subNav: [
+      { title: "Lập định mức thu", path: "/norm/create" },
+      { title: "Quản lý định mức thu", path: "/norm/manage" },
+    ],
   },
 ];

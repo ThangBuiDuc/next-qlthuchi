@@ -7,14 +7,16 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { IoCreateOutline } from "react-icons/io5";
 import { listContext } from "../content";
 import CurrencyInput from "react-currency-input-field";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { createRevenueNorm } from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 import "moment/locale/vi";
-const Item = ({ norm, setNorm }) => {
+import { TbReload } from "react-icons/tb";
+const Item = ({ norm, setNorm, hit }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
   useEffect(() => {
@@ -23,6 +25,9 @@ const Item = ({ norm, setNorm }) => {
   return (
     <div className="flex flex-col gap-4 mt-3">
       {/* <div className="grid grid-cols-4 auto-rows-auto gap-2"> */}
+      <h3>
+        Lập định mức thu cho học sinh: {hit.first_name + " " + hit.last_name}
+      </h3>
       <Select
         noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
         placeholder="Nhóm khoản thu"
@@ -241,6 +246,7 @@ const HitItem = ({ hit, isRefetching }) => {
 
   const handleOnclick = useCallback(async () => {
     setMutating(true);
+    let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
       batch_id: selectPresent.value,
@@ -249,7 +255,7 @@ const HitItem = ({ hit, isRefetching }) => {
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
-      start_at: moment().format(),
+      start_at: time,
     };
 
     let log = {
@@ -264,7 +270,7 @@ const HitItem = ({ hit, isRefetching }) => {
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
-        start_at: moment().format(),
+        start_at: time,
       },
     };
 
@@ -285,24 +291,24 @@ const HitItem = ({ hit, isRefetching }) => {
   }, [norm]);
   return (
     <>
-      <div className="hover:bg-hovercl flex gap-3 border-b">
-        <p
-          className="w-[20%] self-center"
+      <tr className="hover">
+        <td
+          // className="w-[20%] self-center"
           dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
         />
-        <p
-          className="w-[40%] self-center"
+        <td
+          // className="w-[40%] self-center"
           dangerouslySetInnerHTML={{
             __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
           }}
         />
-        <p
-          className="w-[20%] self-center"
+        <td
+          // className="w-[20%] self-center"
           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
         />
-        <p className="self-center">
+        <td className="self-center">
           {isRefetching ? (
-            <span className="loading loading-spinner loading-xs self-center"></span>
+            <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <label
               htmlFor={`modal_${hit.code}`}
@@ -316,8 +322,8 @@ const HitItem = ({ hit, isRefetching }) => {
               </div>
             </label>
           )}
-        </p>
-      </div>
+        </td>
+      </tr>
       <input
         type="checkbox"
         id={`modal_${hit.code}`}
@@ -325,7 +331,7 @@ const HitItem = ({ hit, isRefetching }) => {
       />
       <div className="modal" role="dialog">
         <div
-          className="modal-box flex flex-col gap-3"
+          className="modal-box flex flex-col gap-3 !max-h-none"
           style={{ overflowY: "unset" }}
         >
           <label
@@ -334,7 +340,7 @@ const HitItem = ({ hit, isRefetching }) => {
           >
             ✕
           </label>
-          <Item norm={norm} setNorm={setNorm} />
+          <Item norm={norm} setNorm={setNorm} hit={hit} />
           <div className="flex justify-center gap-2">
             {mutating ? (
               <span className="loading loading-spinner loading-sm bg-primary"></span>
@@ -347,9 +353,23 @@ const HitItem = ({ hit, isRefetching }) => {
                 norm.price &&
                 norm.quantity &&
                 norm.total ? (
-                  <button className="btn w-fit" onClick={() => handleOnclick()}>
-                    Hoàn thành
-                  </button>
+                  <>
+                    <button
+                      className="btn w-fit"
+                      onClick={() => handleOnclick()}
+                    >
+                      Hoàn thành
+                    </button>
+                    <div
+                      className="tooltip flex items-center justify-center"
+                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                    >
+                      <IoIosInformationCircleOutline
+                        size={20}
+                        className="text-red-500"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <></>
                 )}
@@ -358,40 +378,6 @@ const HitItem = ({ hit, isRefetching }) => {
           </div>
         </div>
       </div>
-      {/* <dialog id={`modal_${hit.code}`} className="modal">
-        <div
-          className="modal-box gap-3 flex flex-col"
-          style={{ overflowY: "unset" }}
-        >
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <Item norm={norm} setNorm={setNorm} />
-          <div className="flex justify-center gap-2">
-            {mutating ? (
-              <span className="loading loading-spinner loading-sm bg-primary"></span>
-            ) : (
-              <>
-                {norm.gruop &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <button className="btn w-fit" onClick={() => handleOnclick()}>
-                    Hoàn thành
-                  </button>
-                ) : (
-                  <></>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </dialog> */}
     </>
   );
 };
@@ -428,57 +414,110 @@ const Search = ({ queryObject }) => {
   ) : status === "error" ? (
     <p className="self-center">Error: {error.message}</p>
   ) : (
-    <div className="flex flex-col gap-[10px] w-full">
-      {data.pages[0].hits.length === 0 ? (
-        <h5 className="text-center">Không tìm thấy kết quả</h5>
-      ) : (
-        <>
-          <div className="flex flex-col">
-            <div className="flex gap-3">
-              <p className="font-semibold w-[20%]">Mã học sinh</p>
-              <p className="font-semibold w-[40%]">Họ tên</p>
-              <p className="font-semibold w-[20%]">Lớp</p>
-            </div>
-            {data.pages.map((item, index) => {
-              return (
-                <Fragment key={index}>
-                  {item.hits.map((el) => (
-                    <Fragment key={el._ab_pk}>
-                      <HitItem hit={el} isRefetching={isRefetching} />
-                    </Fragment>
-                  ))}
-                </Fragment>
-              );
-            })}
-          </div>
+    // <div className="flex flex-col gap-[10px] w-full">
+    //   {data.pages[0].hits.length === 0 ? (
+    //     <h5 className="text-center">Không tìm thấy kết quả</h5>
+    //   ) : (
+    //     <>
+    //       <div className="flex flex-col">
+    //         <div className="flex gap-3">
+    //           <p className="font-semibold w-[20%]">Mã học sinh</p>
+    //           <p className="font-semibold w-[40%]">Họ tên</p>
+    //           <p className="font-semibold w-[20%]">Lớp</p>
+    //         </div>
+    //         {data.pages.map((item, index) => {
+    //           return (
+    //             <Fragment key={index}>
+    //               {item.hits.map((el) => (
+    //                 <Fragment key={el._ab_pk}>
+    //                   <HitItem hit={el} isRefetching={isRefetching} />
+    //                 </Fragment>
+    //               ))}
+    //             </Fragment>
+    //           );
+    //         })}
+    //       </div>
 
-          <div className="flex justify-center">
-            <button
-              className="btn"
-              onClick={() => fetchNextPage()}
-              disabled={!hasNextPage || isFetchingNextPage}
-            >
-              {isFetchingNextPage ? (
-                <span className="loading loading-spinner loading-lg"></span>
-              ) : hasNextPage ? (
-                "Xem thêm"
-              ) : (
-                "Đã hết kết quả tìm kiếm!"
-              )}
-            </button>
-          </div>
-        </>
-      )}
-      {/* <div className="flex justify-center">
-        {isFetching && !isFetchingNextPage ? (
-          <span className="loading loading-infinity loading-lg"></span>
-        ) : null}
-      </div> */}
-    </div>
+    //       <div className="flex justify-center">
+    //         <button
+    //           className="btn"
+    //           onClick={() => fetchNextPage()}
+    //           disabled={!hasNextPage || isFetchingNextPage}
+    //         >
+    //           {isFetchingNextPage ? (
+    //             <span className="loading loading-spinner loading-lg"></span>
+    //           ) : hasNextPage ? (
+    //             "Xem thêm"
+    //           ) : (
+    //             "Đã hết kết quả tìm kiếm!"
+    //           )}
+    //         </button>
+    //       </div>
+    //     </>
+    //   )}
+    //   {/* <div className="flex justify-center">
+    //     {isFetching && !isFetchingNextPage ? (
+    //       <span className="loading loading-infinity loading-lg"></span>
+    //     ) : null}
+    //   </div> */}
+    // </div>
+    <>
+      <div className="overflow-x-auto">
+        <table className="table">
+          {/* head */}
+          <thead>
+            <tr>
+              {/* <th></th> */}
+              <th>Mã học sinh</th>
+              <th>Họ tên</th>
+              <th>Lớp</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.pages[0].hits.length === 0 ? (
+              <tr>
+                <td colSpan={4} className=" text-center">
+                  Không tìm thấy kết quả
+                </td>
+              </tr>
+            ) : (
+              data.pages.map((item, index) => {
+                return (
+                  <Fragment key={index}>
+                    {item.hits.map((el) => (
+                      <Fragment key={el._ab_pk}>
+                        <HitItem hit={el} isRefetching={isRefetching} />
+                      </Fragment>
+                    ))}
+                  </Fragment>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex justify-center">
+        <button
+          className="btn"
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage ? (
+            <span className="loading loading-spinner loading-lg"></span>
+          ) : hasNextPage ? (
+            "Xem thêm"
+          ) : (
+            "Đã hết kết quả tìm kiếm!"
+          )}
+        </button>
+      </div>
+    </>
   );
 };
 
 const Student = () => {
+  const queryClient = useQueryClient();
   const { listSearch } = useContext(listContext);
   const [selected, setSelected] = useState({
     school: null,
@@ -600,6 +639,15 @@ const Student = () => {
           >
             Tìm kiếm
           </label>
+        </div>
+        <div
+          className="tooltip items-center flex cursor-pointer w-fit"
+          data-tip="Tải lại danh sách tìm kiếm"
+          onClick={() =>
+            queryClient.invalidateQueries({ queryKey: ["search", selected] })
+          }
+        >
+          <TbReload size={30} />
         </div>
 
         {/* <button className="btn w-fit">Tìm kiếm</button> */}
