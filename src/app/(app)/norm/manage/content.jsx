@@ -55,7 +55,7 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
           {selectPresent && (
             <>
               <div className="flex gap-1 items-center w-full">
-                <h5>Lập định mức thu theo: </h5>
+                <h5>Quản lý định mức thu theo: </h5>
                 <Select
                   noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
                   placeholder="Vui lòng chọn!"
@@ -63,12 +63,6 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
                   value={selected}
                   onChange={setSelected}
                   className="text-black w-[30%]"
-                  classNames={{
-                    control: () => "!rounded-[5px]",
-                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                    valueContainer: () => "!p-[0_8px]",
-                    menu: () => "!z-[11]",
-                  }}
                 />
               </div>
               <Main firstSelected={selected} />

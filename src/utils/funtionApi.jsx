@@ -210,6 +210,19 @@ export const getRolesList = async (token) => {
 
 //UPDATE---------------------------------------------------------------------
 
+//Cập nhật định mức thu
+export const updateRevenueNorm = async (token, updates, objects, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_DELETE_REVENUE_NORM,
+    method: "patch",
+    data: { updates: updates, objects: objects, log: log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 
@@ -243,11 +256,13 @@ export const createUser = async (token, objects) => {
 };
 
 
-export const createRevenueNorm = async (token, objects, log) => {
+
+// Tạo mới người dùng
+export const createUser = async (token, objects) => {
   return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
+    url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
     method: "post",
-    data: { objects, log },
+    data: {objects},
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -256,6 +271,33 @@ export const createRevenueNorm = async (token, objects, log) => {
 };
 
 
+//Tạo mới định mức thu
+export const createRevenueNorm = async (token, objects, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
+    method: "put",
+    data: { objects, log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//DELETE---------------------------------------------------------------------
+
+//Huỷ định mức thu
+export const deleteRevenueNorm = async (token, _set, where, log) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_DELETE_REVENUE_NORM,
+    method: "delete",
+    data: { _set: _set, where: where, log: log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
 
 //-------------------------------THIRD PARTY------------------------------
 //GET---------------------------------------
