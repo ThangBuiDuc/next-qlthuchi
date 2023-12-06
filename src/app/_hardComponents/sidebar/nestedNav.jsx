@@ -57,8 +57,8 @@ const NestedNav = ({ data, setRootData, pathName }) => {
                 <p
                   className={`${
                     pathName === item.path
-                      ? "text-white "
-                      : "group-hover:text-white"
+                      ? "text-white pl-[20px]"
+                      : "group-hover:text-white pl-[20px]"
                   }`}
                 >
                   {item.title}

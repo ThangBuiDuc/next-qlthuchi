@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { FcMenu } from "react-icons/fc";
 import { AnimatePresence, motion } from "framer-motion";
-import { UserButton } from "@clerk/clerk-react";
+
 
 import { useClerk } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
@@ -12,12 +12,12 @@ const SignOutButton = () => {
   const router = useRouter();
 
   return (
-    // Clicking on this button will sign out a user and reroute them to the "/" (home) page.
+    
     <button
       onClick={() =>
         signOut(() =>
           router.push(
-            "/sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fsystem%2Fusers"
+            "/sign-in"
           )
         )
       }

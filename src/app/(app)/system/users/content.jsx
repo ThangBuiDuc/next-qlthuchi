@@ -3,7 +3,6 @@ import { useState, Fragment } from "react";
 import { GoPersonAdd } from "react-icons/go";
 import TextInput from "@/app/_component/textInput";
 import Add from "./add";
-import update from "./update";
 import Update from "./update";
 
 // import { motion } from "framer-motion";
@@ -34,11 +33,34 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
           Tìm kiếm
         </button>
       </form>
-      {usersData ? (
+      {/* {usersData ? (
         usersData.result.map((item) => <Update key={item.id} data={item} />)
       ) : (
         <></>
-      )}
+      )} */}
+      <div className="overflow-x-auto">
+        <table className="table table-pin-rows">
+          <thead>
+            <tr>
+              <th>Mã</th>
+              <th>Tên</th>
+              <th>Giới tính</th>
+              <th>Ngày sinh</th>
+              <th>Địa chỉ</th>
+              <th>Email</th>
+              <th>Số điện thoại</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {usersData.result.map((item, index) => (
+              <Fragment key={item.id}>
+                <Update data={item} index={index} />
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

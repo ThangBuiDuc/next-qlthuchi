@@ -48,8 +48,12 @@ export const sideBarData = [
     path: "/system",
     subNav: [
       {
-        title: "Users",
+        title: "Người dùng",
         path: "/system/users",
+      },
+      {
+        title: "Phân quyền người dùng",
+        path: "/system/roles"
       }
     ]
   },

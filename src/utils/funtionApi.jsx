@@ -191,6 +191,23 @@ export const getUsers = async (token) => {
   return res;
 };
 
+
+
+//Lấy danh sách roles
+export const getRolesList = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+
 //UPDATE---------------------------------------------------------------------
 
 //INSERT---------------------------------------------------------------------
