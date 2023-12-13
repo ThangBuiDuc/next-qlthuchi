@@ -15,7 +15,7 @@ function reducer(state, action) {
     case "change_object": {
       return {
         ...state,
-        code: action.payload.value,
+        object: action.payload.value,
       };
     }
 

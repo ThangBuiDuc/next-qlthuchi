@@ -1,5 +1,4 @@
-import { IoSettingsOutline } from "react-icons/io5";
-import { BiFile } from "react-icons/bi";
+
 export const sideBarData = [
   // {
   //     id: 1,

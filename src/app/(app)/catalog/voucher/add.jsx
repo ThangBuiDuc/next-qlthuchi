@@ -15,7 +15,7 @@ function reducer(state, action) {
     case "change_object": {
       return {
         ...state,
-        code: action.payload.value,
+        object: action.payload.value,
       };
     }
 
@@ -56,7 +56,7 @@ const Add = () => {
   });
   return (
     <dialog id="modal_add" className="modal">
-      <div className="modal-box w-[50%] bg-white">
+      <div className="modal-box  bg-white">
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -94,7 +94,7 @@ const Add = () => {
             <DatePicker
               autoComplete="off"
               popperClassName="!z-[11]"
-              className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300 focus:outline-none "
+              className="px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300 focus:outline-none "
               id="change_startDate"
               selected={data.startDate}
               onChange={(date) =>
