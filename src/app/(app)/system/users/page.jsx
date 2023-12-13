@@ -7,14 +7,14 @@ const Page = async () => {
 
   const role = await getRole(
     await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ANONYMOUS,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     })
   );
 
   console.log(role.data.result[0]?.role_id);
 
   if (
-    role.data.result[0]?.role_id.toString() !== process.env.NEXT_PUBLIC_HASURA_ROLE_ACCOUNT_ADMIN
+    role.data.result[0]?.role_id.toString() !== process.env.NEXT_PUBLIC_HASURA_ROLE_SUPER_ADMIN
   ) {
     return (
       <div className="flex justify-center">
@@ -26,13 +26,15 @@ const Page = async () => {
   const jwt = await getToken({
     template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
   });
-  const apiGetProvinces = await getProvinces(jwt);
+  const apiGetProvinces = await getProvinces();
 
-  const apiGetDistricts = await getDistricts(jwt);
+  const apiGetDistricts = await getDistricts();
 
   const apiGetUsers = await getUsers(jwt);
 
   // console.log(apiGetUsers.data)
+
+  // console.log(jwt)
 
   if (
       apiGetProvinces.status !== 200 

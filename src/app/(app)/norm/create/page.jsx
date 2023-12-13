@@ -7,6 +7,9 @@ import {
 } from "@/utils/funtionApi";
 
 const Page = async () => {
+
+  
+
   const apiListSearch = await getListSearch();
 
   const present = await getSchoolYear({ is_active: { _eq: true } });
@@ -14,6 +17,8 @@ const Page = async () => {
   const apiListRevenue = await getListRevenue();
 
   const apiCalculationUnit = await getCalculationUnit();
+  
+  // console.log(process.env.NEXT_PUBLIC_HASURA_GET_CALCULATION_UNIT)
 
   if (
     apiListSearch.status !== 200 ||
@@ -31,6 +36,8 @@ const Page = async () => {
       calculationUnit={apiCalculationUnit.data}
     />
   );
+
+  // return <p>1</p>
 };
 
 export default Page;

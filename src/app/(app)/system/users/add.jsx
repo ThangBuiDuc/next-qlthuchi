@@ -119,7 +119,7 @@ const Add = ({ provinces, districts, jwt }) => {
 
   useEffect(() => {
     const callApi = async () => {
-      setWards((await getWards(jwt, district.value)).data);
+      setWards((await getWards(district.value)).data);
     };
     if (district) callApi();
   }, [district]);

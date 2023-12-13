@@ -1,7 +1,12 @@
 import axios from "axios";
 
-//GET---------------------------------------------------------------------
 
+
+
+// ##### Hệ Thống ######
+
+
+//GET---------------------------------------------------------------------
 //Lấy role
 export const getRole = async (token) => {
   const res = await axios({
@@ -15,6 +20,116 @@ export const getRole = async (token) => {
 
   return res;
 };
+
+
+//Lấy danh sách người dùng
+export const getUsers = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_USERS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+
+
+//Lấy danh sách roles
+export const getRolesList = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách người dùng + quyền
+export const getUserRole = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lay danh sách tỉnh thành phố
+export const getProvinces = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PROVINCES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lay danh sách quận huyện
+export const getDistricts = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISTRICTS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lay danh sách phường xã
+export const getWards = async (id) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_HASURA_GET_WARDS}${id}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+
+
+//INSERT-----------------------------------------------------
+
+
+// Tạo mới người dùng
+export const createUser = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
+    method: "post",
+    data: {objects},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
+
+//=====================================================================================================================================================
+
+
+
+//GET---------------------------------------------------------------------
 
 //Lấy thông tin năm học và kỳ học
 export const getSchoolYear = async (where) => {
@@ -102,48 +217,6 @@ export const getCatalogStudent = async (token, code) => {
   return res;
 };
 
-//Lay danh sách tỉnh thành phố
-export const getProvinces = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_PROVINCES,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
-//Lay danh sách quận huyện
-export const getDistricts = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_DISTRICTS,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
-//Lay danh sách phường xã
-export const getWards = async (token, id) => {
-  const res = await axios({
-    url: `${process.env.NEXT_PUBLIC_HASURA_GET_WARDS}${id}`,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
 //Lấy danh sách học sinh
 export const getStudent = async (token, where) => {
   const res = await axios({
@@ -161,7 +234,6 @@ export const getStudent = async (token, where) => {
   return res;
 };
 
-
 //Lấy thông tin danh mục cấp, khối, lớp phục vụ tìm kiếm học sinh
 export const getListSearch = async () => {
   const res = await axios({
@@ -175,13 +247,12 @@ export const getListSearch = async () => {
   return res;
 };
 
-
-
-//Lấy danh sách người dùng
-export const getUsers = async (token) => {
+//Lấy thông tin định mức thu
+export const getRevenueNorms = async (token, where) => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_USERS,
-    method: "get",
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_NORMS,
+    method: "post",
+    data: { where },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -190,23 +261,6 @@ export const getUsers = async (token) => {
 
   return res;
 };
-
-
-
-//Lấy danh sách roles
-export const getRolesList = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
 
 //UPDATE---------------------------------------------------------------------
 
@@ -225,9 +279,6 @@ export const updateRevenueNorm = async (token, updates, objects, log) => {
 
 //INSERT---------------------------------------------------------------------
 
-
-
-
 // Tạo mới học sinh
 export const createStudent = async (token, objects) => {
   return await axios({
@@ -240,36 +291,6 @@ export const createStudent = async (token, objects) => {
     },
   });
 };
-
-
-// Tạo mới người dùng
-export const createUser = async (token, objects) => {
-  return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
-    method: "post",
-    data: {objects},
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-};
-
-
-
-// Tạo mới người dùng
-export const createUser = async (token, objects) => {
-  return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
-    method: "post",
-    data: {objects},
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-};
-
 
 //Tạo mới định mức thu
 export const createRevenueNorm = async (token, objects, log) => {
