@@ -26,18 +26,17 @@ const options = [
   },
 ];
 
-const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
+const Content = ({ listSearch, present }) => {
   const [selected, setSelected] = useState();
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
   );
+
   return (
     <>
       {/* <ToastContainer /> */}
-      <listContext.Provider
-        value={{ listSearch, listRevenue, calculationUnit, selectPresent }}
-      >
+      <listContext.Provider value={{ listSearch, selectPresent }}>
         <div className="flex flex-col p-[20px] gap-[15px]">
           <div className="flex gap-1 items-center w-full justify-center">
             <h5>Học kỳ: </h5>
@@ -47,7 +46,7 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
           {selectPresent && (
             <>
               <div className="flex gap-1 items-center w-full">
-                <h6>Quản lý định mức thu theo: </h6>
+                <h6>Lập dự kiến thu theo: </h6>
                 <Select
                   noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
                   placeholder="Vui lòng chọn!"
@@ -55,6 +54,9 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
                   value={selected}
                   onChange={setSelected}
                   className="text-black w-[30%]"
+                  classNames={{
+                    menu: () => "!z-[11]",
+                  }}
                 />
               </div>
               <Main firstSelected={selected} />

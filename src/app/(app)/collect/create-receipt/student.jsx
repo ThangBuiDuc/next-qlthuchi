@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import Select from "react-select";
-import { useContext, Fragment, useState, useEffect, useRef } from "react";
+import { useContext, Fragment, useState, useEffect } from "react";
 import { meilisearchGetToken, meilisearchSearch } from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { listContext } from "../content";
+import { listContext } from "./content";
 import { useQueryClient } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 import "moment/locale/vi";
@@ -35,7 +35,7 @@ const HitItem = ({ hit, isRefetching }) => {
           ) : (
             <>
               <div className="tooltip" data-tip="Chi tiết">
-                <Link href={`manage/${hit.code}`}>
+                <Link href={`create-receipt/${hit.code}`}>
                   <CiCircleMore size={25} />
                 </Link>
               </div>

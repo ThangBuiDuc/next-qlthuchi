@@ -45,6 +45,19 @@ export const getListRevenue = async () => {
   return res;
 };
 
+//Lấy thông tin cần thiết phục vụ thu/chi
+export const getPreReceipt = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PRE_RECEIPT,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
 //Lấy thông tin các đơn vị tính
 export const getCalculationUnit = async () => {
   const res = await axios({
@@ -133,14 +146,42 @@ export const getRevenueNorms = async (token, where) => {
   return res;
 };
 
+//Lấy danh sách dự kiến thu
+export const getExpectedRevenue = async (token, where) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_EXPECTED_REVENUE,
+    method: "post",
+    data: { where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
 export const updateRevenueNorm = async (token, updates, objects, log) => {
   return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_DELETE_REVENUE_NORM,
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_REVENUE_NORM,
     method: "patch",
     data: { updates: updates, objects: objects, log: log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật dự kiến thu
+export const updateExpectedRevenue = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_EXPECTED_REVENUE,
+    method: "patch",
+    data: { updates: updates },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -168,12 +209,70 @@ export const createRevenueNorm = async (token, objects, log) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
     method: "put",
-    data: { objects, log },
+    data: { objects: objects, log: log.map((item) => ({ description: item })) },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
   });
+};
+
+//Tạo định mức thu BHYT
+export const createInsuranceRevenueNorm = async (data) => {
+  const res = await axios({
+    url: "/api/norm",
+    method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Tạo dự kiến thu router handler
+export const createExpectedRevenueRouter = async (data) => {
+  const res = await axios({
+    url: "/api/expected-revenue",
+    method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Tạo dự kiến thu
+export const createExpectedRevenue = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_EXPECTED_REVENUE,
+    method: "PUT",
+    data: {
+      objects: objects,
+      update_columns: ["prescribed_money", "start_at"],
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Tạo dự kiến thu
+export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
+  const res = await axios({
+    url: process.env
+      .NEXT_PUBLIC_HASURA_CREATE_EXPECTED_REVENUE_WITH_OUT_REVENUE,
+    method: "POST",
+    data: {
+      objects: objects,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
 };
 
 //DELETE---------------------------------------------------------------------
@@ -212,10 +311,10 @@ export const meilisearchSearch = async (data, token, pageParam) => {
     data: {
       q: data.query,
       hitsPerPage: 15,
-      page: pageParam,
+      page: pageParam ? pageParam : 1,
       filter: `year_active=true AND status_id = 1 ${
-        data.school ? `AND school_level_id= ${data.school.value}` : ""
-      } ${data.class_level ? `AND class_id= ${data.class_level.value}` : ""} ${
+        data.school ? `AND school_level_code= ${data.school.code}` : ""
+      } ${data.class_level ? `AND class_code= ${data.class_level.code}` : ""} ${
         data.class ? `AND class_name= ${data.class.label}` : ""
       }`,
       attributesToHighlight: ["code", "first_name", "last_name", "class_name"],
@@ -225,6 +324,20 @@ export const meilisearchSearch = async (data, token, pageParam) => {
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin học sinh qua Meilisearch
+export const meilisearchGet = async (student_code) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${process.env.MEILISEARCH_SECRET_KEY}`,
     },
   });
 

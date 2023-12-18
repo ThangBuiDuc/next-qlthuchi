@@ -36,8 +36,8 @@ const UpdateModal = ({ data, queryKey }) => {
       ).name,
     },
     amount: data.amount,
-    unit_price: parseInt(data.unit_price.replace(/[$,]+/g, "")),
-    total: parseInt(data.unit_price.replace(/[$,]+/g, "")) * data.amount,
+    unit_price: data.unit_price,
+    total: data.unit_price * data.amount,
   });
   const updateRef = useRef();
   const [updateDescription, setUpdateDescription] = useState("");
@@ -64,10 +64,10 @@ const UpdateModal = ({ data, queryKey }) => {
           },
         },
         {
-          batch_id: selectPresent.value,
+          batch_id: selectPresent.id,
           created_by: user.id,
           revenue_code: data.revenue_code,
-          school_level_id: data.school_level_id,
+          school_level_code: data.school_level_code,
           calculation_unit_id: norm.calculation_unit.value,
           unit_price: norm.unit_price,
           amount: norm.amount,
@@ -80,10 +80,10 @@ const UpdateModal = ({ data, queryKey }) => {
           description: updateDescription,
           oldData: {
             id: data.id,
-            batch_id: selectPresent.value,
+            batch_id: selectPresent.id,
             created_by: data.created_by,
             revenue_code: data.revenue_code,
-            school_level_id: data.school_level_id,
+            school_level_code: data.school_level_code,
             calculation_unit: data.calculation_unit.id,
             unit_price: data.unit_price,
             amount: data.amount,
@@ -92,7 +92,7 @@ const UpdateModal = ({ data, queryKey }) => {
           },
           newData: {
             created_by: user.id,
-            batch_id: selectPresent.value,
+            batch_id: selectPresent.id,
             revenue_code: data.revenue_code,
             school_level_id: data.school_level_id,
             calculation_unit: norm.calculation_unit.id,
@@ -149,14 +149,14 @@ const UpdateModal = ({ data, queryKey }) => {
           >
             ✕
           </label>
-          <h3 className="text-center">Sửa định mức thu: {data.revenue.name}</h3>
+          <h5 className="text-center">Sửa định mức thu: {data.revenue.name}</h5>
           <div className="grid grid-cols-3 auto-rows-auto gap-3">
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Nhóm khoản thu"
+              placeholder="Loại khoản thu"
               value={{
-                value: data.revenue.revenue_type.revenue_group.id,
-                label: data.revenue.revenue_type.revenue_group.name,
+                value: data.revenue.revenue_group.revenue_type.id,
+                label: data.revenue.revenue_group.revenue_type.name,
               }}
               isDisabled
               className="text-black text-sm"
@@ -169,11 +169,11 @@ const UpdateModal = ({ data, queryKey }) => {
             />
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Loại khoản thu"
+              placeholder="Nhóm khoản thu"
               isDisabled
               value={{
-                value: data.revenue.revenue_type.id,
-                label: data.revenue.revenue_type.name,
+                value: data.revenue.revenue_group.id,
+                label: data.revenue.revenue_group.name,
               }}
               className="text-black text-sm"
               classNames={{
@@ -316,6 +316,7 @@ const UpdateModal = ({ data, queryKey }) => {
 
 const DeleteModal = ({ data, queryKey }) => {
   const deleteRef = useRef();
+  const { selectPresent } = useContext(listContext);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -342,9 +343,9 @@ const DeleteModal = ({ data, queryKey }) => {
           type: "delete",
           data: {
             id: data.id,
-            batch_id: selectPresent.value,
+            batch_id: selectPresent.id,
             revenue_code: data.revenue_code,
-            school_level_id: data.school_level_id,
+            school_level_code: data.school_level_code,
             calculation_unit: data.calculation_unit.id,
             unit_price: data.unit_price,
             amount: data.amount,
@@ -399,7 +400,7 @@ const DeleteModal = ({ data, queryKey }) => {
           >
             ✕
           </label>
-          <h3 className="text-center">Xoá định mức thu: {data.revenue.name}</h3>
+          <h5 className="text-center">Xoá định mức thu: {data.revenue.name}</h5>
           <label className="form-control">
             <textarea
               className="textarea textarea-bordered h-24 resize-none"
@@ -428,7 +429,7 @@ const DeleteModal = ({ data, queryKey }) => {
 };
 
 const Item = ({ data, isRefetching, queryKey }) => {
-  const unit_price = parseInt(data.unit_price.replace(/[$,]+/g, ""));
+  console.log(data);
   return (
     <tr className="hover">
       <td>{data.revenue.code}</td>
@@ -436,7 +437,7 @@ const Item = ({ data, isRefetching, queryKey }) => {
         {data.revenue.name}
         <br />
         <span className="badge badge-ghost badge-sm">
-          {data.revenue.revenue_type.revenue_group.name}
+          {data.revenue.revenue_group.name}
         </span>
       </td>
       <td>
@@ -446,8 +447,8 @@ const Item = ({ data, isRefetching, queryKey }) => {
           {data.calculation_unit.name}
         </span>
       </td>
-      <td>{numberWithCommas(unit_price) + "đ"}</td>
-      <td>{numberWithCommas(unit_price * data.amount)}đ</td>
+      <td>{numberWithCommas(data.unit_price) + "đ"}</td>
+      <td>{numberWithCommas(data.unit_price * data.amount)}đ</td>
       <th>
         {isRefetching ? (
           <span className="loading loading-spinner loading-md"></span>
@@ -485,8 +486,8 @@ const Content = ({ queryKey, selectPresent }) => {
     batch_id: {
       _eq: selectPresent.id,
     },
-    school_level_id: {
-      _eq: queryKey.id,
+    school_level_code: {
+      _eq: queryKey.code,
     },
     is_deleted: {
       _eq: false,

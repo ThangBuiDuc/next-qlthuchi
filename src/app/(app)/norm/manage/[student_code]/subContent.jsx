@@ -1,28 +1,28 @@
 "use client";
+import Select from "react-select";
+import { useContext, useState, useRef } from "react";
 import { listContext } from "../content";
-import { useContext, useRef, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import CurrencyInput from "react-currency-input-field";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import {
   deleteRevenueNorm,
   getRevenueNorms,
   updateRevenueNorm,
 } from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { TbReload } from "react-icons/tb";
-import { useQueryClient } from "@tanstack/react-query";
+import "react-toastify/dist/ReactToastify.css";
+import moment from "moment";
 import { FaRegEdit } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
-import Select from "react-select";
-import moment from "moment";
-import "react-toastify/dist/ReactToastify.css";
-import { toast } from "react-toastify";
-import CurrencyInput from "react-currency-input-field";
+import "moment/locale/vi";
+import { TbReload } from "react-icons/tb";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-const UpdateModal = ({ data, queryKey }) => {
+const UpdateModal = ({ data, student_code }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -67,7 +67,7 @@ const UpdateModal = ({ data, queryKey }) => {
           batch_id: selectPresent.id,
           created_by: user.id,
           revenue_code: data.revenue_code,
-          class_code: data.class_code,
+          student_code: student_code,
           calculation_unit_id: norm.calculation_unit.value,
           unit_price: norm.unit_price,
           amount: norm.amount,
@@ -83,7 +83,7 @@ const UpdateModal = ({ data, queryKey }) => {
             batch_id: selectPresent.id,
             created_by: data.created_by,
             revenue_code: data.revenue_code,
-            class_code: data.class_code,
+            student_code: student_code,
             calculation_unit: data.calculation_unit.id,
             unit_price: data.unit_price,
             amount: data.amount,
@@ -94,7 +94,7 @@ const UpdateModal = ({ data, queryKey }) => {
             created_by: user.id,
             batch_id: selectPresent.id,
             revenue_code: data.revenue_code,
-            class_code: data.class_code,
+            student_code: student_code,
             calculation_unit: norm.calculation_unit.id,
             unit_price: norm.unit_price,
             amount: norm.amount,
@@ -108,7 +108,7 @@ const UpdateModal = ({ data, queryKey }) => {
       updateRef.current.checked = false;
       setMutating(false);
       queryClient.invalidateQueries({
-        queryKey: ["get_revenue_norms", queryKey],
+        queryKey: ["get_revenue_norms", student_code],
       });
       toast.success("Sửa định mức thu thành công!", {
         position: "top-center",
@@ -138,7 +138,7 @@ const UpdateModal = ({ data, queryKey }) => {
         id={`modal_update_${data.id}`}
         className="modal-toggle"
       />
-      <div className="modal" role="dialog">
+      <div className="modal" role="dialog" style={{ overflowY: "unset" }}>
         <div
           className="modal-box flex flex-col gap-3 !max-h-none !pt-10 !max-w-xl"
           style={{ overflowY: "unset" }}
@@ -153,7 +153,7 @@ const UpdateModal = ({ data, queryKey }) => {
           <div className="grid grid-cols-3 auto-rows-auto gap-3">
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Nhóm khoản thu"
+              placeholder="Loại khoản thu"
               value={{
                 value: data.revenue.revenue_group.revenue_type.id,
                 label: data.revenue.revenue_group.revenue_type.name,
@@ -169,7 +169,7 @@ const UpdateModal = ({ data, queryKey }) => {
             />
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Loại khoản thu"
+              placeholder="Nhóm khoản thu"
               isDisabled
               value={{
                 value: data.revenue.revenue_group.id,
@@ -314,12 +314,12 @@ const UpdateModal = ({ data, queryKey }) => {
   );
 };
 
-const DeleteModal = ({ data, queryKey }) => {
+const DeleteModal = ({ data, student_code }) => {
   const deleteRef = useRef();
+  const { selectPresent } = useContext(listContext);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { user } = useUser();
-  const { selectPresent } = useContext(listContext);
   const [deleteDescription, setDeleteDescription] = useState("");
 
   const [mutating, setMutating] = useState(false);
@@ -345,7 +345,7 @@ const DeleteModal = ({ data, queryKey }) => {
             id: data.id,
             batch_id: selectPresent.id,
             revenue_code: data.revenue_code,
-            class_id: data.class_id,
+            student_code: student_code,
             calculation_unit: data.calculation_unit.id,
             unit_price: data.unit_price,
             amount: data.amount,
@@ -360,7 +360,7 @@ const DeleteModal = ({ data, queryKey }) => {
       deleteRef.current.checked = false;
       setMutating(false);
       queryClient.invalidateQueries({
-        queryKey: ["get_revenue_norms", queryKey],
+        queryKey: ["get_revenue_norms", student_code],
       });
       toast.success("Xoá định mức thu thành công!", {
         position: "top-center",
@@ -428,7 +428,7 @@ const DeleteModal = ({ data, queryKey }) => {
   );
 };
 
-const Item = ({ data, isRefetching, queryKey }) => {
+const Item = ({ data, isRefetching, student_code }) => {
   return (
     <tr className="hover">
       <td>{data.revenue.code}</td>
@@ -470,23 +470,23 @@ const Item = ({ data, isRefetching, queryKey }) => {
         )}
       </th>
       {/* UPDATE MODAL */}
-      <UpdateModal data={data} queryKey={queryKey} />
+      <UpdateModal data={data} student_code={student_code} />
 
       {/* DELETE MODAL */}
-      <DeleteModal data={data} queryKey={queryKey} />
+      <DeleteModal data={data} student_code={student_code} />
     </tr>
   );
 };
 
-const Content = ({ queryKey, selectPresent }) => {
+const SubContent = ({ student, selectPresent }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const where = {
     batch_id: {
       _eq: selectPresent.id,
     },
-    class_code: {
-      _eq: queryKey.name,
+    student_code: {
+      _eq: student.code,
     },
     is_deleted: {
       _eq: false,
@@ -496,7 +496,7 @@ const Content = ({ queryKey, selectPresent }) => {
     },
   };
   const revenueNorms = useQuery({
-    queryKey: ["get_revenue_norms", queryKey],
+    queryKey: ["get_revenue_norms", student.code],
     queryFn: async () =>
       getRevenueNorms(
         await getToken({
@@ -508,7 +508,7 @@ const Content = ({ queryKey, selectPresent }) => {
 
   if (revenueNorms.isFetching && revenueNorms.isLoading) {
     return (
-      <div className="flex flex-col justify-center items-center">
+      <div className="w-full flex flex-col justify-center items-center">
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
@@ -519,83 +519,55 @@ const Content = ({ queryKey, selectPresent }) => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
-        {/* head */}
-        <thead>
-          <tr>
-            {/* <th></th> */}
-            <th>Mã khoản thu</th>
-            <th>Khoản thu</th>
-            <th>Số lượng</th>
-            <th>Đơn giá</th>
-            <th>Thành tiền</th>
-            <th>
-              <div
-                className="tooltip tooltip-left cursor-pointer"
-                data-tip="Tải lại"
-                onClick={() => {
-                  queryClient.invalidateQueries({
-                    queryKey: ["get_revenue_norms", queryKey],
-                  });
-                }}
-              >
-                <TbReload size={30} />
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {revenueNorms.data.data.result.length === 0 ? (
+    <div className="flex flex-col gap-4">
+      <div className=" w-full overflow-x-auto">
+        <table className="table">
+          {/* head */}
+          <thead>
             <tr>
-              <td colSpan={6} className="text-center">
-                Không có kết quả!
-              </td>
+              {/* <th></th> */}
+              <th>Mã khoản thu</th>
+              <th>Khoản thu</th>
+              <th>Số lượng</th>
+              <th>Đơn giá</th>
+              <th>Thành tiền</th>
+              <th>
+                <div
+                  className="tooltip tooltip-left cursor-pointer"
+                  data-tip="Tải lại"
+                  onClick={() => {
+                    queryClient.invalidateQueries({
+                      queryKey: ["get_revenue_norms", student.code],
+                    });
+                  }}
+                >
+                  <TbReload size={30} />
+                </div>
+              </th>
             </tr>
-          ) : (
-            revenueNorms.data.data.result.map((item) => (
-              <Item
-                key={item.id}
-                data={item}
-                isRefetching={revenueNorms.isRefetching}
-                queryKey={queryKey}
-              />
-            ))
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {revenueNorms.data.data.result.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center">
+                  Không có kết quả!
+                </td>
+              </tr>
+            ) : (
+              revenueNorms.data.data.result.map((item) => (
+                <Item
+                  key={item.id}
+                  data={item}
+                  isRefetching={revenueNorms.isRefetching}
+                  student_code={student.code}
+                />
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-const Class = () => {
-  const { listSearch, selectPresent } = useContext(listContext);
-  const [selected, setSelected] = useState();
-  return (
-    <>
-      <div className="flex gap-1 items-center w-full">
-        <h5>Lớp học: </h5>
-        <Select
-          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Vui lòng chọn!"
-          options={listSearch.classes
-            .sort((a, b) => a.code - b.code)
-            .map((item) => ({
-              ...item,
-              value: item.id,
-              label: item.name,
-            }))}
-          value={selected}
-          onChange={(e) => e.value !== selected?.value && setSelected(e)}
-          className="text-black w-[30%]"
-        />
-      </div>
-      <h5 className="text-center">Định mức thu</h5>
-      {selected && (
-        <Content queryKey={selected} selectPresent={selectPresent} />
-      )}
-    </>
-  );
-};
-
-export default Class;
+export default SubContent;

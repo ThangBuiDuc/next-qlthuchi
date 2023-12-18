@@ -19,28 +19,37 @@ import { TbReload } from "react-icons/tb";
 const Item = ({ norm, setNorm, hit }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
-  useEffect(() => {
-    if (norm.gruop) setNorm((pre) => ({ ...pre, type: null }));
-  }, [norm.gruop]);
   return (
-    <div className="flex flex-col gap-4 mt-3">
+    <div className="grid grid-cols-3 gap-4 p-4 auto-rows-auto">
       {/* <div className="grid grid-cols-4 auto-rows-auto gap-2"> */}
-      <h3>
-        Lập định mức thu cho học sinh: {hit.first_name + " " + hit.last_name}
-      </h3>
+      <div className="col-span-3 flex flex-col gap-2">
+        <h5 className="text-center">Lập định mức thu</h5>
+        <h6>Mã học sinh: {hit.code}</h6>
+        <h6>Học sinh: {hit.first_name + " " + hit.last_name}</h6>
+      </div>
+
       <Select
         noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-        placeholder="Nhóm khoản thu"
-        options={listRevenue.revenue_group
+        placeholder="Loại khoản thu"
+        options={listRevenue.revenue_types
           .sort((a, b) => a.id - b.id)
           .map((item) => ({
             value: item.id,
             label: item.name,
           }))}
-        value={norm.gruop}
+        value={norm.type}
         onChange={(e) => {
-          if (norm.gruop?.value !== e.value)
-            setNorm((pre) => ({ ...pre, gruop: e }));
+          if (norm.type?.value !== e.value)
+            setNorm((pre) => ({
+              ...pre,
+              type: e,
+              group: null,
+              revenue: null,
+              calculation_unit: null,
+              price: 100000,
+              quantity: 1,
+              total: 100000,
+            }));
         }}
         className="text-black text-sm"
         classNames={{
@@ -50,19 +59,34 @@ const Item = ({ norm, setNorm, hit }) => {
           menu: () => "!z-[11]",
         }}
       />
-      {norm.gruop && (
+      {norm.type && (
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Loại khoản thu"
-          options={listRevenue.revenue_group
-            .find((item) => item.id === norm.gruop.value)
-            .revenue_types.sort((a, b) => a.id - b.id)
+          placeholder="Nhóm khoản thu"
+          options={listRevenue.revenue_types
+            .find((item) => item.id === norm.type.value)
+            .revenue_groups.filter((item) =>
+              item.scope.some((el) => el === hit.school_level_code)
+            )
+            .filter((item) => item.revenues.length > 0)
+            .sort((a, b) => a.id - b.id)
             .map((item) => ({
               value: item.id,
               label: item.name,
             }))}
-          value={norm.type}
-          onChange={(e) => setNorm((pre) => ({ ...pre, type: e }))}
+          value={norm.group}
+          onChange={(e) => {
+            norm.group?.value !== e.value &&
+              setNorm((pre) => ({
+                ...pre,
+                group: e,
+                revenue: null,
+                calculation_unit: null,
+                price: 100000,
+                quantity: 1,
+                total: 100000,
+              }));
+          }}
           className="text-black text-sm"
           classNames={{
             control: () => "!rounded-[5px]",
@@ -72,20 +96,32 @@ const Item = ({ norm, setNorm, hit }) => {
           }}
         />
       )}
-      {norm.type && (
+      {norm.group && (
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
           placeholder="Khoản thu"
-          options={listRevenue.revenue_group
-            .find((item) => item.id === norm.gruop.value)
-            .revenue_types.find((item) => item.id === norm.type.value)
-            .revenues.map((item) => ({
-              ...item,
-              value: item.id,
-              label: item.name,
-            }))}
+          options={listRevenue.revenue_types
+            .find((item) => item.id === norm.type.value)
+            .revenue_groups.find((item) => item.id === norm.group.value)
+            .revenues.map((item) => {
+              return {
+                ...item,
+                value: item.id,
+                label: item.name,
+              };
+            })}
           value={norm.revenue}
-          onChange={(e) => setNorm((pre) => ({ ...pre, revenue: e }))}
+          onChange={(e) =>
+            norm.revenue?.value !== e.value &&
+            setNorm((pre) => ({
+              ...pre,
+              revenue: e,
+              calculation_unit: null,
+              price: 100000,
+              quantity: 1,
+              total: 100000,
+            }))
+          }
           className="text-black text-sm"
           classNames={{
             control: () => "!rounded-[5px]",
@@ -166,7 +202,7 @@ const Item = ({ norm, setNorm, hit }) => {
               Đơn giá
             </label>
           </div>
-          <div className={`w-full relative `}>
+          <div className={`w-full relative col-span-3`}>
             <CurrencyInput
               autoComplete="off"
               disabled
@@ -197,7 +233,7 @@ const Item = ({ norm, setNorm, hit }) => {
 const HitItem = ({ hit, isRefetching }) => {
   const { selectPresent } = useContext(listContext);
   const [norm, setNorm] = useState({
-    gruop: null,
+    group: null,
     type: null,
     revenue: null,
     calculation_unit: null,
@@ -211,7 +247,7 @@ const HitItem = ({ hit, isRefetching }) => {
 
   const mutation = useMutation({
     mutationFn: ({ token, objects, log }) =>
-      createRevenueNorm(token, objects, log),
+      createRevenueNorm(token, objects, [log]),
     onSuccess: () => {
       // document.getElementById(`modal_${hit.code}`).close();
       toast.success("Tạo mới định mức thu cho học sinh thành công!", {
@@ -222,7 +258,7 @@ const HitItem = ({ hit, isRefetching }) => {
         theme: "light",
       });
       setNorm({
-        gruop: null,
+        group: null,
         type: null,
         revenue: null,
         calculation_unit: null,
@@ -249,9 +285,10 @@ const HitItem = ({ hit, isRefetching }) => {
     let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
-      batch_id: selectPresent.value,
+      revenue_group_id: norm.group.value,
+      batch_id: selectPresent.id,
       calculation_unit_id: norm.calculation_unit.value,
-      student_id: hit.id,
+      student_code: hit.code,
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
@@ -264,9 +301,10 @@ const HitItem = ({ hit, isRefetching }) => {
       table: "revenue_norms",
       data: {
         revenue_code: norm.revenue.code,
-        batch_id: selectPresent.value,
+        revenue_group_id: norm.group.value,
+        batch_id: selectPresent.id,
         calculation_unit_id: norm.calculation_unit.value,
-        student_id: hit.id,
+        student_code: hit.code,
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
@@ -324,60 +362,64 @@ const HitItem = ({ hit, isRefetching }) => {
           )}
         </td>
       </tr>
-      <input
-        type="checkbox"
-        id={`modal_${hit.code}`}
-        className="modal-toggle"
-      />
-      <div className="modal" role="dialog">
-        <div
-          className="modal-box flex flex-col gap-3 !max-h-none"
-          style={{ overflowY: "unset" }}
-        >
-          <label
-            htmlFor={`modal_${hit.code}`}
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 cursor-pointer"
+
+      {/* MODAL */}
+      <>
+        <input
+          type="checkbox"
+          id={`modal_${hit.code}`}
+          className="modal-toggle"
+        />
+        <div className="modal" role="dialog">
+          <div
+            className="modal-box flex flex-col gap-3 !max-h-none !max-w-2xl"
+            style={{ overflowY: "unset" }}
           >
-            ✕
-          </label>
-          <Item norm={norm} setNorm={setNorm} hit={hit} />
-          <div className="flex justify-center gap-2">
-            {mutating ? (
-              <span className="loading loading-spinner loading-sm bg-primary"></span>
-            ) : (
-              <>
-                {norm.gruop &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <>
-                    <button
-                      className="btn w-fit"
-                      onClick={() => handleOnclick()}
-                    >
-                      Hoàn thành
-                    </button>
-                    <div
-                      className="tooltip flex items-center justify-center"
-                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
-                    >
-                      <IoIosInformationCircleOutline
-                        size={20}
-                        className="text-red-500"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <></>
-                )}
-              </>
-            )}
+            <label
+              htmlFor={`modal_${hit.code}`}
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 cursor-pointer"
+            >
+              ✕
+            </label>
+            <Item norm={norm} setNorm={setNorm} hit={hit} />
+            <div className="flex justify-center gap-2">
+              {mutating ? (
+                <span className="loading loading-spinner loading-sm bg-primary"></span>
+              ) : (
+                <>
+                  {norm.group &&
+                  norm.type &&
+                  norm.revenue &&
+                  norm.calculation_unit &&
+                  norm.price &&
+                  norm.quantity &&
+                  norm.total ? (
+                    <>
+                      <button
+                        className="btn w-fit"
+                        onClick={() => handleOnclick()}
+                      >
+                        Hoàn thành
+                      </button>
+                      <div
+                        className="tooltip flex items-center justify-center"
+                        data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                      >
+                        <IoIosInformationCircleOutline
+                          size={20}
+                          className="text-red-500"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </>
     </>
   );
 };
@@ -486,7 +528,7 @@ const Search = ({ queryObject }) => {
                 return (
                   <Fragment key={index}>
                     {item.hits.map((el) => (
-                      <Fragment key={el._ab_pk}>
+                      <Fragment key={el.code}>
                         <HitItem hit={el} isRefetching={isRefetching} />
                       </Fragment>
                     ))}
@@ -528,11 +570,12 @@ const Student = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h5>Tìm kiếm học sinh:</h5>
+      <h6>Tìm kiếm học sinh:</h6>
       <div className="grid grid-cols-3 auto-rows-auto gap-2">
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
           placeholder="Cấp học!"
+          isClearable
           classNames={{
             // control: () => "!rounded-[5px]",
             // input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
@@ -548,13 +591,20 @@ const Student = () => {
             }))}
           value={selected.school}
           onChange={(e) =>
-            e.value !== selected.school?.value &&
-            setSelected((pre) => ({
-              ...pre,
-              school: e,
-              class_level: null,
-              class: null,
-            }))
+            e
+              ? e.value !== selected.school?.value &&
+                setSelected((pre) => ({
+                  ...pre,
+                  school: e,
+                  class_level: null,
+                  class: null,
+                }))
+              : setSelected((pre) => ({
+                  ...pre,
+                  school: null,
+                  class_level: null,
+                  class: null,
+                }))
           }
           className="text-black w-full"
         />
@@ -562,11 +612,12 @@ const Student = () => {
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
           placeholder="Khối lớp!"
+          isClearable
           options={
             selected.school
               ? listSearch.class_level
                   .filter(
-                    (item) => item.school_level_id === selected.school.value
+                    (item) => item.school_level_code === selected.school.code
                   )
                   .sort((a, b) => a.code - b.code)
                   .map((item) => ({
@@ -584,8 +635,14 @@ const Student = () => {
           }
           value={selected.class_level}
           onChange={(e) =>
-            e.value !== selected.class_level?.value &&
-            setSelected((pre) => ({ ...pre, class_level: e, class: null }))
+            e
+              ? e.value !== selected.class_level?.value &&
+                setSelected((pre) => ({ ...pre, class_level: e, class: null }))
+              : setSelected((pre) => ({
+                  ...pre,
+                  class_level: null,
+                  class: null,
+                }))
           }
           className="text-black w-full"
         />
@@ -593,20 +650,33 @@ const Student = () => {
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
           placeholder="Lớp!"
+          isClearable
           options={
             selected.class_level
               ? listSearch.classes
                   .filter(
-                    (item) => item.class_level_id === selected.class_level.value
+                    (item) =>
+                      item.class_level_code === selected.class_level.code
                   )
-                  .sort((a, b) => a.class_level_id - b.class_level_id)
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
+                  .map((item) => ({
+                    ...item,
+                    value: item.id,
+                    label: item.name,
+                  }))
+              : selected.school
+              ? listSearch.classes
+                  .filter(
+                    (item) => item.school_level_code === selected.school.code
+                  )
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
                   .map((item) => ({
                     ...item,
                     value: item.id,
                     label: item.name,
                   }))
               : listSearch.classes
-                  .sort((a, b) => a.class_level_id - b.class_level_id)
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
                   .map((item) => ({
                     ...item,
                     value: item.id,
@@ -615,8 +685,10 @@ const Student = () => {
           }
           value={selected.class}
           onChange={(e) =>
-            e.value !== selected.class?.value &&
-            setSelected((pre) => ({ ...pre, class: e }))
+            e
+              ? e.value !== selected.class?.value &&
+                setSelected((pre) => ({ ...pre, class: e }))
+              : setSelected((pre) => ({ ...pre, class: null }))
           }
           className="text-black w-full"
         />
