@@ -1,6 +1,7 @@
 "use client";
 import { useState, Fragment } from "react";
-import Update from "./update";
+import Item from "./item";
+
 
 const Content = ({ roleData, userRole }) => {
   return (
@@ -19,7 +20,7 @@ const Content = ({ roleData, userRole }) => {
           <tbody>
             {userRole.result.map((item, index) => (
               <Fragment key={item.id}>
-                <Update data={item} index={index} />
+                <Item data={item} roleData={roleData} index={index} />
               </Fragment>
             ))}
           </tbody>

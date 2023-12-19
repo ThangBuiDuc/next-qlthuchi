@@ -123,7 +123,18 @@ export const createUser = async (token, objects) => {
   });
 };
 
-
+//Thêm quyền cho người dùng
+export const upsertUserRole = async(token,objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPSERT_USER_ROLE,
+    method: "put",
+    data: {objects},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  })
+}
 
 //=====================================================================================================================================================
 

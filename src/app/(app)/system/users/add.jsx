@@ -223,7 +223,7 @@ const Add = ({ provinces, districts, jwt }) => {
             style={{ overflowY: "unset" }}
           >
             <div className="grid grid-cols-3 gap-[20px]">
-            <TextInput
+              <TextInput
                 label={"Họ đệm"}
                 value={infor.firtsName}
                 dispatch={dispatchInfor}
@@ -273,8 +273,7 @@ const Add = ({ provinces, districts, jwt }) => {
                 id={"add_password"}
                 className={"w-[70%]"}
               />
-              
-              
+
               <div className="relative w-full">
                 <DatePicker
                   autoComplete="off"
