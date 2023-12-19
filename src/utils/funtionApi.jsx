@@ -55,7 +55,7 @@ export const getPreReceipt = async () => {
     },
   });
 
-  return res;
+  return res.data;
 };
 
 //Lấy thông tin các đơn vị tính
@@ -161,6 +161,21 @@ export const getExpectedRevenue = async (token, where) => {
   return res;
 };
 
+//Lấy thông tin lịch sử biên lai thu
+export const getHistoryReceipt = async (token, where) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_HISTORY_RECEIPT,
+    method: "post",
+    data: where,
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
@@ -210,6 +225,19 @@ export const createRevenueNorm = async (token, objects, log) => {
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_REVENUE_NORM,
     method: "put",
     data: { objects: objects, log: log.map((item) => ({ description: item })) },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Tạo mới biên lai thu
+export const createReceipt = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_RECEIPT,
+    method: "put",
+    data: { objects: objects },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,

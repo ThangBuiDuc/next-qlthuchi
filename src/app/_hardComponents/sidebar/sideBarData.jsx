@@ -107,6 +107,9 @@ export const sideBarData = [
     id: 6,
     title: "Thu",
     path: "/collect",
-    subNav: [{ title: "Lập biên lai thu", path: "/collect/create-receipt" }],
+    subNav: [
+      { title: "Lập biên lai thu", path: "/collect/create-receipt" },
+      { title: "Bảng kê biên lai thu", path: "/collect/list-receipt" },
+    ],
   },
 ];

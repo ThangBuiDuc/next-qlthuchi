@@ -13,14 +13,14 @@ const Page = async ({ params }) => {
 
   const apiPreReceipt = await getPreReceipt();
 
-  if (present.status !== 200 || !student || apiPreReceipt.status !== 200)
+  if (present.status !== 200 || !student || !apiPreReceipt)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
       student={student}
       present={present.data}
-      preReceipt={apiPreReceipt.data}
+      InitialPreReceipt={apiPreReceipt}
     />
   );
 };
