@@ -43,7 +43,7 @@ export const sideBarData = [
   //   ],
   // },
   {
-    id : 1,
+    id: 1,
     title: "Hệ thống",
     path: "/system",
     subNav: [
@@ -53,9 +53,9 @@ export const sideBarData = [
       },
       {
         title: "Phân quyền người dùng",
-        path: "/system/roles"
-      }
-    ]
+        path: "/system/roles",
+      },
+    ],
   },
   {
     id: 2,
@@ -123,5 +123,11 @@ export const sideBarData = [
     title: "Thu",
     path: "/collect",
     subNav: [{ title: "Lập biên lai thu", path: "/collect/create-receipt" }],
+  },
+  {
+    id: 7,
+    title: "Tổng hợp",
+    path: "/report",
+    subNav: [{ title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" }],
   },
 ];

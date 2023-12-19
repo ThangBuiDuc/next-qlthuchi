@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { FcMenu } from "react-icons/fc";
 import { AnimatePresence, motion } from "framer-motion";
-
+import Link from "next/link";
 
 import { useClerk } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
@@ -44,7 +44,7 @@ export default function Index({ setIsOpen, isOpen }) {
               exit={{ opacity: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="flex gap-[10px]">
+              <Link className="flex gap-[10px]" href='/home'>
                 <Image
                   src="/logo2.png"
                   alt=""
@@ -56,7 +56,7 @@ export default function Index({ setIsOpen, isOpen }) {
                   <span className="font-semibold text-[#CA2627]">HUU NGHI</span>
                   <span className="font-semibold text-[#134A9A]">SCHOOL</span>
                 </p>
-              </div>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
