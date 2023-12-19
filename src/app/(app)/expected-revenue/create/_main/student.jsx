@@ -1,17 +1,50 @@
 "use client";
-import Link from "next/link";
+import moment from "moment";
 import Select from "react-select";
-import { useContext, Fragment, useState, useEffect, useRef } from "react";
+import { useContext, Fragment, useState, useEffect } from "react";
 import { meilisearchGetToken, meilisearchSearch } from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listContext } from "../content";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
-import { CiCircleMore } from "react-icons/ci";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { createExpectedRevenueRouter } from "@/utils/funtionApi";
+import { toast } from "react-toastify";
 
 const HitItem = ({ hit, isRefetching }) => {
+  const { selectPresent } = useContext(listContext);
+  const [mutating, setMutating] = useState(false);
+  const mutation = useMutation({
+    mutationFn: async () =>
+      createExpectedRevenueRouter({
+        type: "STUDENT",
+        data: hit.code,
+        time: moment().format(),
+        batch_id: selectPresent.id,
+      }),
+    onSuccess: () => {
+      setMutating(false);
+      toast.success("Lập dự kiến thu thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+    onError: () => {
+      setMutating(false);
+      toast.error("Lập dự kiến thu không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
   return (
     <>
       <tr className="hover">
@@ -30,14 +63,19 @@ const HitItem = ({ hit, isRefetching }) => {
           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
         />
         <td className="self-center">
-          {isRefetching ? (
+          {isRefetching || mutating ? (
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <>
-              <div className="tooltip" data-tip="Chi tiết">
-                <Link href={`manage/${hit.code}`}>
-                  <CiCircleMore size={25} />
-                </Link>
+              <div
+                className="tooltip cursor-pointer"
+                data-tip="Lập dự kiến thu"
+                onClick={() => {
+                  setMutating(true);
+                  mutation.mutate();
+                }}
+              >
+                <IoIosAddCircleOutline size={25} />
               </div>
             </>
           )}

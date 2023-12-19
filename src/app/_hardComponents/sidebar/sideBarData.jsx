@@ -108,4 +108,20 @@ export const sideBarData = [
       { title: "Quản lý định mức thu", path: "/norm/manage" },
     ],
   },
+  {
+    id: 5,
+    title: "Dự kiến thu",
+    path: "/expected-revenue",
+    subNav: [
+      { title: "Lập dự kiến thu", path: "/expected-revenue/create" },
+      { title: "Giảm giá", path: "/expected-revenue/voucher" },
+      { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
+    ],
+  },
+  {
+    id: 6,
+    title: "Thu",
+    path: "/collect",
+    subNav: [{ title: "Lập biên lai thu", path: "/collect/create-receipt" }],
+  },
 ];

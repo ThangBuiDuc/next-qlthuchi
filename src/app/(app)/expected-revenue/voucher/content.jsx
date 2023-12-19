@@ -1,0 +1,46 @@
+"use client";
+import { useMemo } from "react";
+import { createContext } from "react";
+
+export const listContext = createContext();
+const Content = ({ listSearch, present }) => {
+  const selectPresent = useMemo(
+    () => present.result[0].batchs.find((item) => item.is_active === true),
+    []
+  );
+
+  return (
+    <>
+      <listContext.Provider value={{ listSearch, selectPresent }}>
+        <div className="flex flex-col p-[20px] gap-[15px]">
+          <div className="flex gap-1 items-center w-full justify-center">
+            <h5>Học kỳ: </h5>
+            <h5>{selectPresent.batch} - </h5>
+            <h5>Năm học: {present.result[0].school_year}</h5>
+          </div>
+          {/* {selectPresent && (
+          <>
+            <div className="flex gap-1 items-center w-full">
+              <h6>Lập dự kiến thu theo: </h6>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Vui lòng chọn!"
+                options={options}
+                value={selected}
+                onChange={setSelected}
+                className="text-black w-[30%]"
+                classNames={{
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
+            <Main firstSelected={selected} />
+          </>
+        )} */}
+        </div>
+      </listContext.Provider>
+    </>
+  );
+};
+
+export default Content;

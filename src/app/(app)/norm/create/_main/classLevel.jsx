@@ -12,28 +12,34 @@ import "react-toastify/dist/ReactToastify.css";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import moment from "moment";
 import "moment/locale/vi";
-const Item = ({ norm, setNorm }) => {
+const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
-  useEffect(() => {
-    if (norm.gruop) setNorm((pre) => ({ ...pre, type: null }));
-  }, [norm.gruop]);
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-4 auto-rows-auto gap-2">
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Nhóm khoản thu"
-          options={listRevenue.revenue_group
+          placeholder="Loại khoản thu"
+          options={listRevenue.revenue_types
             .sort((a, b) => a.id - b.id)
             .map((item) => ({
               value: item.id,
               label: item.name,
             }))}
-          value={norm.gruop}
+          value={norm.type}
           onChange={(e) => {
-            if (norm.gruop?.value !== e.value)
-              setNorm((pre) => ({ ...pre, gruop: e }));
+            if (norm.type?.value !== e.value)
+              setNorm((pre) => ({
+                ...pre,
+                type: e,
+                group: null,
+                revenue: null,
+                calculation_unit: null,
+                price: 100000,
+                quantity: 1,
+                total: 100000,
+              }));
           }}
           className="text-black text-sm"
           classNames={{
@@ -43,19 +49,34 @@ const Item = ({ norm, setNorm }) => {
             menu: () => "!z-[11]",
           }}
         />
-        {norm.gruop && (
+        {norm.type && (
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Loại khoản thu"
-            options={listRevenue.revenue_group
-              .find((item) => item.id === norm.gruop.value)
-              .revenue_types.sort((a, b) => a.id - b.id)
+            placeholder="Nhóm khoản thu"
+            options={listRevenue.revenue_types
+              .find((item) => item.id === norm.type.value)
+              .revenue_groups.filter((item) =>
+                item.scope.some((el) => el === school_level_code)
+              )
+              .filter((item) => item.revenues.length > 0)
+              .sort((a, b) => a.id - b.id)
               .map((item) => ({
                 value: item.id,
                 label: item.name,
               }))}
-            value={norm.type}
-            onChange={(e) => setNorm((pre) => ({ ...pre, type: e }))}
+            value={norm.group}
+            onChange={(e) => {
+              norm.group?.value !== e.value &&
+                setNorm((pre) => ({
+                  ...pre,
+                  group: e,
+                  revenue: null,
+                  calculation_unit: null,
+                  price: 100000,
+                  quantity: 1,
+                  total: 100000,
+                }));
+            }}
             className="text-black text-sm"
             classNames={{
               control: () => "!rounded-[5px]",
@@ -65,20 +86,32 @@ const Item = ({ norm, setNorm }) => {
             }}
           />
         )}
-        {norm.type && (
+        {norm.group && (
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
             placeholder="Khoản thu"
-            options={listRevenue.revenue_group
-              .find((item) => item.id === norm.gruop.value)
-              .revenue_types.find((item) => item.id === norm.type.value)
-              .revenues.map((item) => ({
-                ...item,
-                value: item.id,
-                label: item.name,
-              }))}
+            options={listRevenue.revenue_types
+              .find((item) => item.id === norm.type.value)
+              .revenue_groups.find((item) => item.id === norm.group.value)
+              .revenues.map((item) => {
+                return {
+                  ...item,
+                  value: item.id,
+                  label: item.name,
+                };
+              })}
             value={norm.revenue}
-            onChange={(e) => setNorm((pre) => ({ ...pre, revenue: e }))}
+            onChange={(e) =>
+              norm.revenue?.value !== e.value &&
+              setNorm((pre) => ({
+                ...pre,
+                revenue: e,
+                calculation_unit: null,
+                price: 100000,
+                quantity: 1,
+                total: 100000,
+              }))
+            }
             className="text-black text-sm"
             classNames={{
               control: () => "!rounded-[5px]",
@@ -191,7 +224,7 @@ const ClassLevel = () => {
   const { listSearch, selectPresent } = useContext(listContext);
   const [selected, setSelected] = useState();
   const [norm, setNorm] = useState({
-    gruop: null,
+    group: null,
     type: null,
     revenue: null,
     calculation_unit: null,
@@ -206,7 +239,7 @@ const ClassLevel = () => {
   useEffect(() => {
     if (selected)
       setNorm({
-        gruop: null,
+        group: null,
         type: null,
         revenue: null,
         calculation_unit: null,
@@ -218,7 +251,7 @@ const ClassLevel = () => {
 
   const mutation = useMutation({
     mutationFn: ({ token, objects, log }) =>
-      createRevenueNorm(token, objects, log),
+      createRevenueNorm(token, objects, [log]),
     onSuccess: () => {
       toast.success("Tạo mới định mức thu cho khối lớp thành công!", {
         position: "top-center",
@@ -228,7 +261,7 @@ const ClassLevel = () => {
         theme: "light",
       });
       setNorm({
-        gruop: null,
+        group: null,
         type: null,
         revenue: null,
         calculation_unit: null,
@@ -255,9 +288,10 @@ const ClassLevel = () => {
     let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
-      batch_id: selectPresent.value,
+      revenue_group_id: norm.group.value,
+      batch_id: selectPresent.id,
       calculation_unit_id: norm.calculation_unit.value,
-      class_level_id: selected.value,
+      class_level_code: selected.code,
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
@@ -270,9 +304,10 @@ const ClassLevel = () => {
       table: "revenue_norms",
       data: {
         revenue_code: norm.revenue.code,
-        batch_id: selectPresent.value,
+        revenue_group_id: norm.group.value,
+        batch_id: selectPresent.id,
         calculation_unit_id: norm.calculation_unit.value,
-        class_level_id: selected.value,
+        class_level_code: selected.code,
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
@@ -286,6 +321,7 @@ const ClassLevel = () => {
 
     mutation.mutate({ token, objects, log });
   }, [norm, selected]);
+
   return (
     <>
       <div className="flex gap-1 items-center w-full">
@@ -310,7 +346,11 @@ const ClassLevel = () => {
         <>
           {norm && (
             <>
-              <Item norm={norm} setNorm={setNorm} />
+              <Item
+                norm={norm}
+                setNorm={setNorm}
+                school_level_code={selected.school_level_code}
+              />
             </>
           )}
           <div className="flex justify-center gap-2">
@@ -318,7 +358,7 @@ const ClassLevel = () => {
               <span className="loading loading-spinner loading-sm bg-primary"></span>
             ) : (
               <>
-                {norm.gruop &&
+                {norm.group &&
                 norm.type &&
                 norm.revenue &&
                 norm.calculation_unit &&
