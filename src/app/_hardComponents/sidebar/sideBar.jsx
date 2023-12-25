@@ -45,12 +45,14 @@ const SideBar = ({ isOpen, pathName, code }) => {
           return (
             <Link
               key={item.id}
-              className={`text-[#000000] w-full h-[8vh] items-center flex pl-[15px]  ${
-                pathName === item.path ? "bg-[#46546C]" : "hover:bg-[#46546C]"
+              className={` w-full h-[8vh] items-center flex pl-[15px] pr-[25px] ${
+                pathName === item.path
+                  ? "bg-[#134a9abf] text-white"
+                  : "hover:bg-[#134a9abf] hover:text-white"
               }`}
-              href={`/app/${code}/${item.path}`}
+              href={`${item.path}`}
             >
-              <p>{item.title}</p>
+              {item.title}
             </Link>
           );
         }

@@ -58,6 +58,19 @@ export const getPreReceipt = async () => {
   return res.data;
 };
 
+//Lấy thông tin cần thiết phục vụ PHIẾU thu/chi
+export const getPreBill = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PRE_BILL,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res.data;
+};
+
 //Lấy thông tin các đơn vị tính
 export const getCalculationUnit = async () => {
   const res = await axios({
@@ -162,18 +175,23 @@ export const getExpectedRevenue = async (token, where) => {
 };
 
 //Lấy thông tin lịch sử biên lai thu
-export const getHistoryReceipt = async (token, where) => {
+export const getHistoryReceipt = async (token, where, where1, pageParam) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_HISTORY_RECEIPT,
     method: "post",
-    data: where,
+    data: {
+      where,
+      where1,
+      limit: pageParam ? 10 : null,
+      offset: pageParam ? (pageParam - 1) * 10 : null,
+    },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
   });
 
-  return res;
+  return { ...res, nextPage: ++pageParam };
 };
 
 //UPDATE---------------------------------------------------------------------
@@ -204,13 +222,26 @@ export const updateExpectedRevenue = async (token, updates) => {
   });
 };
 
+//Cập nhật biên lai thu
+export const updateReceipt = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_RECEIPT,
+    method: "patch",
+    data: { updates: updates },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh
 export const createStudent = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_STUDENT,
-    method: "post",
+    method: "put",
     data: { objects },
     headers: {
       "content-type": "Application/json",
@@ -236,6 +267,45 @@ export const createRevenueNorm = async (token, objects, log) => {
 export const createReceipt = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_RECEIPT,
+    method: "put",
+    data: { objects: objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Tạo mới biên lai thu
+export const createRefund = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_REFUND,
+    method: "put",
+    data: { objects: objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Tạo mới phiếu thu tiền mặt
+export const createBillReceipt = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_BILL_RECEIPT,
+    method: "put",
+    data: { objects: objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Tạo mới phiếu chi tiền mặt
+export const createBillRefund = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_BILL_REFUND,
     method: "put",
     data: { objects: objects },
     headers: {
@@ -285,7 +355,7 @@ export const createExpectedRevenue = async (token, objects) => {
   return res;
 };
 
-//Tạo dự kiến thu
+//Tạo dự kiến thu bổ sung
 export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
   const res = await axios({
     url: process.env

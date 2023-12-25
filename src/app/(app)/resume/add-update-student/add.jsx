@@ -122,14 +122,15 @@ const Add = ({ catalogStudent, countStudent, present }) => {
   const [infor, dispatchInfor] = useReducer(reducer, {
     code: createId(
       countStudent.result.find(
-        (el) => el.school_level_id === catalogStudent.classes[0].school_level_id
+        (el) =>
+          el.school_level_code === catalogStudent.classes[0].school_level_code
       ).count,
-      catalogStudent.classes[0].school_level_id
+      catalogStudent.classes[0].school_level_code
     ),
     gender: null,
     class: {
       ...catalogStudent.classes[0],
-      value: catalogStudent.classes[0].id,
+      value: catalogStudent.classes[0].name,
       label: catalogStudent.classes[0].name,
     },
     status: null,
@@ -148,9 +149,10 @@ const Add = ({ catalogStudent, countStudent, present }) => {
           value: createId(
             countStudent.result.find(
               (el) =>
-                el.school_level_id === catalogStudent.classes[0].school_level_id
+                el.school_level_code ===
+                catalogStudent.classes[0].school_level_code
             ).count,
-            catalogStudent.classes[0].school_level_id
+            catalogStudent.classes[0].school_level_code
           ),
         },
       });
@@ -167,15 +169,15 @@ const Add = ({ catalogStudent, countStudent, present }) => {
             code: createId(
               countStudent.result.find(
                 (el) =>
-                  el.school_level_id ===
-                  catalogStudent.classes[0].school_level_id
+                  el.school_level_code ===
+                  catalogStudent.classes[0].school_level_code
               ).count,
-              catalogStudent.classes[0].school_level_id
+              catalogStudent.classes[0].school_level_code
             ),
             gender: null,
             class: {
               ...catalogStudent.classes[0],
-              value: catalogStudent.classes[0].id,
+              value: catalogStudent.classes[0].name,
               label: catalogStudent.classes[0].name,
             },
             status: null,
@@ -195,14 +197,16 @@ const Add = ({ catalogStudent, countStudent, present }) => {
         theme: "light",
       });
     },
-    onError: () =>
+    onError: () => {
+      document.getElementById("modal_add").close();
       toast.error("Tạo mới học sinh không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         theme: "light",
-      }),
+      });
+    },
   });
 
   const handleOnSubmit = useCallback(
@@ -219,7 +223,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
         status_id: infor.status.value,
         schoolyear_students: {
           data: {
-            class_id: infor.class.value,
+            class_code: infor.class.value,
             school_year_id: present.result[0].id,
           },
         },
@@ -235,19 +239,19 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 
   useEffect(() => {
     let count = countStudent.result.find(
-      (el) => el.school_level_id === infor.class.school_level_id
+      (el) => el.school_level_code === infor.class.school_level_code
     );
     dispatchInfor({
       type: "change_code",
       payload: {
-        value: createId(count.count, count.school_level_id),
+        value: createId(count.count, count.school_level_code),
       },
     });
   }, [infor.class]);
 
   return (
     <dialog id="modal_add" className="modal !z-[20]">
-      <div className="modal-box w-11/12 max-w-5xl bg-white">
+      <div className="modal-box w-11/12 max-w-5xl bg-white ">
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -274,8 +278,12 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                 menu: () => "!z-[11]",
               }}
               options={catalogStudent.classes
-                .sort((a, b) => a.class_level_id - b.class_level_id)
-                .map((item) => ({ ...item, value: item.id, label: item.name }))}
+                .sort((a, b) => a.class_level_code - b.class_level_code)
+                .map((item) => ({
+                  ...item,
+                  value: item.name,
+                  label: item.name,
+                }))}
               value={infor.class}
               onChange={(e) =>
                 dispatchInfor({ type: "change_class", payload: { value: e } })
