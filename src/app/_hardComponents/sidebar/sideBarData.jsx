@@ -131,6 +131,9 @@ export const sideBarData = [
     id: 7,
     title: "Tổng hợp",
     path: "/report",
-    subNav: [{ title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" }],
+    subNav: [
+      { title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" },
+      { title: "Lịch sử thanh toán", path: "/report/pay-history" },
+    ],
   },
 ];

@@ -193,7 +193,7 @@ const Modal = ({ data, modalRef }) => {
       <>
         {/* <div className="border border-black p-1"> */}
         <div
-          ref={ref}
+          // ref={ref}
           className="flex flex-col relative justify-center items-center gap-1 mb-5"
         >
           <h5 className="text-center">
