@@ -1,5 +1,5 @@
 "use client";
-import Select from "react-select";
+// import Select from "react-select";
 import {
   useContext,
   useState,
@@ -9,11 +9,11 @@ import {
   useMemo,
 } from "react";
 import { listContext } from "../content";
-import CurrencyInput from "react-currency-input-field";
+// import CurrencyInput from "react-currency-input-field";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
-  createReceipt,
+  createRefund,
   getExpectedRevenue,
   getHistoryReceipt,
 } from "@/utils/funtionApi";
@@ -23,7 +23,7 @@ import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import { getText } from "number-to-text-vietnamese";
+// import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
 
 function createCode(lastCount) {
@@ -57,17 +57,35 @@ const Skeleton = () => {
 
 const Modal = ({ data, modalRef }) => {
   const ref = useRef();
-  const { selectPresent, preReceipt, student } = useContext(listContext);
+  const { selectPresent, student } = useContext(listContext);
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const { user } = useUser();
-  const [formality, setFormality] = useState({
-    label: preReceipt.formality[0].name,
-    value: preReceipt.formality[0].id,
-  });
-  const middleIndex = Math.round(data.length / 2);
-  const firstPart = data.slice(0, middleIndex);
-  const secondPart = data.slice(middleIndex);
+  const showData = {
+    part1: data.filter((item) => item.revenue_type.id === 1),
+    part2: data.filter((item) => item.revenue_type.id === 2),
+    totalPart1: data
+      .filter((item) => item.revenue_type.id === 1)
+      .reduce((total, curr) => total + curr.nowMoney, 0),
+    totalPart2: data
+      .filter((item) => item.revenue_type.id === 2)
+      .reduce((total, curr) => total + curr.nowMoney, 0),
+    total:
+      data
+        .filter((item) => item.revenue_type.id === 1)
+        .reduce((total, curr) => total + curr.nowMoney, 0) +
+      data
+        .filter((item) => item.revenue_type.id === 2)
+        .reduce((total, curr) => total + curr.nowMoney, 0),
+  };
+
+  // const [formality, setFormality] = useState({
+  //   label: preReceipt.formality[0].name,
+  //   value: preReceipt.formality[0].id,
+  // });
+  // const middleIndex = Math.round(data.length / 2);
+  // const firstPart = data.slice(0, middleIndex);
+  // const secondPart = data.slice(middleIndex);
 
   const [mutating, setMutating] = useState(false);
   const handlePrint = useReactToPrint({
@@ -76,7 +94,7 @@ const Modal = ({ data, modalRef }) => {
 
   const mutation = useMutation({
     mutationFn: async (objects) =>
-      createReceipt(
+      createRefund(
         await getToken({
           template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
         }),
@@ -85,43 +103,42 @@ const Modal = ({ data, modalRef }) => {
     onSuccess: () => {
       setMutating(false);
       modalRef.current.close();
-      toast.success("Lập biên lai thu thành công!", {
+      toast.success("Lập biên lai hoàn trả thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         theme: "light",
       });
-      queryClient.invalidateQueries({ queryKey: ["get_pre_receipt"] });
       queryClient.invalidateQueries({
         queryKey: ["get_expected_revenue", student.code],
       });
-      data
-        .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
-        .forEach((element) => {
-          queryClient.invalidateQueries({
-            queryKey: [
-              "get_history_receipt",
-              {
-                where: {
-                  batch_id: { _eq: selectPresent.id },
-                  student_code: { _eq: student.code },
-                  receipt_details: { expected_revenue_id: { _eq: element.id } },
-                },
-                where1: {
-                  expected_revenue_id: { _eq: element.id },
-                },
-              },
-            ],
-          });
-        });
+      // data
+      //   .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
+      //   .forEach((element) => {
+      //     queryClient.invalidateQueries({
+      //       queryKey: [
+      //         "get_history_receipt",
+      //         {
+      //           where: {
+      //             batch_id: { _eq: selectPresent.id },
+      //             student_code: { _eq: student.code },
+      //             receipt_details: { expected_revenue_id: { _eq: element.id } },
+      //           },
+      //           where1: {
+      //             expected_revenue_id: { _eq: element.id },
+      //           },
+      //         },
+      //       ],
+      //     });
+      //   });
 
       handlePrint();
     },
     onError: () => {
       setMutating(false);
       modalRef.current.close();
-      toast.error("Lập biên lai thu không thành công!", {
+      toast.error("Lập biên lai hoàn trả không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -135,29 +152,17 @@ const Modal = ({ data, modalRef }) => {
     setMutating(true);
     const time = moment().format();
     const objects = {
-      amount_collected: data.reduce((total, item) => total + item.nowMoney, 0),
+      amount_spend: data.reduce((total, item) => total + item.nowMoney, 0),
       batch_id: selectPresent.id,
-      code:
-        (formality.value === 2 &&
-          `BM${createCode(
-            preReceipt.count_receipt.find((item) => item.id === formality.value)
-              .count
-          )}`) ||
-        (formality.value === 1 &&
-          `BK${createCode(
-            preReceipt.count_receipt.find((item) => item.id === formality.value)
-              .count
-          )}`),
       created_by: user.id,
-      formality_id: formality.value,
       start_at: time,
       student_code: student.code,
       schoolyear_student_id: student.schoolyear_student_id,
-      receipt_details: {
+      refund_details: {
         data: data
           .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
           .map((item) => ({
-            amount_collected: item.nowMoney,
+            amount_spend: item.nowMoney,
             batch_id: selectPresent.id,
             created_by: user.id,
             expected_revenue_id: item.id,
@@ -170,111 +175,129 @@ const Modal = ({ data, modalRef }) => {
 
   return (
     <div className="flex flex-col p-2 gap-2">
-      <h6 className="col-span-3 text-center">Lập biên lai thu</h6>
-      <Select
-        noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-        placeholder="Hình thức thu tiền"
-        options={preReceipt.formality.map((item) => ({
-          label: item.name,
-          value: item.id,
-        }))}
-        value={formality}
-        onChange={(e) => {
-          if (formality.value !== e.value) setFormality(e);
-        }}
-        className="text-black text-sm"
-        classNames={{
-          control: () => "!rounded-[5px]",
-          input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-          valueContainer: () => "!p-[0_8px]",
-          menu: () => "!z-[11]",
-        }}
-      />
+      <h6 className="col-span-3 text-center">Lập biên lai hoàn trả</h6>
       <>
-        {/* <div className="border border-black p-1"> */}
         <div className="flex flex-col relative justify-center items-center gap-1 mb-5">
-          <h5 className="text-center">
-            {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
-              (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+          <h5 className="text-center uppercase text-[16px]">
+            Bảng kê hoàn trả tiền thừa
           </h5>
-          <div className="flex justify-center gap-4">
+          <p className="text-center  text-[14px]">{`(Theo 1 học sinh)`}</p>
+          <div className="flex justify-center gap-4 text-[12px]">
+            <p>Mã học sinh: {student.code}</p>
             <p>
-              Số BL:{" "}
-              {`${
-                (formality.value === 2 && "BM") ||
-                (formality.value === 1 && "BK")
-              }${createCode(
-                preReceipt.count_receipt.find(
-                  (item) => item.id === formality.value
-                ).count
-              )}`}
+              Họ và tên học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
-            {formality.value === 1 && (
-              <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
-            )}
+            <p>
+              Ngày sinh: {student.date_of_birth.split("-").reverse().join("/")}
+            </p>
+            <p>Lớp: {student.class_name}</p>
           </div>
-          <p>
-            Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+          <p className="text-[14px]">
+            Tại Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
             {moment().year()}
           </p>
-          <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
-            <div className="flex divide-x divide-black col-span-2">
-              <div className="pl-1   w-[50%]">
-                <p className="font-semibold">
-                  Họ và tên học sinh:{" "}
-                  {`${student.first_name} ${student.last_name}`}
-                </p>
-                <p className="font-semibold">Mã học sinh: {student.code}</p>
-              </div>
-              <div className="pl-1   w-[50%]">
-                <p className="font-semibold">
-                  Ngày sinh:{" "}
-                  {student.date_of_birth.split("-").reverse().join("/")}
-                </p>
-
-                <p className="font-semibold">Lớp: {student.class_name}</p>
-              </div>
-            </div>
-            <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
-              <div className="flex flex-col divide-y divide-black">
-                {firstPart.map((item, index) => (
-                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
-                    {index + 1}. {item.name}: {numberWithCommas(item.nowMoney)}{" "}
-                    <span>₫</span>
-                  </p>
-                ))}
-              </div>
-              <div className="flex flex-col divide-y divide-black">
-                {secondPart.map((item, index) => (
-                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
-                    {middleIndex + index + 1}. {item.name}:{" "}
-                    {numberWithCommas(item.nowMoney)} <span>₫</span>
-                  </p>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col col-span-2 p-2 gap-2">
-              <p className=" flex justify-end gap-1 font-semibold">
-                Tổng các khoản thu ={" "}
-                {numberWithCommas(
-                  data.reduce((total, item) => total + item.nowMoney, 0)
-                )}{" "}
-                <span>₫</span>
+          <div className="grid grid-cols-1 w-full border border-black divide-y divide-black">
+            <div className="flex   divide-x border-black divide-black">
+              <p className=" font-semibold text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                TT
               </p>
-              <p className="text-center font-semibold">
-                Bằng chữ:{" "}
-                <span className="italic first-letter:uppercase">
-                  {getText(
-                    data.reduce((total, item) => total + item.nowMoney, 0)
-                  )
-                    .charAt(0)
-                    .toUpperCase() +
-                    getText(
-                      data.reduce((total, item) => total + item.nowMoney, 0)
-                    ).slice(1)}{" "}
-                  đồng
-                </span>
+              <p className=" font-semibold text-[14px] w-[35%] flex justify-center items-center h-full ">
+                Nội dung
               </p>
+              <p className=" font-semibold text-[12px] w-[20%] flex justify-center items-center h-full ">
+                Loại khoản thu
+              </p>
+              <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center  text-center">{`Số tiền hoàn trả (đồng)`}</p>
+              <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full ">
+                Ký nhận
+              </p>
+            </div>
+            <div className="grid grid-cols-1 w-full divide-y divide-black divide-dotted">
+              {showData.part1.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="flex  divide-x border-black divide-black"
+                >
+                  <p className=" text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    {++index}
+                  </p>
+                  <p className=" text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    {item.name}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full ">
+                    {item.revenue_type.name}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {numberWithCommas(item.nowMoney)}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+              ))}
+              <div className="flex   divide-x border-black divide-black">
+                <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                  I
+                </p>
+                <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                  Tổng tiền phí, học phí hoàn trả
+                </p>
+                <p className=" text-[12px] w-[20%] flex justify-center items-center h-full "></p>
+                <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                  {showData.totalPart1
+                    ? numberWithCommas(showData.totalPart1)
+                    : showData.totalPart1}
+                </p>
+                <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+              </div>
+              {showData.part2.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="flex   divide-x border-black divide-black"
+                >
+                  <p className=" text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    {++index}
+                  </p>
+                  <p className=" text-[14px] w-[35%] flex justify-center items-center h-full pl-1">
+                    {item.name}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full ">
+                    {item.revenue_type.name}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center  text-center pr-1">
+                    {numberWithCommas(item.nowMoney)}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+              ))}
+              <div className="flex   divide-x border-black divide-black">
+                <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                  II
+                </p>
+                <p className=" font-semibold  text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                  Tổng tiền thu hộ hoàn trả
+                </p>
+                <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                  {showData.totalPart2
+                    ? numberWithCommas(showData.totalPart2)
+                    : showData.totalPart2}
+                </p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+              </div>
+              <div className="flex   divide-x divide-black">
+                <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                  III
+                </p>
+                <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                  Tổng tiền hoàn trả (=I+II)
+                </p>
+                <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                  {showData.total
+                    ? numberWithCommas(showData.total)
+                    : showData.total}
+                </p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+              </div>
             </div>
           </div>
           {/* <div
@@ -304,114 +327,138 @@ const Modal = ({ data, modalRef }) => {
             ref={ref}
             className="flex flex-col relative justify-center items-center gap-1 mb-5"
           >
-            <h5 className="text-center">
-              {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
-                (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+            <h5 className="text-center uppercase text-[16px]">
+              Bảng kê hoàn trả tiền thừa
             </h5>
-            <div className="flex justify-center gap-4">
+            <p className="text-center  text-[14px]">{`(Theo 1 học sinh)`}</p>
+            <div className="flex justify-center gap-4 text-[12px]">
+              <p>Mã học sinh: {student.code}</p>
               <p>
-                Số BL:{" "}
-                {`${
-                  (formality.value === 2 && "BM") ||
-                  (formality.value === 1 && "BK")
-                }${createCode(
-                  preReceipt.count_receipt.find(
-                    (item) => item.id === formality.value
-                  ).count
-                )}`}
+                Họ và tên học sinh:{" "}
+                {`${student.first_name} ${student.last_name}`}
               </p>
-              {formality.value === 1 && (
-                <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
-              )}
+              <p>
+                Ngày sinh:{" "}
+                {student.date_of_birth.split("-").reverse().join("/")}
+              </p>
+              <p>Lớp: {student.class_name}</p>
             </div>
-            <p>
-              Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+            <p className="text-[14px]">
+              Tại Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
               {moment().year()}
             </p>
-            <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
-              <div className="flex divide-x divide-black col-span-2">
-                <div className="pl-1   w-[50%]">
-                  <p className="font-semibold">
-                    Họ và tên học sinh:{" "}
-                    {`${student.first_name} ${student.last_name}`}
-                  </p>
-                  <p className="font-semibold">Mã học sinh: {student.code}</p>
-                </div>
-                <div className="pl-1   w-[50%]">
-                  <p className="font-semibold">
-                    Ngày sinh:{" "}
-                    {student.date_of_birth.split("-").reverse().join("/")}
-                  </p>
-
-                  <p className="font-semibold">Lớp: {student.class_name}</p>
-                </div>
-              </div>
-              <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
-                <div className="flex flex-col divide-y divide-black">
-                  {firstPart.map((item, index) => (
-                    <p
-                      key={item.name}
-                      className="pl-1 pr-1 flex justify-between"
-                    >
-                      {index + 1}. {item.name}:{" "}
-                      {numberWithCommas(item.nowMoney)} <span>₫</span>
-                    </p>
-                  ))}
-                </div>
-                <div className="flex flex-col divide-y divide-black">
-                  {secondPart.map((item, index) => (
-                    <p
-                      key={item.name}
-                      className="pl-1 pr-1 flex justify-between"
-                    >
-                      {middleIndex + index + 1}. {item.name}:{" "}
-                      {numberWithCommas(item.nowMoney)} <span>₫</span>
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-col col-span-2 p-2 gap-2">
-                <p className=" flex justify-end gap-1 font-semibold">
-                  Tổng các khoản thu ={" "}
-                  {numberWithCommas(
-                    data.reduce((total, item) => total + item.nowMoney, 0)
-                  )}{" "}
-                  <span>₫</span>
+            <div className="grid grid-cols-1 w-full border border-black divide-y divide-black">
+              <div className="flex   divide-x border-black divide-black">
+                <p className=" font-semibold text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                  TT
                 </p>
-                <p className="text-center font-semibold">
-                  Bằng chữ:{" "}
-                  <span className="italic first-letter:uppercase">
-                    {getText(
-                      data.reduce((total, item) => total + item.nowMoney, 0)
-                    )
-                      .charAt(0)
-                      .toUpperCase() +
-                      getText(
-                        data.reduce((total, item) => total + item.nowMoney, 0)
-                      ).slice(1)}{" "}
-                    đồng
-                  </span>
+                <p className=" font-semibold text-[14px] w-[35%] flex justify-center items-center h-full ">
+                  Nội dung
                 </p>
+                <p className=" font-semibold text-[12px] w-[20%] flex justify-center items-center h-full ">
+                  Loại khoản thu
+                </p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center  text-center">{`Số tiền hoàn trả (đồng)`}</p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full ">
+                  Ký nhận
+                </p>
+              </div>
+              <div className="grid grid-cols-1 w-full divide-y divide-black divide-dotted">
+                {showData.part1.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="flex  divide-x border-black divide-black"
+                  >
+                    <p className=" text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                      {++index}
+                    </p>
+                    <p className=" text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                      {item.name}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-center items-center h-full ">
+                      {item.revenue_type.name}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                      {numberWithCommas(item.nowMoney)}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  </div>
+                ))}
+                <div className="flex   divide-x border-black divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    I
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền phí, học phí hoàn trả
+                  </p>
+                  <p className=" text-[12px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {showData.totalPart1
+                      ? numberWithCommas(showData.totalPart1)
+                      : showData.totalPart1}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+                {showData.part2.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="flex   divide-x border-black divide-black"
+                  >
+                    <p className=" text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                      {++index}
+                    </p>
+                    <p className=" text-[14px] w-[35%] flex justify-center items-center h-full pl-1">
+                      {item.name}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-center items-center h-full ">
+                      {item.revenue_type.name}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-center items-center  text-center pr-1">
+                      {numberWithCommas(item.nowMoney)}
+                    </p>
+                    <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  </div>
+                ))}
+                <div className="flex   divide-x border-black divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    II
+                  </p>
+                  <p className=" font-semibold  text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền thu hộ hoàn trả
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {showData.totalPart2
+                      ? numberWithCommas(showData.totalPart2)
+                      : showData.totalPart2}
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+                <div className="flex   divide-x divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    III
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền hoàn trả (=I+II)
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {showData.total
+                      ? numberWithCommas(showData.total)
+                      : showData.total}
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
               </div>
             </div>
-            <div
-              className={`grid ${
-                (formality.value === 2 && "grid-cols-3") ||
-                (formality.value === 1 && "grid-cols-2")
-              } auto-rows-auto w-full`}
-            >
-              <p className="text-center font-semibold ">Người lập</p>
-              {formality.value === 2 && (
-                <>
-                  <p className="text-center font-semibold">Người nộp tiền</p>
-                  <p className="text-center font-semibold">Người thu tiền</p>
-                </>
-              )}
-              {formality.value === 1 && (
-                <>
-                  <p className="text-center font-semibold">Ngân hàng thu</p>
-                </>
-              )}
+            <p className="italic text-right">
+              Hải Phòng, ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+              {moment().year()}
+            </p>
+            <div className="flex justify-center w-full">
+              <p className="font-semibold">Thủ trưởng</p>
+              <p className="font-semibold">Kế toán trưởng</p>
+              <p className="font-semibold">Người lập</p>
             </div>
           </div>
         </div>
@@ -469,11 +516,11 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td>{data.revenue.name}</td>
       <td>{revenue_type.name}</td>
       <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
-      <td>{numberWithCommas(data.discount)} ₫</td>
+      {/* <td>{numberWithCommas(data.discount)} ₫</td> */}
       <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
       {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
       <td>{numberWithCommas(data.amount_edited)} ₫</td>
-      <td>{numberWithCommas(data.amount_spend)} ₫</td>
+
       <td>
         <>
           <input
@@ -493,8 +540,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                                 isChecked: e.target.checked,
                                 nowMoney:
                                   e.target.checked === true
-                                    ? item.next_batch_money
-                                    : 0,
+                                    ? Math.abs(item.next_batch_money)
+                                    : NaN,
                               }
                             : item
                         ),
@@ -506,7 +553,9 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
           />
         </>
       </td>
-      <td>
+      <td>{numberWithCommas(data.nowMoney)} ₫</td>
+      <td>{numberWithCommas(data.amount_collected)} ₫</td>
+      {/* <td>
         <>
           <CurrencyInput
             autoComplete="off"
@@ -535,89 +584,14 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
             decimalsLimit={2}
           />
         </>
-      </td>
-      <td onClick={() => amount_collected_ref.current.showModal()}>
-        <>
-          <div className="tooltip tooltip-left" data-tip="Xem lịch sử">
-            {numberWithCommas(data.amount_collected)} ₫
-            <dialog ref={amount_collected_ref} className="modal">
-              <div className="modal-box !max-w-2xl">
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <div className="flex flex-col gap-4">
-                  <h6>
-                    Danh sách biên lai đã nộp tương ứng khoản thu:{" "}
-                    {data.revenue.name}
-                  </h6>
-                  <div className="overflow-x-auto">
-                    <table className="table">
-                      {/* head */}
-                      <thead>
-                        <tr>
-                          <th>TT</th>
-                          <th>Mã biên lai</th>
-                          <th>Số tiền đã nộp</th>
-                          <th>Ngày nộp</th>
-                          <th>Hình thức</th>
-                          <th>Người lập</th>
-                          <th>Đã huỷ</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {historyData.isFetching && historyData.isLoading ? (
-                          [...Array(4).keys()].map((item) => (
-                            <tr key={item}>
-                              {[...Array(6).keys()].map((el) => (
-                                <td key={el}>
-                                  <>
-                                    <div className="skeleton h-4 w-full"></div>
-                                  </>
-                                </td>
-                              ))}
-                            </tr>
-                          ))
-                        ) : historyData.data.data.result.length === 0 ? (
-                          <tr colSpan={6}>Chưa có dữ liệu</tr>
-                        ) : (
-                          historyData.data.data.result.map((item, index) => (
-                            <tr key={item.code} className="hover">
-                              <td>{index + 1}</td>
-                              <td>{item.code}</td>
-                              <td>
-                                {numberWithCommas(
-                                  item.receipt_details[0].amount_collected
-                                )}{" "}
-                                ₫
-                              </td>
-                              <td>
-                                {moment(item.start_at).format(
-                                  "DD/MM/yyyy HH:mm:ss"
-                                )}
-                              </td>
-                              <td>{item.formality.name}</td>
-                              <td>{`${item.user.first_name} ${item.user.last_name}`}</td>
-                              <td>{item.canceled && "✓"}</td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </dialog>
-          </div>
-        </>
-      </td>
+      </td> */}
+
       <td>
         {numberWithCommas(
           data.previous_batch_money +
-            data.prescribed_money +
+            data.actual_amount_collected +
             data.amount_edited -
+            data.amount_spend -
             data.amount_collected
         )}{" "}
         ₫
@@ -647,7 +621,7 @@ const SubContent = ({ student, selectPresent }) => {
       _is_null: true,
     },
     next_batch_money: {
-      _gt: 0,
+      _lt: 0,
     },
   };
 
@@ -673,7 +647,7 @@ const SubContent = ({ student, selectPresent }) => {
                 expected_revenues: item.expected_revenues.map((el) => ({
                   ...el,
                   isChecked: false,
-                  nowMoney: "",
+                  nowMoney: NaN,
                 })),
               }
         )
@@ -704,11 +678,10 @@ const SubContent = ({ student, selectPresent }) => {
               <th>Khoản thu</th>
               <th>Loại khoản thu</th>
               <th>Công nợ đầu kỳ</th>
-              <th>Ưu đãi, miễn giảm</th>
               <th>Số phải nộp kỳ này</th>
               {/* <th>Nộp cả năm</th> */}
               <th>Đã điều chỉnh</th>
-              <th>Đã hoàn trả</th>
+              {/* <th>Đã hoàn trả</th> */}
               {data ? (
                 <th
                   className="cursor-pointer"
@@ -723,7 +696,7 @@ const SubContent = ({ student, selectPresent }) => {
                                 (el) => ({
                                   ...el,
                                   isChecked: true,
-                                  nowMoney: el.next_batch_money,
+                                  nowMoney: Math.abs(el.next_batch_money),
                                 })
                               ),
                             }
@@ -736,14 +709,14 @@ const SubContent = ({ student, selectPresent }) => {
                       data-tip={"Chọn tất cả"}
                       className="tooltip tooltip-left"
                     >
-                      Tích chọn nộp
+                      Tích chọn hoàn trả
                     </div>
                   </>
                 </th>
               ) : (
-                <th>Tích chọn nộp</th>
+                <th>Tích chọn hoàn trả</th>
               )}
-              <th>Số tiền nộp lần này</th>
+              <th>Số tiền hoàn trả</th>
               <th>Số đã nộp trong kỳ</th>
               <th>Công nợ cuối kỳ</th>
               <th>
@@ -765,9 +738,9 @@ const SubContent = ({ student, selectPresent }) => {
             {expectedRevenue.isRefetching ||
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
-            ) : data?.length === 0 ? (
+            ) : data?.every((item) => item.expected_revenues.length === 0) ? (
               <tr>
-                <td colSpan={6} className="text-center">
+                <td colSpan={11} className="text-center">
                   Không có kết quả!
                 </td>
               </tr>
@@ -858,11 +831,11 @@ const SubContent = ({ student, selectPresent }) => {
               className="btn w-fit self-center"
               onClick={() => ref.current.showModal()}
             >
-              Lập biên lai
+              Lập biên lai hoàn trả
             </button>
             <dialog ref={ref} className="modal">
               <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
+                className="modal-box !min-h-[500px] !max-h-[500px] overflow-y-auto !max-w-4xl"
                 // style={{ overflowY: "unset" }}
               >
                 <form method="dialog">

@@ -120,11 +120,26 @@ export const sideBarData = [
   },
   {
     id: 6,
+    title: "Kết chuyển công nợ",
+    path: "/transfer",
+  },
+  {
+    id: 7,
     title: "Thu",
     path: "/collect",
     subNav: [
       { title: "Lập biên lai thu", path: "/collect/create-receipt" },
       { title: "Bảng kê biên lai thu", path: "/collect/list-receipt" },
+      { title: "Lập phiếu thu tiền mặt", path: "/collect/create-bill-receipt" },
+    ],
+  },
+  {
+    id: 8,
+    title: "Chi",
+    path: "/spend",
+    subNav: [
+      { title: "Hoàn trả tiền thừa", path: "/spend/refund" },
+      { title: "Lập phiếu chi tiền mặt", path: "/spend/create-bill-refund" },
     ],
   },
   {
