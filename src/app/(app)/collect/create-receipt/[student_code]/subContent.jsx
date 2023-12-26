@@ -1,17 +1,31 @@
 "use client";
 import Select from "react-select";
-import { useContext, useState, useRef, useLayoutEffect } from "react";
+import {
+  useContext,
+  useState,
+  useRef,
+  useLayoutEffect,
+  Fragment,
+  useMemo,
+} from "react";
 import { listContext } from "../content";
 import CurrencyInput from "react-currency-input-field";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { getExpectedRevenue, updateExpectedRevenue } from "@/utils/funtionApi";
+import {
+  createReceipt,
+  getExpectedRevenue,
+  getHistoryReceipt,
+  updateExpectedRevenue,
+} from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
 import { Scrollbars } from "react-custom-scrollbars-2";
+import { getText } from "number-to-text-vietnamese";
+import { useReactToPrint } from "react-to-print";
 
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
@@ -20,16 +34,6 @@ function createCode(lastCount) {
   ).slice(-4)}`;
 }
 
-const getDiffArray = (a, b) => {
-  return b.reduce(
-    (total, item) =>
-      JSON.stringify(item) === JSON.stringify(a.find((el) => el.id === item.id))
-        ? total
-        : [...total, item],
-    []
-  );
-};
-
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -37,10 +41,10 @@ function numberWithCommas(x) {
 const Skeleton = () => {
   return (
     <>
-      {[...Array(4)].map(() => (
-        <tr>
-          {[...Array(13)].map(() => (
-            <td>
+      {[...Array(4).keys()].map((item) => (
+        <tr key={item}>
+          {[...Array(13).keys()].map((el) => (
+            <td key={el}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -52,15 +56,118 @@ const Skeleton = () => {
   );
 };
 
-const Modal = ({ data }) => {
+const Modal = ({ data, modalRef }) => {
+  const ref = useRef();
   const { selectPresent, preReceipt, student } = useContext(listContext);
+  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+  const { user } = useUser();
   const [formality, setFormality] = useState({
     label: preReceipt.formality[0].name,
     value: preReceipt.formality[0].id,
   });
-  const middleIndex = Math.floor(data.length / 2);
+  const middleIndex = Math.round(data.length / 2);
   const firstPart = data.slice(0, middleIndex);
   const secondPart = data.slice(middleIndex);
+
+  const [mutating, setMutating] = useState(false);
+  const handlePrint = useReactToPrint({
+    content: () => ref.current,
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (objects) =>
+      createReceipt(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        }),
+        objects
+      ),
+    onSuccess: () => {
+      setMutating(false);
+      modalRef.current.close();
+      toast.success("Lập biên lai thu thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+      queryClient.invalidateQueries({ queryKey: ["get_pre_receipt"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get_expected_revenue", student.code],
+      });
+      data
+        .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
+        .forEach((element) => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "get_history_receipt",
+              {
+                where: {
+                  batch_id: { _eq: selectPresent.id },
+                  student_code: { _eq: student.code },
+                  receipt_details: { expected_revenue_id: { _eq: element.id } },
+                },
+                where1: {
+                  expected_revenue_id: { _eq: element.id },
+                },
+              },
+            ],
+          });
+        });
+
+      handlePrint();
+    },
+    onError: () => {
+      setMutating(false);
+      modalRef.current.close();
+      toast.error("Lập biên lai thu không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
+
+  const handleOnClick = () => {
+    setMutating(true);
+    const time = moment().format();
+    const objects = {
+      amount_collected: data.reduce((total, item) => total + item.nowMoney, 0),
+      batch_id: selectPresent.id,
+      code:
+        (formality.value === 2 &&
+          `BM${createCode(
+            preReceipt.count_receipt.find((item) => item.id === formality.value)
+              .count
+          )}`) ||
+        (formality.value === 1 &&
+          `BK${createCode(
+            preReceipt.count_receipt.find((item) => item.id === formality.value)
+              .count
+          )}`),
+      created_by: user.id,
+      formality_id: formality.value,
+      start_at: time,
+      student_code: student.code,
+      receipt_details: {
+        data: data
+          .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
+          .map((item) => ({
+            amount_collected: item.nowMoney,
+            batch_id: selectPresent.id,
+            created_by: user.id,
+            expected_revenue_id: item.id,
+            start_at: time,
+          })),
+      },
+    };
+    mutation.mutate(objects);
+  };
+
   return (
     <div className="flex flex-col p-2 gap-2">
       <h6 className="col-span-3 text-center">Lập biên lai thu</h6>
@@ -83,57 +190,279 @@ const Modal = ({ data }) => {
           menu: () => "!z-[11]",
         }}
       />
-
-      {formality.value === 2 && (
-        <div className="flex flex-col relative justify-center items-center gap-1">
-          {/* <h6 className="absolute left-0 text-red-500 uppercase">
-            {preReceipt.schools[0].name}
-          </h6> */}
-          <h5 className="text-center">BIÊN LAI THU TIỀN MẶT</h5>
+      <>
+        {/* <div className="border border-black p-1"> */}
+        <div
+          ref={ref}
+          className="flex flex-col relative justify-center items-center gap-1 mb-5"
+        >
+          <h5 className="text-center">
+            {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
+              (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+          </h5>
+          <div className="flex justify-center gap-4">
+            <p>
+              Số BL:{" "}
+              {`${
+                (formality.value === 2 && "BM") ||
+                (formality.value === 1 && "BK")
+              }${createCode(
+                preReceipt.count_receipt.find(
+                  (item) => item.id === formality.value
+                ).count
+              )}`}
+            </p>
+            {formality.value === 1 && (
+              <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
+            )}
+          </div>
           <p>
-            Số BL:{" "}
-            {`BM${createCode(
-              preReceipt.count_receipt.find(
-                (item) => item.id === formality.value
-              ).count
-            )}`}
-          </p>
-          <p>
-            Ngày {moment().day()} tháng {moment().month() + 1} năm{" "}
+            Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
             {moment().year()}
           </p>
-          <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-x divide-black">
-            <div className="pl-1">
-              <p className="font-semibold">
-                Họ và tên học sinh:{" "}
-                {`${student.first_name} ${student.last_name}`}
-              </p>
-              <p className="font-semibold">
-                Ngày sinh:{" "}
-                {student.date_of_birth.split("-").reverse().join("/")}
-              </p>
+          <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
+            <div className="flex divide-x divide-black col-span-2">
+              <div className="pl-1   w-[50%]">
+                <p className="font-semibold">
+                  Họ và tên học sinh:{" "}
+                  {`${student.first_name} ${student.last_name}`}
+                </p>
+                <p className="font-semibold">Mã học sinh: {student.code}</p>
+              </div>
+              <div className="pl-1   w-[50%]">
+                <p className="font-semibold">
+                  Ngày sinh:{" "}
+                  {student.date_of_birth.split("-").reverse().join("/")}
+                </p>
+
+                <p className="font-semibold">Lớp: {student.class_name}</p>
+              </div>
             </div>
-            <div className="pl-1">
-              <p className="font-semibold">Mã học sinh: {student.code}</p>
-              <p className="font-semibold">Lớp: {student.class_name}</p>
-            </div>
-            <div className="col-span-2 grid grid-cols-2 auto-rows-auto">
-              <div className="flex flex-col pl-1 !border-none">
+            <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+              <div className="flex flex-col divide-y divide-black">
                 {firstPart.map((item, index) => (
-                  <p>
-                    {index + 1}. {item.name}: {item.nowMoney} <span>₫</span>
+                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
+                    {index + 1}. {item.name}: {numberWithCommas(item.nowMoney)}{" "}
+                    <span>₫</span>
+                  </p>
+                ))}
+              </div>
+              <div className="flex flex-col divide-y divide-black">
+                {secondPart.map((item, index) => (
+                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
+                    {middleIndex + index + 1}. {item.name}:{" "}
+                    {numberWithCommas(item.nowMoney)} <span>₫</span>
                   </p>
                 ))}
               </div>
             </div>
+            <div className="flex flex-col col-span-2 p-2 gap-2">
+              <p className=" flex justify-end gap-1 font-semibold">
+                Tổng các khoản thu ={" "}
+                {numberWithCommas(
+                  data.reduce((total, item) => total + item.nowMoney, 0)
+                )}{" "}
+                <span>₫</span>
+              </p>
+              <p className="text-center font-semibold">
+                Bằng chữ:{" "}
+                <span className="italic first-letter:uppercase">
+                  {getText(
+                    data.reduce((total, item) => total + item.nowMoney, 0)
+                  )
+                    .charAt(0)
+                    .toUpperCase() +
+                    getText(
+                      data.reduce((total, item) => total + item.nowMoney, 0)
+                    ).slice(1)}{" "}
+                  đồng
+                </span>
+              </p>
+            </div>
+          </div>
+          {/* <div
+            className={`grid ${
+              (formality.value === 2 && "grid-cols-3") ||
+              (formality.value === 1 && "grid-cols-2")
+            } auto-rows-auto w-full hidden`}
+          >
+            <p className="text-center font-semibold ">Người lập</p>
+            {formality.value === 2 && (
+              <>
+                <p className="text-center font-semibold">Người nộp tiền</p>
+                <p className="text-center font-semibold">Người thu tiền</p>
+              </>
+            )}
+            {formality.value === 1 && (
+              <>
+                <p className="text-center font-semibold">Ngân hàng thu</p>
+              </>
+            )}
+          </div> */}
+        </div>
+
+        {/* PRINT DIV */}
+        <div className="hidden">
+          <div
+            ref={ref}
+            className="flex flex-col relative justify-center items-center gap-1 mb-5"
+          >
+            <h5 className="text-center">
+              {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
+                (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+            </h5>
+            <div className="flex justify-center gap-4">
+              <p>
+                Số BL:{" "}
+                {`${
+                  (formality.value === 2 && "BM") ||
+                  (formality.value === 1 && "BK")
+                }${createCode(
+                  preReceipt.count_receipt.find(
+                    (item) => item.id === formality.value
+                  ).count
+                )}`}
+              </p>
+              {formality.value === 1 && (
+                <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
+              )}
+            </div>
+            <p>
+              Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+              {moment().year()}
+            </p>
+            <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
+              <div className="flex divide-x divide-black col-span-2">
+                <div className="pl-1   w-[50%]">
+                  <p className="font-semibold">
+                    Họ và tên học sinh:{" "}
+                    {`${student.first_name} ${student.last_name}`}
+                  </p>
+                  <p className="font-semibold">Mã học sinh: {student.code}</p>
+                </div>
+                <div className="pl-1   w-[50%]">
+                  <p className="font-semibold">
+                    Ngày sinh:{" "}
+                    {student.date_of_birth.split("-").reverse().join("/")}
+                  </p>
+
+                  <p className="font-semibold">Lớp: {student.class_name}</p>
+                </div>
+              </div>
+              <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+                <div className="flex flex-col divide-y divide-black">
+                  {firstPart.map((item, index) => (
+                    <p
+                      key={item.name}
+                      className="pl-1 pr-1 flex justify-between"
+                    >
+                      {index + 1}. {item.name}:{" "}
+                      {numberWithCommas(item.nowMoney)} <span>₫</span>
+                    </p>
+                  ))}
+                </div>
+                <div className="flex flex-col divide-y divide-black">
+                  {secondPart.map((item, index) => (
+                    <p
+                      key={item.name}
+                      className="pl-1 pr-1 flex justify-between"
+                    >
+                      {middleIndex + index + 1}. {item.name}:{" "}
+                      {numberWithCommas(item.nowMoney)} <span>₫</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col col-span-2 p-2 gap-2">
+                <p className=" flex justify-end gap-1 font-semibold">
+                  Tổng các khoản thu ={" "}
+                  {numberWithCommas(
+                    data.reduce((total, item) => total + item.nowMoney, 0)
+                  )}{" "}
+                  <span>₫</span>
+                </p>
+                <p className="text-center font-semibold">
+                  Bằng chữ:{" "}
+                  <span className="italic first-letter:uppercase">
+                    {getText(
+                      data.reduce((total, item) => total + item.nowMoney, 0)
+                    )
+                      .charAt(0)
+                      .toUpperCase() +
+                      getText(
+                        data.reduce((total, item) => total + item.nowMoney, 0)
+                      ).slice(1)}{" "}
+                    đồng
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div
+              className={`grid ${
+                (formality.value === 2 && "grid-cols-3") ||
+                (formality.value === 1 && "grid-cols-2")
+              } auto-rows-auto w-full`}
+            >
+              <p className="text-center font-semibold ">Người lập</p>
+              {formality.value === 2 && (
+                <>
+                  <p className="text-center font-semibold">Người nộp tiền</p>
+                  <p className="text-center font-semibold">Người thu tiền</p>
+                </>
+              )}
+              {formality.value === 1 && (
+                <>
+                  <p className="text-center font-semibold">Ngân hàng thu</p>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      )}
+
+        {/* </div> */}
+        {mutating ? (
+          <span className="loading loading-spinner loading-md self-center"></span>
+        ) : (
+          <button
+            className="btn w-fit self-center"
+            onClick={() => handleOnClick()}
+          >
+            Lưu và in
+          </button>
+        )}
+      </>
     </div>
   );
 };
 
 const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
+  const { selectPresent, student } = useContext(listContext);
+  const { getToken } = useAuth();
+  const where = useMemo(
+    () => ({
+      where: {
+        batch_id: { _eq: selectPresent.id },
+        student_code: { _eq: student.code },
+        receipt_details: { expected_revenue_id: { _eq: data.id } },
+      },
+      where1: {
+        expected_revenue_id: { _eq: data.id },
+      },
+    }),
+    []
+  );
+  const historyData = useQuery({
+    queryFn: async () =>
+      getHistoryReceipt(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        }),
+        where
+      ),
+    queryKey: ["get_history_receipt", where],
+  });
+
+  const amount_collected_ref = useRef();
   return (
     <tr className="hover">
       <td className={`${typeof i === "number" ? "text-right" : ""}`}>
@@ -164,9 +493,10 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                             ? {
                                 ...item,
                                 isChecked: e.target.checked,
-                                nowMoney: e.target.checked
-                                  ? item.next_batch_money
-                                  : item.nowMoney,
+                                nowMoney:
+                                  e.target.checked === true
+                                    ? item.next_batch_money
+                                    : 0,
                               }
                             : item
                         ),
@@ -193,7 +523,10 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                         ...el,
                         expected_revenues: el.expected_revenues.map((item) =>
                           item.id === data.id
-                            ? { ...item, nowMoney: parseInt(value) }
+                            ? {
+                                ...item,
+                                nowMoney: parseInt(value),
+                              }
                             : item
                         ),
                       }
@@ -205,7 +538,83 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
           />
         </>
       </td>
-      <td>{numberWithCommas(data.amount_collected)} ₫</td>
+      <td onClick={() => amount_collected_ref.current.showModal()}>
+        <>
+          <div className="tooltip tooltip-left" data-tip="Xem lịch sử">
+            {numberWithCommas(data.amount_collected)} ₫
+            <dialog ref={amount_collected_ref} className="modal">
+              <div className="modal-box !max-w-2xl">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <div className="flex flex-col gap-4">
+                  <h6>
+                    Danh sách biên lai đã nộp tương ứng khoản thu:{" "}
+                    {data.revenue.name}
+                  </h6>
+                  <div className="overflow-x-auto">
+                    <table className="table">
+                      {/* head */}
+                      <thead>
+                        <tr>
+                          <th>TT</th>
+                          <th>Mã biên lai</th>
+                          <th>Số tiền đã nộp</th>
+                          <th>Ngày nộp</th>
+                          <th>Hình thức</th>
+                          <th>Người lập</th>
+                          <th>Đã huỷ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {historyData.isFetching && historyData.isLoading ? (
+                          [...Array(4).keys()].map((item) => (
+                            <tr key={item}>
+                              {[...Array(6).keys()].map((el) => (
+                                <td key={el}>
+                                  <>
+                                    <div className="skeleton h-4 w-full"></div>
+                                  </>
+                                </td>
+                              ))}
+                            </tr>
+                          ))
+                        ) : historyData.data.data.result.length === 0 ? (
+                          <tr colSpan={6}>Chưa có dữ liệu</tr>
+                        ) : (
+                          historyData.data.data.result.map((item, index) => (
+                            <tr key={item.code} className="hover">
+                              <td>{index + 1}</td>
+                              <td>{item.code}</td>
+                              <td>
+                                {numberWithCommas(
+                                  item.receipt_details[0].amount_collected
+                                )}{" "}
+                                ₫
+                              </td>
+                              <td>
+                                {moment(item.start_at).format(
+                                  "DD/MM/yyyy HH:mm:ss"
+                                )}
+                              </td>
+                              <td>{item.formality.name}</td>
+                              <td>{`${item.user.first_name} ${item.user.last_name}`}</td>
+                              <td>{item.canceled && "✓"}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </dialog>
+          </div>
+        </>
+      </td>
       <td>
         {numberWithCommas(
           data.previous_batch_money +
@@ -221,9 +630,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
 };
 
 const SubContent = ({ student, selectPresent }) => {
+  const { preReceiptIsRefetch } = useContext(listContext);
   const ref = useRef();
-  const { user } = useUser();
-  const [mutating, setMutating] = useState(false);
   const [data, setData] = useState();
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -242,52 +650,6 @@ const SubContent = ({ student, selectPresent }) => {
     },
   };
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const time = moment().format();
-      const updates = getDiffArray(expectedRevenue.data.data.result, data).map(
-        (item) => ({
-          _set: {
-            note: item.note,
-            amount_edited: item.amount_edited,
-            updated_by: user.id,
-            updated_at: time,
-            start_at: time,
-          },
-          where: { id: { _eq: item.id } },
-        })
-      );
-      return updateExpectedRevenue(
-        await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-        }),
-        updates
-      );
-    },
-    onSuccess: () => {
-      setMutating(false);
-      queryClient.invalidateQueries({
-        queryKey: ["get_expected_revenue", student.code],
-      });
-      toast.success("Điều chỉnh dự kiến thu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-    onError: () => {
-      setMutating(false);
-      toast.error("Điều chỉnh dự kiến thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-  });
   const expectedRevenue = useQuery({
     queryKey: ["get_expected_revenue", student.code],
     queryFn: async () =>
@@ -449,7 +811,7 @@ const SubContent = ({ student, selectPresent }) => {
 
                   if (item.expected_revenues.length > 1) {
                     return (
-                      <>
+                      <Fragment key={item.id}>
                         <tr className="hover">
                           <td>{index + 1}</td>
                           <td>{item.name}</td>
@@ -473,7 +835,7 @@ const SubContent = ({ student, selectPresent }) => {
                             />
                           );
                         })}
-                      </>
+                      </Fragment>
                     );
                   }
                 })
@@ -481,46 +843,52 @@ const SubContent = ({ student, selectPresent }) => {
           </tbody>
         </table>
       </Scrollbars>
-      {data
-        ?.filter((item) => item.expected_revenues.length > 0)
-        .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
-        .some((item) => item.isChecked) && (
-        <>
-          <button
-            className="btn w-fit self-center"
-            onClick={() => ref.current.showModal()}
-          >
-            Lập biên lai
-          </button>
-          <dialog ref={ref} id="my_modal_1" className="modal">
-            <div
-              className="modal-box !max-h-none !max-w-2xl"
-              style={{ overflowY: "unset" }}
+      {expectedRevenue.isRefetching ? (
+        <></>
+      ) : preReceiptIsRefetch ? (
+        <span className="loading loading-spinner loading-md self-center"></span>
+      ) : (
+        data
+          ?.filter((item) => item.expected_revenues.length > 0)
+          .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
+          .some((item) => item.isChecked && item.nowMoney) && (
+          <>
+            <button
+              className="btn w-fit self-center"
+              onClick={() => ref.current.showModal()}
             >
-              <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                  ✕
-                </button>
-              </form>
-              <Modal
-                data={data
-                  ?.filter(
-                    (item) =>
-                      item.expected_revenues.length > 0 &&
-                      item.expected_revenues.some((el) => el.isChecked)
-                  )
-                  .map((item) => ({
-                    ...item,
-                    nowMoney: item.expected_revenues.reduce(
-                      (total, curr) => total + curr.nowMoney,
-                      0
-                    ),
-                  }))}
-              />
-            </div>
-          </dialog>
-        </>
+              Lập biên lai
+            </button>
+            <dialog ref={ref} className="modal">
+              <div
+                className="modal-box !min-h-[500px] !max-h-[500px] overflow-y-auto !max-w-2xl"
+                // style={{ overflowY: "unset" }}
+              >
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <Modal
+                  modalRef={ref}
+                  data={data
+                    ?.filter(
+                      (item) =>
+                        item.expected_revenues.length > 0 &&
+                        item.expected_revenues.some((el) => el.isChecked)
+                    )
+                    .map((item) => ({
+                      ...item,
+                      nowMoney: item.expected_revenues
+                        .filter((item) => item.nowMoney)
+                        .reduce((total, curr) => total + curr.nowMoney, 0),
+                    }))}
+                />
+              </div>
+            </dialog>
+          </>
+        )
       )}
     </div>
   );

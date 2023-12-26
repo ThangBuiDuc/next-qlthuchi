@@ -2,16 +2,33 @@
 import { useMemo } from "react";
 import { listContext } from "../content";
 import SubContent from "./subContent";
+import { useQuery } from "@tanstack/react-query";
+import { getPreReceipt } from "@/utils/funtionApi";
 
-const Content = ({ student, present, preReceipt }) => {
+const Content = ({ student, present, InitialPreReceipt }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
   );
+
+  const preReceipt = useQuery({
+    queryFn: () => getPreReceipt(),
+    queryKey: ["get_pre_receipt"],
+    staleTime: Infinity,
+    initialData: () => InitialPreReceipt,
+  });
+
   return (
     <>
       {/* <ToastContainer /> */}
-      <listContext.Provider value={{ selectPresent, preReceipt, student }}>
+      <listContext.Provider
+        value={{
+          selectPresent,
+          preReceipt: preReceipt.data,
+          preReceiptIsRefetch: preReceipt.isRefetching,
+          student,
+        }}
+      >
         <div className="flex flex-col  gap-[15px]">
           <div className="flex flex-col gap-[10px]">
             <div className="flex gap-1 justify-center items-center w-full">
