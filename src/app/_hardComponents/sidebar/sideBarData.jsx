@@ -133,8 +133,12 @@ export const sideBarData = [
     path: "/collect",
     subNav: [
       { title: "Lập biên lai thu", path: "/collect/create-receipt" },
-      { title: "Bảng kê biên lai thu", path: "/collect/list-receipt" },
+      { title: "Quản lý biên lai thu", path: "/collect/list-receipt" },
       { title: "Lập phiếu thu tiền mặt", path: "/collect/create-bill-receipt" },
+      {
+        title: "Quản lý phiếu thu tiền mặt",
+        path: "/collect/list-bill-receipt",
+      },
     ],
   },
   {

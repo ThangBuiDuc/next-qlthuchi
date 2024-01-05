@@ -9,7 +9,7 @@ const Content = ({
   present,
   listRevenue,
   calculationUnit,
-  preReceipt,
+  // preReceipt,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),

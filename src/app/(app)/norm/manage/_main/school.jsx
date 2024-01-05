@@ -68,7 +68,6 @@ const UpdateModal = ({ data, queryKey }) => {
           created_by: user.id,
           revenue_code: data.revenue_code,
           school_level_code: data.school_level_code,
-          calculation_unit_id: norm.calculation_unit.value,
           unit_price: norm.unit_price,
           amount: norm.amount,
           start_at: time,
@@ -150,74 +149,89 @@ const UpdateModal = ({ data, queryKey }) => {
             ✕
           </label>
           <h5 className="text-center">Sửa định mức thu: {data.revenue.name}</h5>
-          <div className="grid grid-cols-3 auto-rows-auto gap-3">
-            <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Loại khoản thu"
-              value={{
-                value: data.revenue.revenue_group.revenue_type.id,
-                label: data.revenue.revenue_group.revenue_type.name,
-              }}
-              isDisabled
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-            />
-            <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Nhóm khoản thu"
-              isDisabled
-              value={{
-                value: data.revenue.revenue_group.id,
-                label: data.revenue.revenue_group.name,
-              }}
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-            />
-            <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Khoản thu"
-              isDisabled
-              value={{
-                value: data.revenue.id,
-                label: data.revenue.name,
-              }}
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-            />
-            <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Đơn vị tính"
-              options={calculationUnit.calculation_units.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
-              value={norm.calculation_unit}
-              onChange={(e) =>
-                setNorm((pre) => ({ ...pre, calculation_unit: e }))
-              }
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-            />
+          <div className="grid grid-cols-2 auto-rows-auto gap-3">
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Loại khoản thu:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Loại khoản thu"
+                value={{
+                  value: data.revenue.revenue_group.revenue_type.id,
+                  label: data.revenue.revenue_group.revenue_type.name,
+                }}
+                isDisabled
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Nhóm khoản thu:</p>
+
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Nhóm khoản thu"
+                isDisabled
+                value={{
+                  value: data.revenue.revenue_group.id,
+                  label: data.revenue.revenue_group.name,
+                }}
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Khoản thu:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Khoản thu"
+                isDisabled
+                value={{
+                  value: data.revenue.id,
+                  label: data.revenue.name,
+                }}
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Đơn vị tính:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Đơn vị tính"
+                // options={calculationUnit.calculation_units.map((item) => ({
+                //   value: item.id,
+                //   label: item.name,
+                // }))}
+                isDisabled
+                value={norm.calculation_unit}
+                // onChange={(e) =>
+                //   setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                // }
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
             <div className={`w-full relative `}>
               <input
                 autoComplete="off"

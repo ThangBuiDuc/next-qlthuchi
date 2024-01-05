@@ -62,8 +62,8 @@ const Modal = ({ data, modalRef }) => {
   const queryClient = useQueryClient();
   const { user } = useUser();
   const [formality, setFormality] = useState({
-    label: preReceipt.formality[0].name,
-    value: preReceipt.formality[0].id,
+    label: preReceipt.formality[1].name,
+    value: preReceipt.formality[1].id,
   });
   const middleIndex = Math.round(data.length / 2);
   const firstPart = data.slice(0, middleIndex);
@@ -193,12 +193,16 @@ const Modal = ({ data, modalRef }) => {
       <>
         {/* <div className="border border-black p-1"> */}
         <div className="flex flex-col relative justify-center items-center gap-1 mb-5">
-          <h5 className="text-center">
+          <h5 className="text-center text-[16px]">
             {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
               (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
           </h5>
-          <div className="flex justify-center gap-4">
-            <p>
+          <div
+            className={`flex ${
+              formality.value === 1 ? "justify-between" : "justify-center"
+            } gap-4 w-full`}
+          >
+            <p className=" text-[14px]">
               Số BL:{" "}
               {`${
                 (formality.value === 2 && "BM") ||
@@ -210,58 +214,70 @@ const Modal = ({ data, modalRef }) => {
               )}`}
             </p>
             {formality.value === 1 && (
-              <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
+              <p className=" text-[14px]">
+                Ngân hàng thu: {preReceipt.schools[0].bank_name}
+              </p>
             )}
           </div>
-          <p>
+          <p className=" text-[12px]">
             Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
             {moment().year()}
           </p>
           <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
             <div className="flex divide-x divide-black col-span-2">
               <div className="pl-1   w-[50%]">
-                <p className="font-semibold">
+                <p className="font-semibold text-[14px]">
                   Họ và tên học sinh:{" "}
                   {`${student.first_name} ${student.last_name}`}
                 </p>
-                <p className="font-semibold">Mã học sinh: {student.code}</p>
+                <p className="font-semibold text-[14px]">
+                  Mã học sinh: {student.code}
+                </p>
               </div>
               <div className="pl-1   w-[50%]">
-                <p className="font-semibold">
+                <p className="font-semibold text-[14px]">
                   Ngày sinh:{" "}
                   {student.date_of_birth.split("-").reverse().join("/")}
                 </p>
 
-                <p className="font-semibold">Lớp: {student.class_name}</p>
+                <p className="font-semibold text-[14px]">
+                  Lớp: {student.class_name}
+                </p>
               </div>
             </div>
             <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
               <div className="flex flex-col divide-y divide-black">
                 {firstPart.map((item, index) => (
-                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
-                    {index + 1}. {item.name}: {numberWithCommas(item.nowMoney)}{" "}
-                    <span>₫</span>
+                  <p
+                    key={item.name}
+                    className="pl-1 pr-1 flex justify-between text-[14px]"
+                  >
+                    {index + 1}. {item.name}:{" "}
+                    <span>{numberWithCommas(item.nowMoney)} ₫</span>
                   </p>
                 ))}
               </div>
               <div className="flex flex-col divide-y divide-black">
                 {secondPart.map((item, index) => (
-                  <p key={item.name} className="pl-1 pr-1 flex justify-between">
+                  <p
+                    key={item.name}
+                    className="pl-1 pr-1 flex justify-between  text-[14px]"
+                  >
                     {middleIndex + index + 1}. {item.name}:{" "}
-                    {numberWithCommas(item.nowMoney)} <span>₫</span>
+                    <span>{numberWithCommas(item.nowMoney)} ₫</span>
                   </p>
                 ))}
               </div>
             </div>
             <div className="flex flex-col col-span-2 p-2 gap-2">
-              <p className=" flex justify-end gap-1 font-semibold">
+              <p className=" flex justify-end gap-1 font-semibold  text-[14px]">
                 Tổng các khoản thu ={" "}
                 {numberWithCommas(
                   data.reduce((total, item) => total + item.nowMoney, 0)
                 )}{" "}
                 <span>₫</span>
               </p>
-              <p className="text-center font-semibold">
+              <p className="text-center font-semibold  text-[14px]">
                 Bằng chữ:{" "}
                 <span className="italic first-letter:uppercase">
                   {getText(
@@ -277,25 +293,6 @@ const Modal = ({ data, modalRef }) => {
               </p>
             </div>
           </div>
-          {/* <div
-            className={`grid ${
-              (formality.value === 2 && "grid-cols-3") ||
-              (formality.value === 1 && "grid-cols-2")
-            } auto-rows-auto w-full hidden`}
-          >
-            <p className="text-center font-semibold ">Người lập</p>
-            {formality.value === 2 && (
-              <>
-                <p className="text-center font-semibold">Người nộp tiền</p>
-                <p className="text-center font-semibold">Người thu tiền</p>
-              </>
-            )}
-            {formality.value === 1 && (
-              <>
-                <p className="text-center font-semibold">Ngân hàng thu</p>
-              </>
-            )}
-          </div> */}
         </div>
 
         {/* PRINT DIV */}
@@ -304,12 +301,16 @@ const Modal = ({ data, modalRef }) => {
             ref={ref}
             className="flex flex-col relative justify-center items-center gap-1 mb-5"
           >
-            <h5 className="text-center">
+            <h5 className="text-center text-[16px]">
               {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
                 (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
             </h5>
-            <div className="flex justify-center gap-4">
-              <p>
+            <div
+              className={`flex ${
+                formality.value === 1 ? "justify-between" : "justify-center"
+              } gap-4 w-full`}
+            >
+              <p className=" text-[14px]">
                 Số BL:{" "}
                 {`${
                   (formality.value === 2 && "BM") ||
@@ -321,29 +322,35 @@ const Modal = ({ data, modalRef }) => {
                 )}`}
               </p>
               {formality.value === 1 && (
-                <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
+                <p className=" text-[14px]">
+                  Ngân hàng thu: {preReceipt.schools[0].bank_name}
+                </p>
               )}
             </div>
-            <p>
+            <p className=" text-[12px]">
               Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
               {moment().year()}
             </p>
             <div className="grid grid-cols-2 auto-rows-auto border border-black w-full divide-y divide-black">
               <div className="flex divide-x divide-black col-span-2">
                 <div className="pl-1   w-[50%]">
-                  <p className="font-semibold">
+                  <p className="font-semibold text-[14px]">
                     Họ và tên học sinh:{" "}
                     {`${student.first_name} ${student.last_name}`}
                   </p>
-                  <p className="font-semibold">Mã học sinh: {student.code}</p>
+                  <p className="font-semibold text-[14px]">
+                    Mã học sinh: {student.code}
+                  </p>
                 </div>
                 <div className="pl-1   w-[50%]">
-                  <p className="font-semibold">
+                  <p className="font-semibold text-[14px]">
                     Ngày sinh:{" "}
                     {student.date_of_birth.split("-").reverse().join("/")}
                   </p>
 
-                  <p className="font-semibold">Lớp: {student.class_name}</p>
+                  <p className="font-semibold text-[14px]">
+                    Lớp: {student.class_name}
+                  </p>
                 </div>
               </div>
               <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
@@ -351,10 +358,10 @@ const Modal = ({ data, modalRef }) => {
                   {firstPart.map((item, index) => (
                     <p
                       key={item.name}
-                      className="pl-1 pr-1 flex justify-between"
+                      className="pl-1 pr-1 flex justify-between text-[14px]"
                     >
                       {index + 1}. {item.name}:{" "}
-                      {numberWithCommas(item.nowMoney)} <span>₫</span>
+                      <span>{numberWithCommas(item.nowMoney)} ₫</span>
                     </p>
                   ))}
                 </div>
@@ -362,23 +369,23 @@ const Modal = ({ data, modalRef }) => {
                   {secondPart.map((item, index) => (
                     <p
                       key={item.name}
-                      className="pl-1 pr-1 flex justify-between"
+                      className="pl-1 pr-1 flex justify-between  text-[14px]"
                     >
                       {middleIndex + index + 1}. {item.name}:{" "}
-                      {numberWithCommas(item.nowMoney)} <span>₫</span>
+                      <span>{numberWithCommas(item.nowMoney)} ₫</span>
                     </p>
                   ))}
                 </div>
               </div>
               <div className="flex flex-col col-span-2 p-2 gap-2">
-                <p className=" flex justify-end gap-1 font-semibold">
+                <p className=" flex justify-end gap-1 font-semibold  text-[14px]">
                   Tổng các khoản thu ={" "}
                   {numberWithCommas(
                     data.reduce((total, item) => total + item.nowMoney, 0)
                   )}{" "}
                   <span>₫</span>
                 </p>
-                <p className="text-center font-semibold">
+                <p className="text-center font-semibold  text-[14px]">
                   Bằng chữ:{" "}
                   <span className="italic first-letter:uppercase">
                     {getText(
@@ -616,9 +623,10 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td>
         {numberWithCommas(
           data.previous_batch_money +
-            data.prescribed_money +
+            data.actual_amount_collected +
             data.amount_edited -
-            data.amount_collected
+            data.amount_collected -
+            data.nowMoney
         )}{" "}
         ₫
       </td>
@@ -673,7 +681,7 @@ const SubContent = ({ student, selectPresent }) => {
                 expected_revenues: item.expected_revenues.map((el) => ({
                   ...el,
                   isChecked: false,
-                  nowMoney: "",
+                  nowMoney: 0,
                 })),
               }
         )
@@ -695,7 +703,8 @@ const SubContent = ({ student, selectPresent }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Scrollbars universal autoHeight autoHeightMin={"450px"}>
+      {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
+      <div className="overflow-x-auto">
         <table className="table table-xs table-pin-rows">
           {/* head */}
           <thead>
@@ -843,7 +852,8 @@ const SubContent = ({ student, selectPresent }) => {
             )}
           </tbody>
         </table>
-      </Scrollbars>
+      </div>
+      {/* </Scrollbars> */}
       {expectedRevenue.isRefetching ? (
         <></>
       ) : preReceiptIsRefetch ? (
@@ -862,7 +872,7 @@ const SubContent = ({ student, selectPresent }) => {
             </button>
             <dialog ref={ref} className="modal">
               <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
+                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-4xl"
                 // style={{ overflowY: "unset" }}
               >
                 <form method="dialog">

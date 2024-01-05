@@ -37,7 +37,7 @@ const Content = ({ listSearch, present }) => {
     <>
       {/* <ToastContainer /> */}
       <listContext.Provider value={{ listSearch, selectPresent }}>
-        <div className="flex flex-col p-[20px] gap-[15px]">
+        <div className="flex flex-col h-full gap-[15px]">
           <div className="flex gap-1 items-center w-full justify-center">
             <h5>Học kỳ: </h5>
             <h5>{selectPresent.batch} - </h5>

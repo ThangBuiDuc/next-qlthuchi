@@ -5,17 +5,7 @@ import Other from "./_other/other";
 import { getPreBill } from "@/utils/funtionApi";
 // import Main from "./_filter/main";
 import { useQuery } from "@tanstack/react-query";
-
-const options = [
-  {
-    value: 1,
-    label: "Thu khác",
-  },
-  {
-    value: 2,
-    label: "Thu qua bảng kê",
-  },
-];
+import Receipt from "./_receipt/receipt";
 
 export const listContext = createContext();
 
@@ -51,15 +41,23 @@ const Content = ({ listSearch, InitialPreBill, present }) => {
             <h6>{selectPresent.batch} - </h6>
             <h6>Năm học: {present.result[0].school_year}</h6>
           </div>
-          <Select
-            noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Hình thức chi!"
-            options={options}
-            value={selected}
-            onChange={setSelected}
-            className="text-black w-52"
-          />
-          {selected?.value === 1 && <Other />}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs">Hình thức chi:</p>
+            <Select
+              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+              placeholder="Hình thức chi!"
+              options={preBill.data.bill_formality.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              value={selected}
+              onChange={setSelected}
+              className="text-black w-52"
+            />
+          </div>
+
+          {selected?.value === 1 && <Other selected={selected} />}
+          {selected?.value === 2 && <Receipt selected={selected} />}
         </div>
       </listContext.Provider>
     </>

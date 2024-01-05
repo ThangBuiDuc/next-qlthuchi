@@ -3,7 +3,7 @@ import {
   getListRevenue,
   getListSearch,
   getSchoolYear,
-  meilisearchGet,
+  meilisearchStudentGet,
 } from "@/utils/funtionApi";
 
 import Content from "./content";
@@ -17,7 +17,7 @@ const Page = async ({ params }) => {
 
   const apiCalculationUnit = await getCalculationUnit();
 
-  const student = await meilisearchGet(params.student_code);
+  const student = await meilisearchStudentGet(params.student_code);
 
   if (
     apiListSearch.status !== 200 ||

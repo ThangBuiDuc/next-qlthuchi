@@ -1,6 +1,6 @@
 import {
   getSchoolYear,
-  meilisearchGet,
+  meilisearchStudentGet,
   getPreReceipt,
 } from "@/utils/funtionApi";
 
@@ -9,7 +9,7 @@ import Content from "./content";
 const Page = async ({ params }) => {
   const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const student = await meilisearchGet(params.student_code);
+  const student = await meilisearchStudentGet(params.student_code);
 
   const apiPreReceipt = await getPreReceipt();
 

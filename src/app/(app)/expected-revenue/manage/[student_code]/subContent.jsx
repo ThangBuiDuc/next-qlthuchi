@@ -146,60 +146,26 @@ const AddContent1 = ({ student, currentRef }) => {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-4 p-4 auto-rows-auto">
-        <h6 className="col-span-3 text-center">Bổ sung khoản đã có</h6>
-        <Select
-          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Loại khoản thu"
-          options={listRevenue.revenue_types
-            .sort((a, b) => a.id - b.id)
-            .map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-          value={norm.type}
-          onChange={(e) => {
-            if (norm.type?.value !== e.value)
-              setNorm((pre) => ({
-                ...pre,
-                type: e,
-                group: null,
-                revenue: null,
-                calculation_unit: null,
-                price: 100000,
-                quantity: 1,
-                total: 100000,
-              }));
-          }}
-          className="text-black text-sm"
-          classNames={{
-            control: () => "!rounded-[5px]",
-            input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-            valueContainer: () => "!p-[0_8px]",
-            menu: () => "!z-[11]",
-          }}
-        />
-        {norm.type && (
+      <div className="grid grid-cols-2 gap-4 p-4 auto-rows-auto">
+        <h6 className="col-span-2 text-center">Bổ sung khoản đã có</h6>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs ">Loại khoản thu:</p>
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Nhóm khoản thu"
+            placeholder="Loại khoản thu"
             options={listRevenue.revenue_types
-              .find((item) => item.id === norm.type.value)
-              .revenue_groups.filter((item) =>
-                item.scope.some((el) => el === student.school_level_code)
-              )
-              .filter((item) => item.revenues.length > 0)
               .sort((a, b) => a.id - b.id)
               .map((item) => ({
                 value: item.id,
                 label: item.name,
               }))}
-            value={norm.group}
+            value={norm.type}
             onChange={(e) => {
-              norm.group?.value !== e.value &&
+              if (norm.type?.value !== e.value)
                 setNorm((pre) => ({
                   ...pre,
-                  group: e,
+                  type: e,
+                  group: null,
                   revenue: null,
                   calculation_unit: null,
                   price: 100000,
@@ -215,54 +181,74 @@ const AddContent1 = ({ student, currentRef }) => {
               menu: () => "!z-[11]",
             }}
           />
-        )}
-        {norm.group && (
-          <Select
-            noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Khoản thu"
-            options={listRevenue.revenue_types
-              .find((item) => item.id === norm.type.value)
-              .revenue_groups.find((item) => item.id === norm.group.value)
-              .revenues.map((item) => {
-                return {
-                  ...item,
-                  value: item.id,
-                  label: item.name,
-                };
-              })}
-            value={norm.revenue}
-            onChange={(e) =>
-              norm.revenue?.value !== e.value &&
-              setNorm((pre) => ({
-                ...pre,
-                revenue: e,
-                calculation_unit: null,
-                price: 100000,
-                quantity: 1,
-                total: 100000,
-              }))
-            }
-            className="text-black text-sm"
-            classNames={{
-              control: () => "!rounded-[5px]",
-              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-              valueContainer: () => "!p-[0_8px]",
-              menu: () => "!z-[11]",
-            }}
-          />
-        )}
-        {norm.revenue && (
-          <>
+        </div>
+        {norm.type && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs ">Nhóm khoản thu:</p>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Đơn vị tính"
-              options={calculationUnit.calculation_units.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
-              value={norm.calculation_unit}
+              placeholder="Nhóm khoản thu"
+              options={listRevenue.revenue_types
+                .find((item) => item.id === norm.type.value)
+                .revenue_groups.filter((item) =>
+                  item.scope.some((el) => el === student.school_level_code)
+                )
+                .filter((item) => item.revenues.length > 0)
+                .sort((a, b) => a.id - b.id)
+                .map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+              value={norm.group}
+              onChange={(e) => {
+                norm.group?.value !== e.value &&
+                  setNorm((pre) => ({
+                    ...pre,
+                    group: e,
+                    revenue: null,
+                    calculation_unit: null,
+                    price: 100000,
+                    quantity: 1,
+                    total: 100000,
+                  }));
+              }}
+              className="text-black text-sm"
+              classNames={{
+                control: () => "!rounded-[5px]",
+                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                valueContainer: () => "!p-[0_8px]",
+                menu: () => "!z-[11]",
+              }}
+            />
+          </div>
+        )}
+        {norm.group && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs ">Khoản thu:</p>
+            <Select
+              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+              placeholder="Khoản thu"
+              options={listRevenue.revenue_types
+                .find((item) => item.id === norm.type.value)
+                .revenue_groups.find((item) => item.id === norm.group.value)
+                .revenues.map((item) => {
+                  return {
+                    ...item,
+                    value: item.id,
+                    label: item.name,
+                  };
+                })}
+              value={norm.revenue}
               onChange={(e) =>
-                setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                norm.revenue?.value !== e.value &&
+                setNorm((pre) => ({
+                  ...pre,
+                  revenue: e,
+                  calculation_unit: null,
+                  price: 100000,
+                  quantity: 1,
+                  total: 100000,
+                }))
               }
               className="text-black text-sm"
               classNames={{
@@ -272,6 +258,32 @@ const AddContent1 = ({ student, currentRef }) => {
                 menu: () => "!z-[11]",
               }}
             />
+          </div>
+        )}
+        {norm.revenue && (
+          <>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs ">Đơn vị tính:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Đơn vị tính"
+                options={calculationUnit.calculation_units.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                value={norm.calculation_unit}
+                onChange={(e) =>
+                  setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                }
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
 
             <div className={`w-full relative `}>
               <input
@@ -322,7 +334,7 @@ const AddContent1 = ({ student, currentRef }) => {
                 Đơn giá
               </label>
             </div>
-            <div className={`w-full relative col-span-3`}>
+            <div className={`w-full relative col-span-2`}>
               <CurrencyInput
                 autoComplete="off"
                 disabled
@@ -443,26 +455,20 @@ const AddContent2 = ({ student, currentRef }) => {
     setMutating(true);
     const time = moment().format();
     const objects = {
-      name: norm.group,
-      scope: [1, 2],
-      revenue_type_id: norm.type.value,
-      revenues: {
+      code: norm.revenue_code,
+      name: norm.revenue,
+      revenue_group_id: norm.group.value,
+      addExpectedRevenueWithOutRevenue: {
         data: {
-          code: norm.revenue_code,
-          name: norm.revenue,
-          addExpectedRevenueWithOutRevenue: {
-            data: {
-              batch_id: selectPresent.id,
-              calculation_unit_id: norm.calculation_unit.value,
-              student_code: student.code,
-              amount: norm.quantity,
-              unit_price: norm.price,
-              created_by: user.id,
-              start_at: time,
-              prescribed_money: norm.price * norm.quantity,
-              next_batch_money: norm.price * norm.quantity,
-            },
-          },
+          batch_id: selectPresent.id,
+          calculation_unit_id: norm.calculation_unit.value,
+          student_code: student.code,
+          amount: norm.quantity,
+          unit_price: norm.price,
+          created_by: user.id,
+          start_at: time,
+          prescribed_money: norm.price * norm.quantity,
+          next_batch_money: norm.price * norm.quantity,
         },
       },
     };
@@ -485,89 +491,72 @@ const AddContent2 = ({ student, currentRef }) => {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-4 p-4 auto-rows-auto">
-        <h6 className="col-span-3 text-center">Bổ sung khoản khác</h6>
-        <Select
-          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Loại khoản thu"
-          options={listRevenue.revenue_types
-            .sort((a, b) => a.id - b.id)
-            .map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-          value={norm.type}
-          onChange={(e) => {
-            if (norm.type?.value !== e.value)
-              setNorm((pre) => ({
-                ...pre,
-                type: e,
-                group: null,
-                revenue: null,
-                calculation_unit: null,
-                price: 100000,
-                quantity: 1,
-                total: 100000,
-              }));
-          }}
-          className="text-black text-sm"
-          classNames={{
-            control: () => "!rounded-[5px]",
-            input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-            valueContainer: () => "!p-[0_8px]",
-            menu: () => "!z-[11]",
-          }}
-        />
-        {norm.type && (
-          <input
-            type="text"
-            className="input input-bordered"
-            input-bordered
-            placeholder="Nhóm khoản thu"
-            value={norm.group}
-            onChange={(e) =>
-              setNorm((pre) => ({ ...pre, group: e.target.value }))
-            }
-          />
-        )}
-        {norm.group && (
-          <input
-            type="text"
-            className="input input-bordered"
-            input-bordered
-            placeholder="Mã khoản thu"
-            value={norm.revenue_code}
-            onChange={(e) =>
-              setNorm((pre) => ({ ...pre, revenue_code: e.target.value }))
-            }
-          />
-        )}
-        {norm.revenue_code && (
-          <input
-            type="text"
-            className="input input-bordered"
-            input-bordered
-            placeholder="Khoản thu"
-            value={norm.revenue}
-            onChange={(e) =>
-              setNorm((pre) => ({ ...pre, revenue: e.target.value }))
-            }
-          />
-        )}
-
-        {norm.revenue && (
-          <>
-            <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Đơn vị tính"
-              options={calculationUnit.calculation_units.map((item) => ({
+      <div className="grid grid-cols-2 gap-4 p-4 auto-rows-auto">
+        <h6 className="col-span-2 text-center">Bổ sung khoản khác</h6>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs ">Loại khoản thu:</p>
+          <Select
+            noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+            placeholder="Loại khoản thu"
+            options={listRevenue.revenue_types
+              .sort((a, b) => a.id - b.id)
+              .map((item) => ({
                 value: item.id,
                 label: item.name,
               }))}
-              value={norm.calculation_unit}
-              onChange={(e) =>
-                setNorm((pre) => ({ ...pre, calculation_unit: e }))
-              }
+            value={norm.type}
+            onChange={(e) => {
+              if (norm.type?.value !== e.value)
+                setNorm((pre) => ({
+                  ...pre,
+                  type: e,
+                  group: null,
+                  revenue: null,
+                  calculation_unit: null,
+                  price: 100000,
+                  quantity: 1,
+                  total: 100000,
+                }));
+            }}
+            className="text-black text-sm"
+            classNames={{
+              control: () => "!rounded-[5px]",
+              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+              valueContainer: () => "!p-[0_8px]",
+              menu: () => "!z-[11]",
+            }}
+          />
+        </div>
+        {norm.type && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs ">Nhóm khoản thu:</p>
+            <Select
+              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+              placeholder="Nhóm khoản thu"
+              options={listRevenue.revenue_types
+                .find((item) => item.id === norm.type.value)
+                .revenue_groups.filter((item) =>
+                  item.scope.some((el) => el === student.school_level_code)
+                )
+                .filter((item) => item.revenues.length > 0)
+                .sort((a, b) => a.id - b.id)
+                .map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+              value={norm.group}
+              onChange={(e) => {
+                norm.group?.value !== e.value &&
+                  setNorm((pre) => ({
+                    ...pre,
+                    group: e,
+                    revenue: null,
+                    calculation_unit: null,
+                    price: 100000,
+                    quantity: 1,
+                    total: 100000,
+                  }));
+              }}
               className="text-black text-sm"
               classNames={{
                 control: () => "!rounded-[5px]",
@@ -576,6 +565,75 @@ const AddContent2 = ({ student, currentRef }) => {
                 menu: () => "!z-[11]",
               }}
             />
+          </div>
+        )}
+        {norm.group && (
+          <div className={`w-full relative`}>
+            <input
+              type="text"
+              className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+              input-bordered
+              id="revenue_code"
+              placeholder="Mã khoản thu"
+              value={norm.revenue_code}
+              onChange={(e) =>
+                setNorm((pre) => ({ ...pre, revenue_code: e.target.value }))
+              }
+            />
+            <label
+              htmlFor={`revenue_code`}
+              className={`!cursor-not-allowe absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+            >
+              Mã khoản thu
+            </label>
+          </div>
+        )}
+        {norm.revenue_code && (
+          <div className={`w-full relative`}>
+            <input
+              type="text"
+              className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+              input-bordered
+              id="revenue"
+              placeholder="Khoản thu"
+              value={norm.revenue}
+              onChange={(e) =>
+                setNorm((pre) => ({ ...pre, revenue: e.target.value }))
+              }
+            />
+            <label
+              htmlFor={`revenue`}
+              className={`!cursor-not-allowe absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+            >
+              Khoản thu
+            </label>
+          </div>
+        )}
+
+        {norm.revenue && (
+          <>
+            <div className="flex flex-col gap-1 col-span-2">
+              <p className="text-xs ">Đơn vị tính:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Đơn vị tính"
+                options={calculationUnit.calculation_units.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                value={norm.calculation_unit}
+                onChange={(e) =>
+                  setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                }
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
 
             <div className={`w-full relative `}>
               <input
@@ -720,7 +778,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td>
         {numberWithCommas(
           data.previous_batch_money +
-            data.prescribed_money +
+            data.actual_amount_collected +
             data.amount_edited -
             data.amount_collected
         )}{" "}
@@ -935,8 +993,8 @@ const SubContent = ({ student, selectPresent }) => {
           </dialog>
         </>
       )}
-      <Scrollbars universal autoHeight autoHeightMin={"450px"}>
-        {/* <div className=" w-full overflow-x-auto max-h-[450px]"> */}
+      {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
+      <div className="overflow-x-auto">
         <table className="table table-xs table-pin-rows">
           {/* head */}
           <thead>
@@ -1058,8 +1116,8 @@ const SubContent = ({ student, selectPresent }) => {
             )}
           </tbody>
         </table>
-        {/* </div> */}
-      </Scrollbars>
+      </div>
+      {/* </Scrollbars> */}
       {Array.isArray(data) &&
         !(
           JSON.stringify(expectedRevenue.data.data.result) ===

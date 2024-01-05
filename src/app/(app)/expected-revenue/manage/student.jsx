@@ -2,7 +2,10 @@
 import Link from "next/link";
 import Select from "react-select";
 import { useContext, Fragment, useState, useEffect } from "react";
-import { meilisearchGetToken, meilisearchSearch } from "@/utils/funtionApi";
+import {
+  meilisearchGetToken,
+  meilisearchStudentSearch,
+} from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listContext } from "./content";
 import { useQueryClient } from "@tanstack/react-query";
@@ -60,7 +63,11 @@ const Search = ({ queryObject }) => {
   } = useInfiniteQuery({
     queryKey: [`search`, queryObject],
     queryFn: async ({ pageParam = 1 }) =>
-      meilisearchSearch(queryObject, await meilisearchGetToken(), pageParam),
+      meilisearchStudentSearch(
+        queryObject,
+        await meilisearchGetToken(),
+        pageParam
+      ),
     getNextPageParam: (res) => {
       if (res.page < res.totalPages) return res.page + 1;
       else return undefined;
