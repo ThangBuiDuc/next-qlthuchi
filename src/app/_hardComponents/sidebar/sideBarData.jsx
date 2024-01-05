@@ -82,6 +82,10 @@ export const sideBarData = [
         title: "Tình trạng học tập",
         path: "/catalog/study-status",
       },
+      {
+        title: "Đơn vị hành chính",
+        path: "/catalog/provinces",
+      },
     ],
   },
   {
@@ -143,12 +147,13 @@ export const sideBarData = [
     ],
   },
   {
-    id: 7,
+    id: 9,
     title: "Tổng hợp",
     path: "/report",
     subNav: [
       { title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" },
       { title: "Lịch sử thanh toán", path: "/report/pay-history" },
+      { title: "Tổng hợp công nợ", path: "/report/debt" },
     ],
   },
 ];

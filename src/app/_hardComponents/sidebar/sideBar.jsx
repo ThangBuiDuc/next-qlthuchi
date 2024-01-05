@@ -16,7 +16,7 @@ const SideBar = ({ isOpen, pathName, code }) => {
 
   return (
     <div
-      className={`w-[18%] border-r-[1px] h-screen flex flex-col fixed transition-all duration-300 ${
+      className={`w-[18%] border-r-[1px] flex flex-col fixed transition-all duration-300 ${
         isOpen ? "" : "translate-x-[-100%]"
       }`}
     >

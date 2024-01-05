@@ -1,10 +1,6 @@
 import axios from "axios";
 
-
-
-
 // ##### Hệ Thống ######
-
 
 //GET---------------------------------------------------------------------
 //Lấy role
@@ -21,7 +17,6 @@ export const getRole = async (token) => {
   return res;
 };
 
-
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
@@ -35,8 +30,6 @@ export const getUsers = async (token) => {
 
   return res;
 };
-
-
 
 //Lấy danh sách roles
 export const getRolesList = async (token) => {
@@ -92,6 +85,18 @@ export const getDistricts = async () => {
   return res;
 };
 
+//Lay danh sách quận huyện của một thành phố
+export const getDistrictsOfProvince = async (id) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_HASURA_GET_DISTRICTS_OF_PROVINCE}${id}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
 //Lay danh sách phường xã
 export const getWards = async (id) => {
   const res = await axios({
@@ -105,17 +110,14 @@ export const getWards = async (id) => {
   return res;
 };
 
-
-
 //INSERT-----------------------------------------------------
-
 
 // Tạo mới người dùng
 export const createUser = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_INSERT_USER,
     method: "post",
-    data: {objects},
+    data: { objects },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -124,21 +126,19 @@ export const createUser = async (token, objects) => {
 };
 
 //Thêm quyền cho người dùng
-export const upsertUserRole = async(token,objects) => {
+export const upsertUserRole = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_UPSERT_USER_ROLE,
     method: "put",
-    data: {objects},
+    data: { objects },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
-  })
-}
+  });
+};
 
 //=====================================================================================================================================================
-
-
 
 //GET---------------------------------------------------------------------
 
