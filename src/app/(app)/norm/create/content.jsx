@@ -74,7 +74,7 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
       <listContext.Provider
         value={{ listSearch, listRevenue, calculationUnit, selectPresent }}
       >
-        <div className="flex flex-col p-[20px] gap-[15px]">
+        <div className="flex flex-col gap-[15px] h-full">
           <div className="flex gap-1 items-center w-full justify-center">
             <h5>Học kỳ: </h5>
             {/* <Select

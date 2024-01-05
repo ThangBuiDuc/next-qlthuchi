@@ -32,7 +32,7 @@ const Content = ({
             </div>
           </div>
           <div>
-            <p className="font-semibold ">Mã sinh viên: {student.code}</p>
+            <p className="font-semibold ">Mã học sinh: {student.code}</p>
             <p className="font-semibold ">
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>

@@ -9,7 +9,7 @@ import {
   useMemo,
 } from "react";
 import { listContext } from "../content";
-// import CurrencyInput from "react-currency-input-field";
+import CurrencyInput from "react-currency-input-field";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
@@ -541,7 +541,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                                 nowMoney:
                                   e.target.checked === true
                                     ? Math.abs(item.next_batch_money)
-                                    : NaN,
+                                    : 0,
                               }
                             : item
                         ),
@@ -553,7 +553,36 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
           />
         </>
       </td>
-      <td>{numberWithCommas(data.nowMoney)} ₫</td>
+      <td>
+        <>
+          <CurrencyInput
+            autoComplete="off"
+            intlConfig={{ locale: "vi-VN", currency: "VND" }}
+            className={`input input-xs`}
+            value={data.nowMoney}
+            onValueChange={(value) =>
+              setData((pre) =>
+                pre.map((el) =>
+                  el.id === group_id
+                    ? {
+                        ...el,
+                        expected_revenues: el.expected_revenues.map((item) =>
+                          item.id === data.id
+                            ? {
+                                ...item,
+                                nowMoney: parseInt(value),
+                              }
+                            : item
+                        ),
+                      }
+                    : el
+                )
+              )
+            }
+            decimalsLimit={2}
+          />
+        </>
+      </td>
       <td>{numberWithCommas(data.amount_collected)} ₫</td>
       {/* <td>
         <>
@@ -590,8 +619,9 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
         {numberWithCommas(
           data.previous_batch_money +
             data.actual_amount_collected +
-            data.amount_edited -
-            data.amount_spend -
+            data.amount_spend +
+            data.amount_edited +
+            data.nowMoney -
             data.amount_collected
         )}{" "}
         ₫
@@ -647,7 +677,7 @@ const SubContent = ({ student, selectPresent }) => {
                 expected_revenues: item.expected_revenues.map((el) => ({
                   ...el,
                   isChecked: false,
-                  nowMoney: NaN,
+                  nowMoney: 0,
                 })),
               }
         )
@@ -669,7 +699,8 @@ const SubContent = ({ student, selectPresent }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Scrollbars universal autoHeight autoHeightMin={"450px"}>
+      {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
+      <div className="overflow-x-auto">
         <table className="table table-xs table-pin-rows">
           {/* head */}
           <thead>
@@ -816,7 +847,8 @@ const SubContent = ({ student, selectPresent }) => {
             )}
           </tbody>
         </table>
-      </Scrollbars>
+      </div>
+      {/* </Scrollbars> */}
       {expectedRevenue.isRefetching ? (
         <></>
       ) : preReceiptIsRefetch ? (

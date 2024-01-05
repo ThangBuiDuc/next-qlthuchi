@@ -1,6 +1,6 @@
-import Class from "./class";
-import ClassLevel from "./classLevel";
-import School from "./school";
+import Class from "./class/class";
+import ClassLevel from "./classLevel/classLevel";
+import School from "./school/school";
 import Student from "./student";
 
 const Main = ({ firstSelected }) => {

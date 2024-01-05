@@ -1,10 +1,8 @@
-"use client";
-
 import Select from "react-select";
-import { listContext } from "../content";
+import { listContext } from "../../content";
 import { useCallback, useContext, useEffect, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { createRevenueNorm } from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
@@ -12,6 +10,8 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { Scrollbars } from "react-custom-scrollbars-2";
+
 const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
@@ -20,60 +20,26 @@ const Item = ({ norm, setNorm, school_level_code }) => {
   // }, [norm.group]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-4 auto-rows-auto gap-2">
-        <Select
-          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Loại khoản thu"
-          options={listRevenue.revenue_types
-            .sort((a, b) => a.id - b.id)
-            .map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-          value={norm.type}
-          onChange={(e) => {
-            if (norm.type?.value !== e.value)
-              setNorm((pre) => ({
-                ...pre,
-                type: e,
-                group: null,
-                revenue: null,
-                calculation_unit: null,
-                price: 100000,
-                quantity: 1,
-                total: 100000,
-              }));
-          }}
-          className="text-black text-sm"
-          classNames={{
-            control: () => "!rounded-[5px]",
-            input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-            valueContainer: () => "!p-[0_8px]",
-            menu: () => "!z-[11]",
-          }}
-        />
-        {norm.type && (
+    <div className="flex flex-col gap-2 w-full">
+      <div className="grid grid-cols-2 auto-rows-auto gap-2">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs">Loại khoản thu:</p>
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Nhóm khoản thu"
+            placeholder="Loại khoản thu"
             options={listRevenue.revenue_types
-              .find((item) => item.id === norm.type.value)
-              .revenue_groups.filter((item) =>
-                item.scope.some((el) => el === school_level_code)
-              )
-              .filter((item) => item.revenues.length > 0)
               .sort((a, b) => a.id - b.id)
               .map((item) => ({
                 value: item.id,
                 label: item.name,
               }))}
-            value={norm.group}
+            value={norm.type}
             onChange={(e) => {
-              norm.group?.value !== e.value &&
+              if (norm.type?.value !== e.value)
                 setNorm((pre) => ({
                   ...pre,
-                  group: e,
+                  type: e,
+                  group: null,
                   revenue: null,
                   calculation_unit: null,
                   price: 100000,
@@ -89,54 +55,75 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               menu: () => "!z-[11]",
             }}
           />
-        )}
-        {norm.group && (
-          <Select
-            noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-            placeholder="Khoản thu"
-            options={listRevenue.revenue_types
-              .find((item) => item.id === norm.type.value)
-              .revenue_groups.find((item) => item.id === norm.group.value)
-              .revenues.map((item) => {
-                return {
-                  ...item,
-                  value: item.id,
-                  label: item.name,
-                };
-              })}
-            value={norm.revenue}
-            onChange={(e) =>
-              norm.revenue?.value !== e.value &&
-              setNorm((pre) => ({
-                ...pre,
-                revenue: e,
-                calculation_unit: null,
-                price: 100000,
-                quantity: 1,
-                total: 100000,
-              }))
-            }
-            className="text-black text-sm"
-            classNames={{
-              control: () => "!rounded-[5px]",
-              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-              valueContainer: () => "!p-[0_8px]",
-              menu: () => "!z-[11]",
-            }}
-          />
-        )}
-        {norm.revenue && (
-          <>
+        </div>
+        {norm.type && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs">Nhóm khoản thu:</p>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Đơn vị tính"
-              options={calculationUnit.calculation_units.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
-              value={norm.calculation_unit}
+              placeholder="Nhóm khoản thu"
+              options={listRevenue.revenue_types
+                .find((item) => item.id === norm.type.value)
+                .revenue_groups.filter((item) =>
+                  item.scope.some((el) => el === school_level_code)
+                )
+                .filter((item) => item.revenues.length > 0)
+                .sort((a, b) => a.id - b.id)
+                .map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+              value={norm.group}
+              onChange={(e) => {
+                norm.group?.value !== e.value &&
+                  setNorm((pre) => ({
+                    ...pre,
+                    group: e,
+                    revenue: null,
+                    calculation_unit: null,
+                    price: 100000,
+                    quantity: 1,
+                    total: 100000,
+                  }));
+              }}
+              className="text-black text-sm"
+              classNames={{
+                control: () => "!rounded-[5px]",
+                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                valueContainer: () => "!p-[0_8px]",
+                menu: () => "!z-[11]",
+              }}
+            />
+          </div>
+        )}
+
+        {norm.group && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs">Khoản thu:</p>
+            <Select
+              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+              placeholder="Khoản thu"
+              options={listRevenue.revenue_types
+                .find((item) => item.id === norm.type.value)
+                .revenue_groups.find((item) => item.id === norm.group.value)
+                .revenues.map((item) => {
+                  return {
+                    ...item,
+                    value: item.id,
+                    label: item.name,
+                  };
+                })}
+              value={norm.revenue}
               onChange={(e) =>
-                setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                norm.revenue?.value !== e.value &&
+                setNorm((pre) => ({
+                  ...pre,
+                  revenue: e,
+                  calculation_unit: null,
+                  price: 100000,
+                  quantity: 1,
+                  total: 100000,
+                }))
               }
               className="text-black text-sm"
               classNames={{
@@ -146,6 +133,32 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 menu: () => "!z-[11]",
               }}
             />
+          </div>
+        )}
+        {norm.revenue && (
+          <>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs ">Đơn vị tính:</p>
+              <Select
+                noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+                placeholder="Đơn vị tính"
+                options={calculationUnit.calculation_units.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                value={norm.calculation_unit}
+                onChange={(e) =>
+                  setNorm((pre) => ({ ...pre, calculation_unit: e }))
+                }
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+              />
+            </div>
 
             <div className={`w-full relative `}>
               <input
@@ -196,7 +209,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 Đơn giá
               </label>
             </div>
-            <div className={`w-full relative `}>
+            <div className={`w-full relative col-span-2`}>
               <CurrencyInput
                 autoComplete="off"
                 disabled
@@ -224,9 +237,9 @@ const Item = ({ norm, setNorm, school_level_code }) => {
   );
 };
 
-const School = () => {
-  const { listSearch, selectPresent } = useContext(listContext);
-  const [selected, setSelected] = useState();
+const LeftPanel = ({ selected }) => {
+  const queryClient = useQueryClient();
+  const { selectPresent } = useContext(listContext);
   const [norm, setNorm] = useState({
     group: null,
     type: null,
@@ -257,6 +270,9 @@ const School = () => {
     mutationFn: ({ token, objects, log }) =>
       createRevenueNorm(token, objects, [log]),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get_revenue_norms", selected],
+      });
       toast.success("Tạo mới định mức thu cho cấp học thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -295,7 +311,7 @@ const School = () => {
       revenue_group_id: norm.group.value,
       batch_id: selectPresent.id,
       calculation_unit_id: norm.calculation_unit.value,
-      school_level_code: selected.code,
+      class_code: selected.name,
       amount: norm.quantity,
       unit_price: norm.price,
       created_by: user.id,
@@ -311,7 +327,7 @@ const School = () => {
         revenue_group_id: norm.group.value,
         batch_id: selectPresent.id,
         calculation_unit_id: norm.calculation_unit.value,
-        school_level_code: selected.code,
+        class_code: selected.name,
         amount: norm.quantity,
         unit_price: norm.price,
         created_by: user.id,
@@ -326,75 +342,66 @@ const School = () => {
     mutation.mutate({ token, objects, log });
   }, [norm, selected]);
   return (
-    <>
-      <div className="flex gap-1 items-center w-full">
-        <h6>Cấp học: </h6>
-        <Select
-          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-          placeholder="Vui lòng chọn!"
-          options={listSearch.school_level
-            .sort((a, b) => a.code - b.code)
-            .map((item) => ({
-              ...item,
-              value: item.id,
-              label: item.name,
-            }))}
-          value={selected}
-          onChange={(e) => e.value !== selected?.value && setSelected(e)}
-          className="text-black w-[30%]"
-        />
-      </div>
+    <div className="flex flex-col pr-3 w-[40%] gap-2">
       <h6 className="text-center">Định mức thu</h6>
-      {selected && (
-        <>
-          {norm && (
-            <>
-              <Item
-                norm={norm}
-                setNorm={setNorm}
-                school_level_code={selected.code}
-              />
-            </>
-          )}
-          <div className="flex justify-center gap-2">
-            {mutating ? (
-              <span className="loading loading-spinner loading-sm bg-primary"></span>
-            ) : (
+      <Scrollbars
+        hideTracksWhenNotNeeded
+        universal
+        autoHeightMin={"100%"}
+        autoHide
+        //   autoHeight
+      >
+        {selected && (
+          <div className="flex flex-col gap-1">
+            {norm && (
               <>
-                {norm.group &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <>
-                    <button
-                      className="btn w-fit"
-                      onClick={() => handleOnclick()}
-                    >
-                      Hoàn thành
-                    </button>
-                    <div
-                      className="tooltip flex items-center justify-center"
-                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
-                    >
-                      <IoIosInformationCircleOutline
-                        size={20}
-                        className="text-red-500"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <></>
-                )}
+                <Item
+                  norm={norm}
+                  setNorm={setNorm}
+                  school_level_code={selected.school_level_code}
+                />
               </>
             )}
+            <div className="flex justify-center gap-2">
+              {mutating ? (
+                <span className="loading loading-spinner loading-sm bg-primary"></span>
+              ) : (
+                <>
+                  {norm.group &&
+                  norm.type &&
+                  norm.revenue &&
+                  norm.calculation_unit &&
+                  norm.price &&
+                  norm.quantity &&
+                  norm.total ? (
+                    <>
+                      <button
+                        className="btn w-fit"
+                        onClick={() => handleOnclick()}
+                      >
+                        Hoàn thành
+                      </button>
+                      <div
+                        className="tooltip flex items-center justify-center"
+                        data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                      >
+                        <IoIosInformationCircleOutline
+                          size={20}
+                          className="text-red-500"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-        </>
-      )}
-    </>
+        )}
+      </Scrollbars>
+    </div>
   );
 };
 
-export default School;
+export default LeftPanel;

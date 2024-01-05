@@ -1,16 +1,14 @@
 "use client";
 import { useState, useContext, useCallback } from "react";
 import { listContext } from "../content";
-import { IoIosAddCircleOutline } from "react-icons/io";
-import { v4 as uuidv4 } from "uuid";
 import CurrencyInput from "react-currency-input-field";
-import { CiCircleMinus } from "react-icons/ci";
 import moment from "moment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { createBillReceipt } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getText } from "number-to-text-vietnamese";
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
     "0000" +
@@ -18,9 +16,15 @@ function createCode(lastCount) {
   ).slice(-4)}`;
 }
 
-const Other = () => {
+const Other = ({ selected }) => {
   const { preBill, selectPresent } = useContext(listContext);
-  const [listRevenue, setListRevenue] = useState([]);
+  const [billReceipt, setBillReceipt] = useState({
+    payer: "",
+    location: "",
+    nowMoney: null,
+    bill_name: "",
+    description: "",
+  });
   const [mutating, setMutating] = useState(false);
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -36,7 +40,13 @@ const Other = () => {
       ),
     onSuccess: () => {
       setMutating(false);
-      setListRevenue([]);
+      setBillReceipt({
+        payer: "",
+        location: "",
+        nowMoney: null,
+        bill_name: "",
+        description: "",
+      });
       queryClient.invalidateQueries(["get_pre_bill"]);
       toast.success("Lập phiếu thu thành công!", {
         position: "top-center",
@@ -59,158 +69,118 @@ const Other = () => {
   });
   const handleOnClick = useCallback(() => {
     const objects = {
-      amount_collected: listRevenue.reduce(
-        (total, curr) => total + parseInt(curr.nowMoney),
-        0
-      ),
+      amount_collected: parseInt(billReceipt.nowMoney),
       batch_id: selectPresent.id,
       code: `PT${createCode(preBill.count_bill[0].bill_receipt)}`,
       created_by: user.id,
+      name: billReceipt.bill_name,
+      location: billReceipt.location,
+      description: billReceipt.description.trim(),
       start_at: moment().format(),
-      bill_receipt_details: {
-        data: listRevenue.map((item) => ({
-          batch_id: selectPresent.id,
-          amount_collected: parseInt(item.nowMoney),
-          created_by: user.id,
-          start_at: moment().format(),
-          revenue_name: item.name,
-        })),
-      },
+      bill_formality_id: selected.value,
+      payer: billReceipt.payer,
     };
     setMutating(true);
     mutation.mutate(objects);
-  }, [listRevenue]);
+  }, [billReceipt]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h6>
-        Phiếu thu số: {`PT${createCode(preBill.count_bill[0].bill_receipt)}`}
-      </h6>
-      {listRevenue.length ? (
-        <>
-          <div className="overflow-x-auto">
-            <table className="table">
-              {/* head */}
-              <thead>
-                <tr>
-                  <th>TT</th>
-                  <th>Tên khoản thu</th>
-                  <th>Số tiền thu</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {listRevenue.map((item, index) => (
-                  <tr key={item.uuid} className="w-full hover">
-                    <td className="w-[5%]">{++index}</td>
-                    <td className="w-[60%]">
-                      <>
-                        <input
-                          type="text"
-                          placeholder="Tên khoản thu"
-                          value={item.name}
-                          onChange={(e) =>
-                            setListRevenue((pre) =>
-                              pre.map((el) =>
-                                el.uuid === item.uuid
-                                  ? { ...el, name: e.target.value }
-                                  : el
-                              )
-                            )
-                          }
-                          className={`input input-bordered input-sm w-full`}
-                        />
-                      </>
-                    </td>
-                    <td className="w-[30%]">
-                      <>
-                        <CurrencyInput
-                          autoComplete="off"
-                          intlConfig={{ locale: "vi-VN", currency: "VND" }}
-                          className={`input input-bordered input-sm w-full`}
-                          placeholder="Số tiền thu"
-                          value={item.nowMoney}
-                          onValueChange={(value) =>
-                            setListRevenue((pre) =>
-                              pre.map((el) =>
-                                el.uuid === item.uuid
-                                  ? { ...el, nowMoney: value }
-                                  : el
-                              )
-                            )
-                          }
-                          decimalsLimit={2}
-                        />
-                      </>
-                    </td>
-                    <td className="w-[5%]">
-                      <>
-                        <div
-                          className="tooltip w-fit self-center cursor-pointer"
-                          data-tip="Xoá"
-                          onClick={() =>
-                            setListRevenue((pre) =>
-                              pre.reduce(
-                                (total, curr) =>
-                                  item.uuid === curr.uuid
-                                    ? total
-                                    : [...total, curr],
-                                []
-                              )
-                            )
-                          }
-                        >
-                          <CiCircleMinus size={30} />
-                        </div>
-                      </>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div
-            className="tooltip w-fit self-center cursor-pointer"
-            data-tip="Thêm khoản thu"
-            onClick={() =>
-              setListRevenue((pre) => [
-                ...pre,
-                { uuid: uuidv4(), name: "", nowMoney: "" },
-              ])
+    <>
+      <div className="grid grid-cols-2 items-center gap-2">
+        <p className="col-span-2">
+          Phiếu thu số:{" "}
+          <span className="font-semibold">{`PT${createCode(
+            preBill.count_bill[0].bill_receipt
+          )}`}</span>
+        </p>
+        <div className="flex gap-2 items-center">
+          <p>Họ tên người nộp tiền:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billReceipt.payer}
+            onChange={(e) =>
+              setBillReceipt((pre) => ({ ...pre, payer: e.target.value }))
             }
-          >
-            <IoIosAddCircleOutline size={30} />
-          </div>
-        </>
-      ) : (
-        <div
-          className="tooltip w-fit self-center cursor-pointer"
-          data-tip="Thêm khoản thu"
-          onClick={() =>
-            setListRevenue((pre) => [
-              ...pre,
-              { uuid: uuidv4(), name: "", nowMoney: "" },
-            ])
-          }
-        >
-          <IoIosAddCircleOutline size={30} />
+          />
         </div>
-      )}
-      {listRevenue.every((item) => item.nowMoney) && listRevenue.length ? (
+        <div className="flex gap-2 items-center">
+          <p>Địa chỉ:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billReceipt.location}
+            onChange={(e) =>
+              setBillReceipt((pre) => ({ ...pre, location: e.target.value }))
+            }
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <p>Số tiền:</p>
+          <CurrencyInput
+            className="input input-bordered min-w-[300px]"
+            intlConfig={{ locale: "vi-VN", currency: "VND" }}
+            value={billReceipt.nowMoney}
+            onValueChange={(e) =>
+              setBillReceipt((pre) => ({
+                ...pre,
+                nowMoney: parseInt(e),
+              }))
+            }
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <p>Lý do nộp:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billReceipt.bill_name}
+            onChange={(e) =>
+              setBillReceipt((pre) => ({ ...pre, bill_name: e.target.value }))
+            }
+          />
+        </div>
+
+        <p className="italic col-span-2">
+          Bằng chữ:{" "}
+          <span className="font-semibold">
+            {billReceipt.nowMoney
+              ? getText(billReceipt.nowMoney).charAt(0).toUpperCase() +
+                getText(billReceipt.nowMoney).slice(1) +
+                " đồng"
+              : ""}
+          </span>
+        </p>
+        <div className="flex gap-2 items-center">
+          <p>Kèm theo:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billReceipt.description}
+            onChange={(e) =>
+              setBillReceipt((pre) => ({ ...pre, description: e.target.value }))
+            }
+          />
+        </div>
+      </div>
+      {billReceipt.payer.trim() &&
+      billReceipt.location.trim() &&
+      billReceipt.bill_name.trim() &&
+      billReceipt.nowMoney ? (
         mutating ? (
-          <span className="loading loading-spinner loading-md self-center"></span>
+          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
         ) : (
           <button
             className="btn w-fit self-center"
             onClick={() => handleOnClick()}
           >
-            Lập phiếu thu
+            Hoàn thành
           </button>
         )
       ) : (
         <></>
       )}
-    </div>
+    </>
   );
 };
 

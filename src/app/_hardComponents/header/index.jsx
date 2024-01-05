@@ -5,7 +5,7 @@ import { FcMenu } from "react-icons/fc";
 import { AnimatePresence, motion } from "framer-motion";
 export default function Index({ setIsOpen, isOpen }) {
   return (
-    <div className="flex items-center h-[10vh] w-full justify-between p-[10px]">
+    <div className="flex items-center h-[10%] w-full justify-between p-[10px]">
       <div className="flex items-center gap-[20px]">
         <FcMenu
           size={30}

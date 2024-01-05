@@ -27,7 +27,7 @@ export async function PUT(req) {
     if (type === "SCHOOL") {
       const sql_student = await client.query(
         `SELECT * FROM v_expected_revenue_student WHERE school_level_code IN (${data
-          .map((item) => item.code)
+          .map((item) => item)
           .join(",")})`
       );
 
@@ -103,8 +103,8 @@ export async function PUT(req) {
 
     if (type === "CLASS_LEVEL") {
       const sql_student = await client.query(
-        `SELECT * FROM v_revenue_student WHERE class_level_code IN (${data
-          .map((item) => item.code)
+        `SELECT * FROM v_expected_revenue_student WHERE class_level_code IN (${data
+          .map((item) => item)
           .join(",")})`
       );
 
@@ -181,7 +181,7 @@ export async function PUT(req) {
     if (type === "CLASS") {
       const sql_student = await client.query(
         `SELECT * FROM v_expected_revenue_student WHERE class_code IN (${data
-          .map((item) => `'${item.code}'`)
+          .map((item) => `'${item}'`)
           .join(",")})`
       );
 

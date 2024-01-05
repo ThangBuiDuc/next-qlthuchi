@@ -1,50 +1,18 @@
 "use client";
-import moment from "moment";
 import Select from "react-select";
 import { useContext, Fragment, useState, useEffect } from "react";
-import { meilisearchGetToken, meilisearchSearch } from "@/utils/funtionApi";
+import {
+  meilisearchGetToken,
+  meilisearchStudentSearch,
+} from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listContext } from "../content";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import "react-toastify/dist/ReactToastify.css";
-import "moment/locale/vi";
+import { useQueryClient } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
-import { IoIosAddCircleOutline } from "react-icons/io";
-import { createExpectedRevenueRouter } from "@/utils/funtionApi";
-import { toast } from "react-toastify";
+import Link from "next/link";
+import { CiCircleMore } from "react-icons/ci";
 
 const HitItem = ({ hit, isRefetching }) => {
-  const { selectPresent } = useContext(listContext);
-  const [mutating, setMutating] = useState(false);
-  const mutation = useMutation({
-    mutationFn: async () =>
-      createExpectedRevenueRouter({
-        type: "STUDENT",
-        data: hit.code,
-        time: moment().format(),
-        batch_id: selectPresent.id,
-      }),
-    onSuccess: () => {
-      setMutating(false);
-      toast.success("Lập dự kiến thu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-    onError: () => {
-      setMutating(false);
-      toast.error("Lập dự kiến thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-  });
   return (
     <>
       <tr className="hover">
@@ -63,19 +31,14 @@ const HitItem = ({ hit, isRefetching }) => {
           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
         />
         <td className="self-center">
-          {isRefetching || mutating ? (
+          {isRefetching ? (
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <>
-              <div
-                className="tooltip cursor-pointer"
-                data-tip="Lập dự kiến thu"
-                onClick={() => {
-                  setMutating(true);
-                  mutation.mutate();
-                }}
-              >
-                <IoIosAddCircleOutline size={25} />
+              <div className="tooltip" data-tip="Chi tiết">
+                <Link href={`create/${hit.code}`}>
+                  <CiCircleMore size={25} />
+                </Link>
               </div>
             </>
           )}
@@ -98,7 +61,11 @@ const Search = ({ queryObject }) => {
   } = useInfiniteQuery({
     queryKey: [`search`, queryObject],
     queryFn: async ({ pageParam = 1 }) =>
-      meilisearchSearch(queryObject, await meilisearchGetToken(), pageParam),
+      meilisearchStudentSearch(
+        queryObject,
+        await meilisearchGetToken(),
+        pageParam
+      ),
     getNextPageParam: (res) => {
       if (res.page < res.totalPages) return res.page + 1;
       else return undefined;
@@ -186,7 +153,7 @@ const Student = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h5>Tìm kiếm học sinh:</h5>
+      <h6>Tìm kiếm học sinh:</h6>
       <div className="grid grid-cols-3 auto-rows-auto gap-2">
         <Select
           isClearable

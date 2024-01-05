@@ -1,4 +1,5 @@
 import axios from "axios";
+import { filter } from "lodash";
 
 //GET---------------------------------------------------------------------
 
@@ -235,6 +236,19 @@ export const updateReceipt = async (token, updates) => {
   });
 };
 
+//Cập nhật biên lai thu
+export const updateBillReceipt = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BILL_RECEIPT,
+    method: "patch",
+    data: { updates: updates },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh
@@ -276,7 +290,7 @@ export const createReceipt = async (token, objects) => {
   });
 };
 
-//Tạo mới biên lai thu
+//Tạo mới biên lai chi
 export const createRefund = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_REFUND,
@@ -402,7 +416,7 @@ export const meilisearchGetToken = async () => {
 };
 
 //Tìm kiếm học sinh qua Meilisearch
-export const meilisearchSearch = async (data, token, pageParam) => {
+export const meilisearchStudentSearch = async (data, token, pageParam) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/search`,
     method: "post",
@@ -412,9 +426,9 @@ export const meilisearchSearch = async (data, token, pageParam) => {
       page: pageParam ? pageParam : 1,
       filter: `year_active=true AND status_id = 1 ${
         data.school ? `AND school_level_code= ${data.school.code}` : ""
-      } ${data.class_level ? `AND class_code= ${data.class_level.code}` : ""} ${
-        data.class ? `AND class_name= ${data.class.label}` : ""
-      }`,
+      } ${
+        data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""
+      } ${data.class ? `AND class_name= ${data.class.label}` : ""}`,
       attributesToHighlight: ["code", "first_name", "last_name", "class_name"],
       highlightPreTag: '<span class="highlight">',
       highlightPostTag: "</span>",
@@ -428,8 +442,54 @@ export const meilisearchSearch = async (data, token, pageParam) => {
   return res.data;
 };
 
+//Lấy thông tin biên lai thu qua Meilisearch
+export const meilisearchReceiptGet = async (data, token, pageParam) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_receipt/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: pageParam ? 10 : 10000,
+      offset: pageParam ? (pageParam - 1) * 10 : 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (pageParam) {
+    return { ...res, nextPage: ++pageParam };
+  } else {
+    return res.data;
+  }
+};
+
+//Lấy thông tin biên lai thu qua Meilisearch
+export const meilisearchBillReceiptGet = async (data, token, pageParam) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_bill_receipt/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: pageParam ? 10 : 10000,
+      offset: pageParam ? (pageParam - 1) * 10 : 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (pageParam) {
+    return { ...res, nextPage: ++pageParam };
+  } else {
+    return res.data;
+  }
+};
+
 //Lấy thông tin học sinh qua Meilisearch
-export const meilisearchGet = async (student_code) => {
+export const meilisearchStudentGet = async (student_code) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}`,
     method: "get",

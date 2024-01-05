@@ -14,7 +14,11 @@ export async function GET() {
       data: {
         description: "User Search and GET API KEY",
         actions: ["search", "documents.get"],
-        indexes: ["hns_qlthuchi_v_student"],
+        indexes: [
+          "hns_qlthuchi_v_student",
+          "hns_qlthuchi_v_receipt",
+          "hns_qlthuchi_v_bill_receipt",
+        ],
         expiresAt: `${moment()
           .add({ seconds: 10 })
           .format("YYYY-MM-DDTHH:mm:ssZ")}`,
