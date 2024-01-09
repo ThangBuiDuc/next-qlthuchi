@@ -13,7 +13,7 @@ const conditionFilter = {
   ],
   second: [
     { value: 1, label: "Khoảng thời gian" },
-    { value: 2, label: "Phiếu thu" },
+    { value: 2, label: "Phiếu chi" },
   ],
 };
 
@@ -102,12 +102,12 @@ const Content = ({ listSearch }) => {
       ? `start_date <= ${moment(selected.toDate).unix()}`
       : "";
 
-    const fromBillReceipt = selected.fromBillReceipt
-      ? `code >= ${selected.fromBillReceipt}`
+    const fromBillRefund = selected.fromBillRefund
+      ? `code >= ${selected.fromBillRefund}`
       : "";
 
-    const toBillReceipt = selected.toBillReceipt
-      ? `code <= ${selected.toBillReceipt}`
+    const toBillRefund = selected.toBillRefund
+      ? `code <= ${selected.toBillRefund}`
       : "";
 
     setCondition(
@@ -130,8 +130,8 @@ const Content = ({ listSearch }) => {
             ? [fromDate && fromDate, toDate && toDate].filter((item) => item)
             : selectedConditionFilter.second.value === 2
             ? [
-                fromBillReceipt && fromBillReceipt,
-                toBillReceipt && toBillReceipt,
+                fromBillRefund && fromBillRefund,
+                toBillRefund && toBillRefund,
               ].filter((item) => item)
             : ""
           : "",
@@ -384,29 +384,29 @@ const Content = ({ listSearch }) => {
             {selectedConditionFilter.second?.value === 2 && (
               <div className="grid grid-cols-2 auto-rows-auto gap-3 items-center">
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs">Từ phiếu thu:</p>
+                  <p className="text-xs">Từ phiếu chi:</p>
                   <input
                     type="text"
                     className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300"
-                    value={selected.fromBillReceipt}
+                    value={selected.fromBillRefund}
                     onChange={(e) =>
                       setSelected((pre) => ({
                         ...pre,
-                        fromBillReceipt: e.target.value,
+                        fromBillRefund: e.target.value,
                       }))
                     }
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs">Đến phiếu thu:</p>
+                  <p className="text-xs">Đến phiếu chi:</p>
                   <input
                     type="text"
                     className=" px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300"
-                    value={selected.toBillReceipt}
+                    value={selected.toBillRefund}
                     onChange={(e) =>
                       setSelected((pre) => ({
                         ...pre,
-                        toBillReceipt: e.target.value,
+                        toBillRefund: e.target.value,
                       }))
                     }
                   />

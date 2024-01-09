@@ -7,41 +7,17 @@ export const sideBarData = [
   //     path: "/home",
   //     subNav : null
   // },
-  // {
-  //   id: 1,
-  //   title: "Hệ thống",
-  //   path: "system",
-  //   subNav: [
-  //     {
-  //       title: "Thông tin đơn vị",
-  //       path: "system/create-user",
-  //     },
-  //     {
-  //       title: "Thông tin đơn vị",
-  //       path: "system/unit-infomation",
-  //     },
-  //           {
-  //             title: "Nhật ký người dùng",
-  //             path: "",
-  //           },
-  //           {
-  //             title: "Tạo người dùng",
-  //             path: "",
-  //           },
-  //           {
-  //             title: "Sửa thông tin người dùng",
-  //             path: "",
-  //           },
-  //           {
-  //             title: "Tạo nhóm người dùng",
-  //             path: "",
-  //           },
-  //           {
-  //             title: "Phân nhóm người dùng",
-  //             path: "",
-  //           },
-  //   ],
-  // },
+  {
+    id: 1,
+    title: "Hệ thống",
+    path: "system",
+    subNav: [
+      {
+        title: "Kết chuyển công nợ",
+        path: "/system/transfer",
+      },
+    ],
+  },
   {
     id: 1,
     title: "Hệ thống",
@@ -122,11 +98,7 @@ export const sideBarData = [
       { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
     ],
   },
-  {
-    id: 6,
-    title: "Kết chuyển công nợ",
-    path: "/transfer",
-  },
+
   {
     id: 7,
     title: "Thu",
@@ -148,6 +120,10 @@ export const sideBarData = [
     subNav: [
       { title: "Hoàn trả tiền thừa", path: "/spend/refund" },
       { title: "Lập phiếu chi tiền mặt", path: "/spend/create-bill-refund" },
+      {
+        title: "Quản lý phiếu chi tiền mặt",
+        path: "/spend/list-bill-refund",
+      },
     ],
   },
   {

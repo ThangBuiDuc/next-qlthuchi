@@ -18,6 +18,8 @@ export async function GET() {
           "hns_qlthuchi_v_student",
           "hns_qlthuchi_v_receipt",
           "hns_qlthuchi_v_bill_receipt",
+          "hns_qlthuchi_v_refund",
+          "hns_qlthuchi_v_bill_refund",
         ],
         expiresAt: `${moment()
           .add({ seconds: 10 })

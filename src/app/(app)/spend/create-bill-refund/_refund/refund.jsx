@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import "moment/locale/vi";
 import Datetime from "react-datetime";
-import ListReceipt from "./listReceipt";
+import ListReceipt from "./listRefund";
 import { getText } from "number-to-text-vietnamese";
 
 const conditionFilter = {
@@ -15,10 +15,7 @@ const conditionFilter = {
     { value: 1, label: "Năm dương lịch" },
     { value: 2, label: "Năm học, học kỳ" },
   ],
-  second: [
-    { value: 1, label: "Khoảng thời gian" },
-    { value: 2, label: "Biên lai" },
-  ],
+  second: [{ value: 1, label: "Khoảng thời gian" }],
 };
 
 moment.updateLocale("vi", {
@@ -59,10 +56,10 @@ function createCode(lastCount) {
   ).slice(-4)}`;
 }
 
-const Receipt = ({ selected }) => {
+const Refund = ({ selected }) => {
   const { preBill, listSearch } = useContext(listContext);
-  const [billReceipt, setBillReceipt] = useState({
-    payer: "",
+  const [billRefund, setBillRefund] = useState({
+    receiver: "",
     location: "",
     nowMoney: null,
     bill_name: "",
@@ -76,25 +73,9 @@ const Receipt = ({ selected }) => {
     first: null,
     second: null,
   });
-  const [condition, setCondition] = useState([
-    `${
-      selectedFilter.formality?.length
-        ? `formality.id IN [${selectedFilter?.formality
-            ?.map((item) => item.value)
-            .toString()}]`
-        : ""
-    }`,
-  ]);
+  const [condition, setCondition] = useState([]);
 
   const handleSearchOnClick = () => {
-    const formality = `${
-      selectedFilter.formality?.length
-        ? `formality.id IN [${selectedFilter?.formality
-            ?.map((item) => item.value)
-            .toString()}]`
-        : ""
-    }`;
-
     const users = `${
       selectedFilter.users?.length
         ? `created_by IN [${selectedFilter?.users
@@ -163,7 +144,6 @@ const Receipt = ({ selected }) => {
 
     setCondition(
       [
-        formality && formality,
         users && users,
         selectedConditionFilter.first
           ? selectedConditionFilter.first.value === 1
@@ -203,19 +183,19 @@ const Receipt = ({ selected }) => {
     <>
       <div className="grid grid-cols-2 items-center gap-2">
         <p className="col-span-2">
-          Phiếu thu số:{" "}
-          <span className="font-semibold">{`PT${createCode(
-            preBill.count_bill[0].bill_receipt
+          Phiếu chi số:{" "}
+          <span className="font-semibold">{`PC${createCode(
+            preBill.count_bill[0].bill_refund
           )}`}</span>
         </p>
         <div className="flex gap-2 items-center">
-          <p>Họ tên người nộp tiền:</p>
+          <p>Họ tên người nhận tiền:</p>
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
-            value={billReceipt.payer}
+            value={billRefund.receiver}
             onChange={(e) =>
-              setBillReceipt((pre) => ({ ...pre, payer: e.target.value }))
+              setBillRefund((pre) => ({ ...pre, receiver: e.target.value }))
             }
           />
         </div>
@@ -224,9 +204,9 @@ const Receipt = ({ selected }) => {
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
-            value={billReceipt.location}
+            value={billRefund.location}
             onChange={(e) =>
-              setBillReceipt((pre) => ({ ...pre, location: e.target.value }))
+              setBillRefund((pre) => ({ ...pre, location: e.target.value }))
             }
           />
         </div>
@@ -236,7 +216,7 @@ const Receipt = ({ selected }) => {
             disabled
             className="input input-bordered min-w-[300px]"
             intlConfig={{ locale: "vi-VN", currency: "VND" }}
-            value={billReceipt.nowMoney}
+            value={billRefund.nowMoney}
           />
         </div>
         <div className="flex gap-2 items-center">
@@ -244,9 +224,9 @@ const Receipt = ({ selected }) => {
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
-            value={billReceipt.bill_name}
+            value={billRefund.bill_name}
             onChange={(e) =>
-              setBillReceipt((pre) => ({ ...pre, bill_name: e.target.value }))
+              setBillRefund((pre) => ({ ...pre, bill_name: e.target.value }))
             }
           />
         </div>
@@ -254,9 +234,9 @@ const Receipt = ({ selected }) => {
         <p className="italic col-span-2">
           Bằng chữ:{" "}
           <span className="font-semibold">
-            {billReceipt.nowMoney
-              ? getText(billReceipt.nowMoney).charAt(0).toUpperCase() +
-                getText(billReceipt.nowMoney).slice(1) +
+            {billRefund.nowMoney
+              ? getText(billRefund.nowMoney).charAt(0).toUpperCase() +
+                getText(billRefund.nowMoney).slice(1) +
                 " đồng"
               : ""}
           </span>
@@ -266,17 +246,17 @@ const Receipt = ({ selected }) => {
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
-            value={billReceipt.description}
+            value={billRefund.description}
             onChange={(e) =>
-              setBillReceipt((pre) => ({ ...pre, description: e.target.value }))
+              setBillRefund((pre) => ({ ...pre, description: e.target.value }))
             }
           />
         </div>
       </div>
       <div className="flex flex-col gap-3 ">
-        <h6 className="text-center">Bảng kê biên lai thu</h6>
+        <h6 className="text-center">Bảng kê biên lai chi</h6>
         <div className="grid grid-cols-2 gap-2 auto-rows-auto">
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <p className="text-xs">Hình thức thu:</p>
             <Select
               isDisabled
@@ -299,10 +279,10 @@ const Receipt = ({ selected }) => {
               //   setSelectedFilter((pre) => ({ ...pre, formality: e }));
               // }}
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-col gap-1">
-            <p className="text-xs">Người thu:</p>
+            <p className="text-xs">Người chi:</p>
             <Select
               className="text-black text-sm"
               classNames={{
@@ -311,7 +291,7 @@ const Receipt = ({ selected }) => {
                 valueContainer: () => "!p-[0_8px]",
                 menu: () => "!z-[11]",
               }}
-              placeholder="Người thu"
+              placeholder="Người chi"
               isMulti
               options={listSearch.users.map((item) => ({
                 ...item,
@@ -640,17 +620,17 @@ const Receipt = ({ selected }) => {
         </div>
         <ListReceipt
           condition={condition}
-          billReceipt={billReceipt}
-          setBillReceipt={setBillReceipt}
+          billRefund={billRefund}
+          setBillRefund={setBillRefund}
           mutating={mutating}
           setMutating={setMutating}
           selected={selected}
         />
       </div>
-      {/* {billReceipt.payer.trim() &&
-      billReceipt.location.trim() &&
-      billReceipt.bill_name.trim() &&
-      billReceipt.nowMoney ? (
+      {/* {billRefund.receiver.trim() &&
+      billRefund.location.trim() &&
+      billRefund.bill_name.trim() &&
+      billRefund.nowMoney ? (
         mutating ? (
           <span className="loading loading-spinner loading-sm bg-primary"></span>
         ) : (
@@ -668,4 +648,4 @@ const Receipt = ({ selected }) => {
   );
 };
 
-export default Receipt;
+export default Refund;

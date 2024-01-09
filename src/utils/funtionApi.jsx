@@ -1,5 +1,4 @@
 import axios from "axios";
-import { filter } from "lodash";
 
 // ##### Hệ Thống ######
 
@@ -151,6 +150,19 @@ export const getSchoolYear = async (where) => {
     data: {
       where,
     },
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin kết chuyển công nợ
+export const getTransfer = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_TRANSFER,
+    method: "get",
     headers: {
       "content-type": "Application/json",
     },
@@ -376,10 +388,23 @@ export const updateReceipt = async (token, updates) => {
   });
 };
 
-//Cập nhật biên lai thu
+//Cập nhật phiếu thu
 export const updateBillReceipt = async (token, updates) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BILL_RECEIPT,
+    method: "patch",
+    data: { updates: updates },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật phiếu chi
+export const updateBillRefund = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BILL_REFUND,
     method: "patch",
     data: { updates: updates },
     headers: {
@@ -605,10 +630,56 @@ export const meilisearchReceiptGet = async (data, token, pageParam) => {
   }
 };
 
-//Lấy thông tin biên lai thu qua Meilisearch
+//Lấy thông tin phiếu thu qua Meilisearch
 export const meilisearchBillReceiptGet = async (data, token, pageParam) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_bill_receipt/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: pageParam ? 10 : 10000,
+      offset: pageParam ? (pageParam - 1) * 10 : 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (pageParam) {
+    return { ...res, nextPage: ++pageParam };
+  } else {
+    return res.data;
+  }
+};
+
+//Lấy thông tin biên lai hoàn trả qua Meilisearch
+export const meilisearchRefundGet = async (data, token, pageParam) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_refund/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: pageParam ? 10 : 10000,
+      offset: pageParam ? (pageParam - 1) * 10 : 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (pageParam) {
+    return { ...res, nextPage: ++pageParam };
+  } else {
+    return res.data;
+  }
+};
+
+//Lấy thông tin phiếu thu qua Meilisearch
+export const meilisearchBillRefundGet = async (data, token, pageParam) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_bill_refund/documents/fetch`,
     method: "post",
     data: {
       filter: data,
