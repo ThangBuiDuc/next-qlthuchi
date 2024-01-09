@@ -1,9 +1,9 @@
 "use client";
 import {
-  meilisearchReceiptGet,
+  meilisearchRefundGet,
   updateReceipt,
   meilisearchGetToken,
-  createBillReceipt,
+  createBillRefund,
 } from "@/utils/funtionApi";
 import { listContext } from "../content";
 // import { useState, useContext, useRef, useMemo } from "react";
@@ -44,7 +44,7 @@ function sumDuplicated(arr) {
           curr.expected_revenue.revenue.revenue_group.id
             ? {
                 ...item,
-                amount_collected: item.amount_collected + curr.amount_collected,
+                amount_spend: item.amount_spend + curr.amount_spend,
               }
             : item
         ),
@@ -56,13 +56,13 @@ function sumDuplicated(arr) {
 const RowTable = ({ data }) => {
   return (
     <tr className="hover">
-      <td>{data.code}</td>
+      <td>{data.id}</td>
       <td>{data.student.code}</td>
       <td>{`${data.student.first_name} ${data.student.last_name}`}</td>
       <td>
         {numberWithCommas(
-          data.receipt_details.reduce(
-            (total, curr) => total + curr.amount_collected,
+          data.refund_details.reduce(
+            (total, curr) => total + curr.amount_spend,
             0
           )
         )}
@@ -74,10 +74,10 @@ const RowTable = ({ data }) => {
   );
 };
 
-const ListReceipt = ({
-  billReceipt,
+const ListRefund = ({
+  billRefund,
   condition,
-  setBillReceipt,
+  setBillRefund,
   mutating,
   setMutating,
   selected,
@@ -90,18 +90,18 @@ const ListReceipt = ({
   const { data, isFetching, isLoading, isRefetching } = useQuery({
     queryKey: [`searchReceipt`, condition],
     queryFn: async () =>
-      meilisearchReceiptGet(condition, await meilisearchGetToken(), null),
+      meilisearchRefundGet(condition, await meilisearchGetToken(), null),
   });
 
   useEffect(() => {
     if (data?.results) {
-      setBillReceipt((pre) => ({
+      setBillRefund((pre) => ({
         ...pre,
         nowMoney: data.results.reduce(
           (total, curr) =>
             total +
-            curr.receipt_details.reduce(
-              (total, current) => total + current.amount_collected,
+            curr.refund_details.reduce(
+              (total, current) => total + current.amount_spend,
               0
             ),
           0
@@ -112,7 +112,7 @@ const ListReceipt = ({
 
   const mutation = useMutation({
     mutationFn: async (objects) =>
-      createBillReceipt(
+      createBillRefund(
         await getToken({
           template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
         }),
@@ -120,14 +120,14 @@ const ListReceipt = ({
       ),
     onSuccess: () => {
       setMutating(false);
-      setBillReceipt({
-        payer: "",
+      setBillRefund({
+        receiver: "",
         location: "",
         bill_name: "",
         description: "",
       });
       queryClient.invalidateQueries(["get_pre_bill"]);
-      toast.success("Lập phiếu thu thành công!", {
+      toast.success("Lập phiếu chi thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -137,7 +137,7 @@ const ListReceipt = ({
     },
     onError: () => {
       setMutating(false);
-      toast.error("Lập phiếu thu không thành công!", {
+      toast.error("Lập phiếu chi không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -148,21 +148,22 @@ const ListReceipt = ({
   });
   const handleOnClick = useCallback(() => {
     const objects = {
-      amount_collected: parseInt(billReceipt.nowMoney),
+      amount_spend: parseInt(billRefund.nowMoney),
       batch_id: selectPresent.id,
-      code: `PT${createCode(preBill.count_bill[0].bill_receipt)}`,
+      code: `PC${createCode(preBill.count_bill[0].bill_refund)}`,
       created_by: user.id,
-      name: billReceipt.bill_name,
-      description: billReceipt.description.trim(),
+      name: billRefund.bill_name,
+      description: billRefund.description.trim(),
+      location: billRefund.location.trim(),
       start_at: moment().format(),
       bill_formality_id: selected.value,
-      payer: billReceipt.payer,
-      bill_receipt_details: {
+      receiver: billRefund.receiver,
+      bill_refund_details: {
         data: data.results.map((item) => ({
-          receipt_code: item.code,
+          refund_id: item.id,
           batch_id: selectPresent.id,
-          amount_collected: item.receipt_details.reduce(
-            (total, current) => total + current.amount_collected,
+          amount_spend: item.refund_details.reduce(
+            (total, current) => total + current.amount_spend,
             0
           ),
           created_by: user.id,
@@ -172,7 +173,7 @@ const ListReceipt = ({
     };
     setMutating(true);
     mutation.mutate(objects);
-  }, [billReceipt, data]);
+  }, [billRefund, data]);
 
   return isFetching && isLoading ? (
     <span className="loading loading-spinner loading-lg self-center"></span>
@@ -227,10 +228,10 @@ const ListReceipt = ({
           </tbody>
         </table>
       </div>
-      {billReceipt.payer.trim() &&
-      billReceipt.location.trim() &&
-      billReceipt.bill_name.trim() &&
-      billReceipt.nowMoney &&
+      {billRefund.receiver.trim() &&
+      billRefund.location.trim() &&
+      billRefund.bill_name.trim() &&
+      billRefund.nowMoney &&
       data.results.length ? (
         mutating || isFetching ? (
           <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
@@ -249,4 +250,4 @@ const ListReceipt = ({
   );
 };
 
-export default ListReceipt;
+export default ListRefund;

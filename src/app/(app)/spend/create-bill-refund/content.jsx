@@ -5,7 +5,7 @@ import Other from "./_other/other";
 import { getPreBill } from "@/utils/funtionApi";
 // import Main from "./_filter/main";
 import { useQuery } from "@tanstack/react-query";
-import Receipt from "./_receipt/receipt";
+import Refund from "./_refund/refund";
 
 export const listContext = createContext();
 
@@ -57,7 +57,7 @@ const Content = ({ listSearch, InitialPreBill, present }) => {
           </div>
 
           {selected?.value === 1 && <Other selected={selected} />}
-          {selected?.value === 2 && <Receipt selected={selected} />}
+          {selected?.value === 2 && <Refund selected={selected} />}
         </div>
       </listContext.Provider>
     </>

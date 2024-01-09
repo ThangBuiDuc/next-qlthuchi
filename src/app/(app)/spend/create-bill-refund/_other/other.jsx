@@ -48,7 +48,7 @@ const Other = ({ selected }) => {
         description: "",
       });
       queryClient.invalidateQueries(["get_pre_bill"]);
-      toast.success("Lập phiếu thu thành công!", {
+      toast.success("Lập phiếu chi thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -58,7 +58,7 @@ const Other = ({ selected }) => {
     },
     onError: () => {
       setMutating(false);
-      toast.error("Lập phiếu thu không thành công!", {
+      toast.error("Lập phiếu chi không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -83,8 +83,6 @@ const Other = ({ selected }) => {
     setMutating(true);
     mutation.mutate(objects);
   }, [billRefund]);
-
-  console.log(billRefund);
 
   return (
     <>

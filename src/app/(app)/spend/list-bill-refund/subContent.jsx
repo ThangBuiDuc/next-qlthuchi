@@ -1,11 +1,10 @@
 "use client";
 import {
   meilisearchGetToken,
-  meilisearchBillReceiptGet,
-  updateBillReceipt,
+  meilisearchBillRefundGet,
+  updateBillRefund,
 } from "@/utils/funtionApi";
-import { listContext } from "./content";
-import { useState, useContext, useRef, useMemo } from "react";
+import { useState, useRef } from "react";
 import moment from "moment";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
@@ -329,7 +328,7 @@ function sumDuplicated(arr) {
 //   );
 // };
 
-const CancelModal = ({ bill_receipt_code, cancelRef, pageIndex, refetch }) => {
+const CancelModal = ({ bill_refund_code, cancelRef, pageIndex, refetch }) => {
   const [note, setNote] = useState("");
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -343,14 +342,14 @@ const CancelModal = ({ bill_receipt_code, cancelRef, pageIndex, refetch }) => {
           updated_by: user.id,
           updated_at: time,
           canceled: true,
-          amount_collected: 0,
+          amount_spend: 0,
           note,
         },
         where: {
-          code: { _eq: bill_receipt_code },
+          code: { _eq: bill_refund_code },
         },
       };
-      return updateBillReceipt(
+      return updateBillRefund(
         await getToken({
           template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
         }),
@@ -385,7 +384,7 @@ const CancelModal = ({ bill_receipt_code, cancelRef, pageIndex, refetch }) => {
   return (
     <div className="flex flex-col p-2 gap-2">
       <h5 className="text-center">
-        Huỷ phiếu thu tiền mặt: {bill_receipt_code}
+        Huỷ phiếu thu tiền mặt: {bill_refund_code}
       </h5>
 
       <label className="form-control">
@@ -423,10 +422,10 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
     <tr className="hover">
       <td>{data.bill_formality.name}</td>
       <td>{data.code}</td>
-      <td>{data.payer}</td>
+      <td>{data.receiver}</td>
       <td>{data.name}</td>
       <td>{data.description}</td>
-      <td>{numberWithCommas(data.amount_collected)}</td>
+      <td>{numberWithCommas(data.amount_spend)}</td>
       <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
       <td>{data.canceled && "✓"}</td>
       {isRefetching ? (
@@ -457,7 +456,7 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
                   </button>
                 </form>
                 <CancelModal
-                  bill_receipt_code={data.code}
+                  bill_refund_code={data.code}
                   cancelRef={cancelRef}
                   pageIndex={pageIndex}
                   refetch={refetch}
@@ -482,9 +481,9 @@ const SubContent = ({ condition }) => {
     isRefetching,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [`searchBillReceipt`, condition],
+    queryKey: [`searchBillRefund`, condition],
     queryFn: async ({ pageParam = 1 }) =>
-      meilisearchBillReceiptGet(
+      meilisearchBillRefundGet(
         condition,
         await meilisearchGetToken(),
         pageParam
@@ -507,13 +506,13 @@ const SubContent = ({ condition }) => {
           <thead>
             <tr>
               {/* <th></th> */}
-              <th>Hình thức thu</th>
-              <th>Mã phiếu thu</th>
+              <th>Hình thức chi</th>
+              <th>Mã phiếu chi</th>
               <th>Người nộp</th>
               <th>Lý do nộp</th>
               <th>Kèm theo</th>
-              <th>Số tiền thu</th>
-              <th>Ngày thu</th>
+              <th>Số tiền chi</th>
+              <th>Ngày chi</th>
               <th>Đã huỷ</th>
               <th>
                 <>
