@@ -42,13 +42,17 @@ export const sideBarData = [
       //   title: "Khối",
       //   path: "catalog/class",
       // },
+      // {
+      //   title: "Đối tượng chính sách",
+      //   path: "/catalog/policy-object",
+      // },
+      // {
+      //   title: "Ưu đãi",
+      //   path: "/catalog/voucher",
+      // },
       {
-        title: "Đối tượng chính sách",
-        path: "/catalog/policy-object",
-      },
-      {
-        title: "Ưu đãi",
-        path: "/catalog/voucher",
+        title: "Giảm giá",
+        path: "/catalog/discounts",
       },
       {
         title: "Quan hệ gia đình",

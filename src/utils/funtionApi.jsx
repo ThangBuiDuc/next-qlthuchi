@@ -110,6 +110,42 @@ export const getWards = async (id) => {
   return res;
 };
 
+//Lấy danh sách giảm giá
+export const getDiscounts = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISCOUNTS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh sách loại giảm giá
+export const getDiscountType = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISCOUNT_TYPE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh sách nhóm dự kiến thu
+export const getRevenueGroup = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
 //INSERT-----------------------------------------------------
 
 // Tạo mới người dùng
@@ -407,6 +443,22 @@ export const updateBillRefund = async (token, updates) => {
     url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BILL_REFUND,
     method: "patch",
     data: { updates: updates },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật giảm giá cho dự kiến thu
+export const updateExpectedRevenueDiscount = async (token, id, discount) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_EXPECTED_REVENUE_DISCOUNT,
+    method: "patch",
+    data: {
+      id: id,
+      discount: discount,
+    },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
