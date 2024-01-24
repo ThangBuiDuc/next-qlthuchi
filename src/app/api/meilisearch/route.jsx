@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 import moment from "moment";
+import "moment/locale/vi";
+moment.locale("vi");
 
 export async function GET() {
   try {
