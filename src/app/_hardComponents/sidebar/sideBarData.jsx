@@ -13,17 +13,6 @@ export const sideBarData = [
     path: "system",
     subNav: [
       {
-        title: "Kết chuyển công nợ",
-        path: "/system/transfer",
-      },
-    ],
-  },
-  {
-    id: 1,
-    title: "Hệ thống",
-    path: "/system",
-    subNav: [
-      {
         title: "Người dùng",
         path: "/system/users",
       },
@@ -31,8 +20,13 @@ export const sideBarData = [
         title: "Phân quyền người dùng",
         path: "/system/roles",
       },
+      {
+        title: "Kết chuyển công nợ",
+        path: "/system/transfer",
+      },
     ],
   },
+
   {
     id: 2,
     title: "Danh mục",
@@ -128,12 +122,29 @@ export const sideBarData = [
   },
   {
     id: 9,
-    title: "Tổng hợp",
+    title: "Báo cáo/ Tổng hợp",
     path: "/report",
     subNav: [
-      { title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" },
+      { title: "Quỹ tiền mặt", path: "/report/cash-fund" },
       { title: "Lịch sử thanh toán", path: "/report/pay-history" },
-      { title: "Tổng hợp công nợ", path: "/report/debt" },
+      { title: "Công nợ theo một học sinh", path: "/report/one-debt" },
+      { title: "Công nợ theo nhiều học sinh", path: "/report/debt" },
+      {
+        title: "Các khoản đã thu theo một học sinh",
+        path: "/report/one-receipt",
+      },
+      {
+        title: "Các khoản đã thu theo nhiều học sinh",
+        path: "/report/total-receipt",
+      },
+      {
+        title: "Các khoản đã hoàn trả theo một học sinh",
+        path: "/report/one-refund",
+      },
+      {
+        title: "Các khoản đã hoàn trả theo nhiều học sinh",
+        path: "/report/total-refund",
+      },
     ],
   },
 ];

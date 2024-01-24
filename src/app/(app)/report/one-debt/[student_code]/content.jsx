@@ -3,7 +3,7 @@ import { useState } from "react";
 import Select from "react-select";
 import SubContent from "./subContent";
 
-const Content = ({ schoolYear }) => {
+const Content = ({ student_code, student, schoolYear }) => {
   const [selected, setSelected] = useState(null);
   return (
     <div className="flex flex-col gap-5 justify-center">
@@ -35,7 +35,13 @@ const Content = ({ schoolYear }) => {
           }}
         />
       </div>
-      {selected && <SubContent selected={selected} />}
+      {selected && (
+        <SubContent
+          selected={selected}
+          student_code={student_code}
+          student={student}
+        />
+      )}
     </div>
   );
 };

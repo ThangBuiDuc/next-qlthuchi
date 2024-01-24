@@ -158,6 +158,19 @@ export const getSchoolYear = async (where) => {
   return res;
 };
 
+//Lấy thông tin nhóm khoản thu
+export const getRevenueGroup = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
 //Lấy thông tin kết chuyển công nợ
 export const getTransfer = async () => {
   const res = await axios({
@@ -273,7 +286,7 @@ export const getStudent = async (token, where) => {
     url: process.env.NEXT_PUBLIC_HASURA_GET_STUDENT,
     method: "post",
     data: {
-      where,
+      where: where,
     },
     headers: {
       "content-type": "Application/json",
@@ -414,12 +427,51 @@ export const updateBillRefund = async (token, updates) => {
   });
 };
 
+//Cập nhật phụ huynh học sinh
+export const updateParent = async (token, data) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_PARENT,
+    method: "patch",
+    data: { ...data },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật  học sinh
+export const updateStudent = async (token, data) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_STUDENT,
+    method: "patch",
+    data: { ...data },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh
 export const createStudent = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_STUDENT,
+    method: "put",
+    data: { objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Tạo mới người dùng
+export const createParent = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_PARENT,
     method: "put",
     data: { objects },
     headers: {
@@ -494,11 +546,35 @@ export const createBillRefund = async (token, objects) => {
   });
 };
 
-//Tạo định mức thu BHYT
+//Tạo định mức thu BHYT router handler
 export const createInsuranceRevenueNorm = async (data) => {
   const res = await axios({
     url: "/api/norm",
     method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Thực hiện kết chuyển công nợ
+export const Transfer = async (token, updates, objects, update_columns) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_TRANSFER,
+    method: "post",
+    data: { objects, updates, update_columns },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Thực hiện kết chuyển công nợ router handler
+export const handleTransfer = async (data) => {
+  const res = await axios({
+    url: "/api/transfer",
+    method: "POST",
     data,
   });
 
@@ -697,6 +773,101 @@ export const meilisearchBillRefundGet = async (data, token, pageParam) => {
   } else {
     return res.data;
   }
+};
+
+//Lấy thông tin báo cáo khoản đã thu nhiều học sinh
+export const meilisearchReportReceiptGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt/documents/fetch`,
+    method: "post",
+    data: {
+      // filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã thu một học sinh
+export const meilisearchReportReceiptOneGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin tổng hợp công nợ
+export const meilisearchReportDebtGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_f_batch_debt/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã hoàn trả nhiều học sinh
+export const meilisearchReportRefundGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund/documents/fetch`,
+    method: "post",
+    data: {
+      // filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã hoàn một học sinh
+export const meilisearchReportRefundOneGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
 };
 
 //Lấy thông tin học sinh qua Meilisearch

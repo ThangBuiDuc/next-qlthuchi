@@ -61,6 +61,7 @@ const Modal = ({ data, modalRef }) => {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const { user } = useUser();
+
   const [formality, setFormality] = useState({
     label: preReceipt.formality[1].name,
     value: preReceipt.formality[1].id,
@@ -701,6 +702,8 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
+  console.log(data);
+
   return (
     <div className="flex flex-col gap-4">
       {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
@@ -774,9 +777,9 @@ const SubContent = ({ student, selectPresent }) => {
             {expectedRevenue.isRefetching ||
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
-            ) : data?.length === 0 ? (
+            ) : data?.every((item) => item.expected_revenues.length === 0) ? (
               <tr>
-                <td colSpan={6} className="text-center">
+                <td colSpan={12} className="text-center">
                   Không có kết quả!
                 </td>
               </tr>

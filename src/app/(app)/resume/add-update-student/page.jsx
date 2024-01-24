@@ -9,20 +9,25 @@ import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
   const { getToken } = auth();
+  const token = await getToken({
+    template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+  });
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const presentPromise = getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCatalogStudent = await getCatalogStudent(
-    await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT })
-  );
+  const apiCatalogStudentPromise = getCatalogStudent(token);
 
-  const apiListSearch = await getListSearch();
+  const apiListSearchPromise = getListSearch();
 
-  const apiCountStudent = await getCountStudent(
-    await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-    })
-  );
+  const apiCountStudentPromise = getCountStudent(token);
+
+  const [present, apiCatalogStudent, apiListSearch, apiCountStudent] =
+    await Promise.all([
+      presentPromise,
+      apiCatalogStudentPromise,
+      apiListSearchPromise,
+      apiCountStudentPromise,
+    ]);
 
   if (
     apiCatalogStudent.status !== 200 ||

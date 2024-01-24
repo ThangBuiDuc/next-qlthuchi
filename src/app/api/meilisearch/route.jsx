@@ -20,6 +20,11 @@ export async function GET() {
           "hns_qlthuchi_v_bill_receipt",
           "hns_qlthuchi_v_refund",
           "hns_qlthuchi_v_bill_refund",
+          "hns_qlthuchi_v_report_refund",
+          "hns_qlthuchi_v_report_refund_one",
+          "hns_qlthuchi_v_report_receipt",
+          "hns_qlthuchi_v_report_receipt_one",
+          "hns_qlthuchi_f_batch_debt",
         ],
         expiresAt: `${moment()
           .add({ seconds: 10 })
