@@ -2,7 +2,7 @@
 import { CiCircleMore } from "react-icons/ci";
 import Link from "next/link";
 
-const Content = async ({ provinces, jwt}) => {
+const Content = async ({ provinces, jwt }) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra">
@@ -17,8 +17,8 @@ const Content = async ({ provinces, jwt}) => {
           </tr>
         </thead>
         <tbody>
-          {provinces.result.map((item) => (
-            <tr>
+          {provinces.result.map((item, index) => (
+            <tr key={index}>
               <th>{item.id}</th>
               <td>{item.code}</td>
               <td>{item.level}</td>

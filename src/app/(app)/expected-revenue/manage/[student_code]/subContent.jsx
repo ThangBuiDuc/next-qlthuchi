@@ -42,10 +42,10 @@ function numberWithCommas(x) {
 const Skeleton = () => {
   return (
     <>
-      {[...Array(4)].map(() => (
-        <tr>
-          {[...Array(9)].map(() => (
-            <td>
+      {[...Array(4)].map((_, index) => (
+        <tr key={index}>
+          {[...Array(9)].map((_, i) => (
+            <td key={i}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -1047,7 +1047,7 @@ const SubContent = ({ student, selectPresent }) => {
                 .map((item, index) => {
                   if (item.expected_revenues.length === 0) {
                     return (
-                      <tr className="hover">
+                      <tr key={index} className="hover">
                         <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.revenue_type.name}</td>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { GoPersonAdd } from "react-icons/go";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createParent, getStudent } from "@/utils/funtionApi";
@@ -256,13 +256,15 @@ const Content = ({ student_code, initialStudent, present, catalogStudent }) => {
                 </thead>
                 <tbody>
                   {studentRaw.student_parents.map((item, index) => (
-                    <Family
-                      isRefetching={student.isRefetching}
-                      student_code={student_code}
-                      data={item}
-                      stt={++index}
-                      catalogStudent={catalogStudent}
-                    />
+                    <Fragment key={index}>
+                      <Family
+                        isRefetching={student.isRefetching}
+                        student_code={student_code}
+                        data={item}
+                        stt={++index}
+                        catalogStudent={catalogStudent}
+                      />
+                    </Fragment>
                   ))}
                 </tbody>
               </table>

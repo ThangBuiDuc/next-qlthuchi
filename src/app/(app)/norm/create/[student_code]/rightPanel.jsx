@@ -12,10 +12,10 @@ function numberWithCommas(x) {
 const Skeleton = () => {
   return (
     <>
-      {[...Array(4)].map(() => (
-        <tr>
-          {[...Array(5)].map(() => (
-            <td>
+      {[...Array(4)].map((_, index) => (
+        <tr key={index}>
+          {[...Array(5)].map((_, i) => (
+            <td key={i}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
