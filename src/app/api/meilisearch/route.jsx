@@ -27,7 +27,7 @@ export async function GET() {
           "hns_qlthuchi_f_batch_debt",
         ],
         expiresAt: `${moment()
-          .add({ seconds: 10 })
+          .add({ seconds: 60 })
           .format("YYYY-MM-DDTHH:mm:ssZ")}`,
       },
     });
