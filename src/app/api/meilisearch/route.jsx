@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
-import moment from "moment";
-import "moment/locale/vi";
-moment.locale("vi");
+import moment from "moment-timezone";
 
 export async function GET() {
   try {
@@ -29,7 +27,8 @@ export async function GET() {
           "hns_qlthuchi_f_batch_debt",
         ],
         expiresAt: `${moment()
-          .add({ seconds: 60 })
+          .tz("Asia/Ho_Chi_Minh")
+          .add({ seconds: 30 })
           .format("YYYY-MM-DDTHH:mm:ssZ")}`,
       },
     });
