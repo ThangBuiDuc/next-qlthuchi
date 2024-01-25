@@ -1,5 +1,4 @@
-export const revalidate = 20;
-export const preferredRegion = ["sin1"];
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import axios from "axios";
 import moment from "moment-timezone";
