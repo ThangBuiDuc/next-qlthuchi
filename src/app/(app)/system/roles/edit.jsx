@@ -2,11 +2,11 @@
 import { useState, useCallback } from "react";
 import TextInput from "@/app/_component/textInput";
 import Select from "react-select";
-import { useMutation, useQueryClient  } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
-import Swal from "sweetalert2";
 import { upsertUserRole } from "@/utils/funtionApi";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Edit = ({ data, roleData }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -19,8 +19,47 @@ const Edit = ({ data, roleData }) => {
       : null
   );
 
-  
+  const mutation = useMutation({
+    mutationFn: ({ token, objects }) => upsertUserRole(token, objects),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["user_role"],
+      });
+      toast.success("Cập nhật quyền cho người dùng thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+      const modalCheckbox = document.getElementById(`modal_add_${data.id}`);
+      if (modalCheckbox) {
+        modalCheckbox.checked = false;
+      }
+    },
+    onError: () => {
+      toast.error("Cập nhật quyền cho người dùng không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
 
+  const handleOnSubmit = useCallback(async () => {
+    let objects = {
+      user_id: data.id,
+      role_id: roleId?.value,
+    };
+
+    let token = await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+    });
+
+    mutation.mutate({ token, objects });
+  }, [roleId]);
 
   return (
     <>
@@ -76,12 +115,16 @@ const Edit = ({ data, roleData }) => {
             />
             <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center mt-[30px]"
-              // onClick={(e) => {
-              //   e.preventDefault();
-              //   handleOnSubmit();
-              // }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleOnSubmit();
+              }}
             >
-              Cập nhật
+              {mutation.isLoading ? (
+                <span className="loading loading-spinner loading-sm bg-primary"></span>
+              ) : (
+                "Cập nhật"
+              )}
             </button>
           </form>
         </div>

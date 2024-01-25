@@ -10,17 +10,6 @@ export const sideBarData = [
   {
     id: 1,
     title: "Hệ thống",
-    path: "system",
-    subNav: [
-      {
-        title: "Kết chuyển công nợ",
-        path: "/system/transfer",
-      },
-    ],
-  },
-  {
-    id: 1,
-    title: "Hệ thống",
     path: "/system",
     subNav: [
       {
@@ -30,6 +19,10 @@ export const sideBarData = [
       {
         title: "Phân quyền người dùng",
         path: "/system/roles",
+      },
+      {
+        title: "Kết chuyển công nợ",
+        path: "/system/transfer",
       },
     ],
   },
@@ -128,16 +121,6 @@ export const sideBarData = [
         title: "Quản lý phiếu chi tiền mặt",
         path: "/spend/list-bill-refund",
       },
-    ],
-  },
-  {
-    id: 9,
-    title: "Tổng hợp",
-    path: "/report",
-    subNav: [
-      { title: "Báo cáo quỹ tiền mặt", path: "/report/cash-fund" },
-      { title: "Lịch sử thanh toán", path: "/report/pay-history" },
-      { title: "Tổng hợp công nợ", path: "/report/debt" },
     ],
   },
 ];

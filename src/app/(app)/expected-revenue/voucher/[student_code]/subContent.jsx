@@ -96,6 +96,22 @@ const Item = ({
     },
   });
 
+  //bảng giảm giá theo nhập học
+  const [a,setA] = useState(data.actual_amount_collected);
+  const [checkboxA, setCheckboxA] = useState(null);
+  const handleCheckboxAChange = (item,index) => {
+    setCheckboxA((prev) => (prev === index ? null : index));
+    if (data && item) {
+      setA(checkboxA === index ? data.actual_amount_collected : data.actual_amount_collected*(1-item.ratio));
+    }
+  };
+  console.log(a);
+
+
+  //bảng ưu đãi
+  const [b,setB] = useState(a);
+  
+
   return (
     <>
       <tr className="hover">
@@ -202,15 +218,17 @@ const Item = ({
                     <p>Trừ ưu đãi học phí</p>
                     <p>Trừ giảm học phí cho đối tượng chính sách</p>
                     <p>Trừ giảm học phí cho đối tượng đóng học phí cả năm</p>
+
+                    {/* bảng giảm giá theo thời gian nhập học */}
                     <div className="overflow-x-auto  border rounded-md">
                       <table className="table">
                         {/* head */}
                         <thead>
                           <tr>
                             <th>
-                              <label>
+                              {/* <label>
                                 <input type="checkbox" className="checkbox" />
-                              </label>
+                              </label> */}
                             </th>
                             <th>STT</th>
                             <th>Mã giảm</th>
@@ -224,10 +242,12 @@ const Item = ({
                             .map((item, index) => (
                               <tr key={index}>
                                 <td>
-                                  <label>
+                                  <label key={index}>
                                     <input
                                       type="checkbox"
                                       className="checkbox"
+                                      checked={checkboxA === index}
+                                      onChange={() => handleCheckboxAChange(item,index)}
                                     />
                                   </label>
                                 </td>
@@ -241,6 +261,7 @@ const Item = ({
                       </table>
                     </div>
 
+                    {/* bảng ưu đãi học phí */}
                     <div className="overflow-x-auto  border rounded-md">
                       <table className="table">
                         {/* head */}
@@ -263,8 +284,9 @@ const Item = ({
                             .map((item, index) => (
                               <tr key={index}>
                                 <td>
-                                  <label>
+                                  <label key={index}>
                                     <input
+                                      key={index}
                                       type="checkbox"
                                       className="checkbox"
                                     />
@@ -280,6 +302,8 @@ const Item = ({
                       </table>
                     </div>
 
+
+                    {/* bảng đối tượng chính sách */}
                     <div className="overflow-x-auto  border rounded-md">
                       <table className="table">
                         {/* head */}
@@ -319,6 +343,7 @@ const Item = ({
                       </table>
                     </div>
 
+                    {/* bảng trừ giảm đối tượng đóng học phí cả năm */}
                     <div className="overflow-x-auto  border rounded-md">
                       <table className="table">
                         {/* head */}
