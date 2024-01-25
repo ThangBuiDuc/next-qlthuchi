@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 50;
 import { NextResponse } from "next/server";
 import axios from "axios";
 import moment from "moment-timezone";
@@ -29,7 +29,7 @@ export async function GET() {
         ],
         expiresAt: `${moment()
           .tz("Asia/Ho_Chi_Minh")
-          .add({ seconds: 30 })
+          .add({ seconds: 60 })
           .format("YYYY-MM-DDTHH:mm:ssZ")}`,
       },
     });
