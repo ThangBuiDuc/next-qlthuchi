@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const preferredRegion = ["sin1"];
 import { NextResponse } from "next/server";
 import axios from "axios";
 import moment from "moment-timezone";
