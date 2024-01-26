@@ -489,6 +489,22 @@ export const updateStudent = async (token, data) => {
   });
 };
 
+//Cập nhật giảm giá cho dự kiến thu
+export const updateExpectedRevenueDiscount = async (token, id, discount) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_EXPECTED_REVENUE_DISCOUNT,
+    method: "patch",
+    data: {
+      id: id,
+      discount: discount,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh
