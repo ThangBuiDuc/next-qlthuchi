@@ -31,10 +31,10 @@ function numberWithCommas(x) {
 const Skeleton = () => {
   return (
     <>
-      {[...Array(4)].map(() => (
-        <tr>
-          {[...Array(9)].map(() => (
-            <td>
+      {[...Array(4)].map((_, index) => (
+        <tr key={index}>
+          {[...Array(9)].map((_, i) => (
+            <td key={i}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -97,20 +97,22 @@ const Item = ({
   });
 
   //bảng giảm giá theo nhập học
-  const [a,setA] = useState(data.actual_amount_collected);
+  const [a, setA] = useState(data.actual_amount_collected);
   const [checkboxA, setCheckboxA] = useState(null);
-  const handleCheckboxAChange = (item,index) => {
+  const handleCheckboxAChange = (item, index) => {
     setCheckboxA((prev) => (prev === index ? null : index));
     if (data && item) {
-      setA(checkboxA === index ? data.actual_amount_collected : data.actual_amount_collected*(1-item.ratio));
+      setA(
+        checkboxA === index
+          ? data.actual_amount_collected
+          : data.actual_amount_collected * (1 - item.ratio)
+      );
     }
   };
   console.log(a);
 
-
   //bảng ưu đãi
-  const [b,setB] = useState(a);
-  
+  const [b, setB] = useState(a);
 
   return (
     <>
@@ -247,7 +249,9 @@ const Item = ({
                                       type="checkbox"
                                       className="checkbox"
                                       checked={checkboxA === index}
-                                      onChange={() => handleCheckboxAChange(item,index)}
+                                      onChange={() =>
+                                        handleCheckboxAChange(item, index)
+                                      }
                                     />
                                   </label>
                                 </td>
@@ -301,7 +305,6 @@ const Item = ({
                         </tbody>
                       </table>
                     </div>
-
 
                     {/* bảng đối tượng chính sách */}
                     <div className="overflow-x-auto  border rounded-md">
@@ -509,7 +512,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                 .map((item, index) => {
                   if (item.expected_revenues.length === 0) {
                     return (
-                      <tr className="hover">
+                      <tr key={index} className="hover">
                         <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.revenue_type.name}</td>
@@ -520,7 +523,6 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                     );
                   }
                   if (item.expected_revenues.length === 1) {
-                    console.log("item:", item);
                     return (
                       <Item
                         key={item.id}
