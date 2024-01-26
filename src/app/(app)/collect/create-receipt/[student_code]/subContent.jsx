@@ -520,7 +520,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
             autoComplete="off"
             intlConfig={{ locale: "vi-VN", currency: "VND" }}
             className={`input input-xs`}
-            value={data.nowMoney}
+            value={Math.abs(data.nowMoney)}
             onValueChange={(value) =>
               setData((pre) =>
                 pre.map((el) =>
@@ -702,8 +702,6 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
-  console.log(data);
-
   return (
     <div className="flex flex-col gap-4">
       {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
@@ -732,11 +730,19 @@ const SubContent = ({ student, selectPresent }) => {
                           : {
                               ...item,
                               expected_revenues: item.expected_revenues.map(
-                                (el) => ({
-                                  ...el,
-                                  isChecked: true,
-                                  nowMoney: el.next_batch_money,
-                                })
+                                (el) =>
+                                  el.isChecked
+                                    ? { ...el, isChecked: false, nowMoney: 0 }
+                                    : {
+                                        ...el,
+                                        isChecked: true,
+                                        nowMoney:
+                                          el.previous_batch_money +
+                                          el.actual_amount_collected +
+                                          el.amount_edited -
+                                          el.amount_collected -
+                                          el.nowMoney,
+                                      }
                               ),
                             }
                       )

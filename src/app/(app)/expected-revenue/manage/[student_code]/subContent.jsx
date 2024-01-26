@@ -923,6 +923,8 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
+  console.log(data);
+
   return (
     <div className="flex flex-col gap-4">
       {expectedRevenue.isFetching && expectedRevenue.isLoading ? (
@@ -1122,6 +1124,9 @@ const SubContent = ({ student, selectPresent }) => {
         !(
           JSON.stringify(expectedRevenue.data.data.result) ===
           JSON.stringify(data)
+        ) &&
+        data.every((item) =>
+          item.expected_revenues.every((el) => !isNaN(el.amount_edited))
         ) &&
         (mutating || expectedRevenue.isRefetching ? (
           <span className="loading loading-spinner loading-md self-center"></span>

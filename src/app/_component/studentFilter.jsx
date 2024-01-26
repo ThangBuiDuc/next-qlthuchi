@@ -125,7 +125,7 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
       </div>
 
       <div className={`w-full flex flex-col gap-1 col-span-2`}>
-        <p className="text-xs">Mã sinh viên:</p>
+        <p className="text-xs">Mã học sinh:</p>
         <input
           autoComplete="off"
           type={"text"}

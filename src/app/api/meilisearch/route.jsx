@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 export const preferredRegion = ["sin1"];
 import { NextResponse } from "next/server";
 import axios from "axios";
@@ -28,10 +28,11 @@ export async function GET() {
           "hns_qlthuchi_v_report_receipt_one",
           "hns_qlthuchi_f_batch_debt",
         ],
-        expiresAt: `${moment()
-          .tz("Asia/Ho_Chi_Minh")
-          .add({ seconds: 200 })
-          .format("YYYY-MM-DDTHH:mm:ssZ")}`,
+        // expiresAt: `${moment()
+        //   .tz("Asia/Ho_Chi_Minh")
+        //   .add({ seconds: 200 })
+        //   .format("YYYY-MM-DDTHH:mm:ssZ")}`,
+        expiresAt: null,
       },
     });
 
