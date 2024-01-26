@@ -4,7 +4,7 @@ import TextInput from "@/app/_component/textInput";
 import { useReducer, useState, useEffect, useCallback } from "react";
 import { createUser } from "@/utils/funtionApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Swal from "sweetalert2";
+import { useAuth } from "@clerk/nextjs";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import moment from "moment";
@@ -13,6 +13,9 @@ import "moment/locale/vi";
 import { getWards } from "@/utils/funtionApi";
 
 import "react-datepicker/dist/react-datepicker.css";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const gender = [
   {
@@ -89,6 +92,7 @@ function reducer(state, action) {
 
 const Add = ({ provinces, districts, jwt }) => {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
   const [infor, dispatchInfor] = useReducer(reducer, {
     userName: "",
     password: "",
@@ -127,9 +131,9 @@ const Add = ({ provinces, districts, jwt }) => {
   // console.log(wards);
 
   const mutation = useMutation({
-    mutationFn: ({ jwt, arg }) => createUser(jwt, arg),
+    mutationFn: ({ token, arg }) => createUser(token, arg),
     onSuccess: () => {
-      queryClient.invalidateQueries(["count_user"]);
+      queryClient.invalidateQueries(["get_user"]);
       dispatchInfor({
         type: "reset",
         payload: {
@@ -148,59 +152,63 @@ const Add = ({ provinces, districts, jwt }) => {
           },
         },
       });
-      Swal.fire({ title: "Tạo người dùng thành công!", icon: "success" });
+      toast.success("Tạo người dùng thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+      const modalCheckbox = document.getElementById(`modal_add`);
+      if (modalCheckbox) {
+        modalCheckbox.checked = false;
+      }
     },
 
     onError: () => {
-      Swal.fire({ title: "Tạo người dùng thất bại!", icon: "error" });
+      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
     },
   });
 
-  const handleOnSubmit = useCallback(() => {
-    Swal.fire({
-      title: "Bạn có chắc chắn muốn tạo người dùng không?",
-      icon: "question",
-      showCancelButton: true,
-      showConfirmButton: true,
-      cancelButtonText: "Huỷ",
-      confirmButtonText: "Xác nhận",
-      showLoaderOnConfirm: true,
-      allowEnterKey: false,
-      allowEscapeKey: false,
-      allowOutsideClick: () => !Swal.isLoading,
-      preConfirm: async () => {
-        const res = await axios({
-          url: "/api/clerk",
-          method: "post",
-          data: {
-            userName: infor.userName,
-            password: infor.password,
-            email: infor.email,
-          },
-        });
-        // console.log(res.data);
-        // return res;
-        if (res.status === 200) {
-          let arg = {
-            clerk_user_id: res.data.id,
-            first_name: infor.firtsName,
-            last_name: infor.lastName,
-            date_of_birth: infor.dob,
-            address: infor.address,
-            ward_code: ward?.value,
-            district_code: district?.value,
-            province_code: province?.value,
-            phone_number: infor.phoneNumber,
-            gender_id: infor.gender.value,
-            email: infor.email,
-          };
-
-          // console.log(arg);
-
-          mutation.mutate({ jwt, arg });
-        }
+  const handleOnSubmit = useCallback(async () => {
+    const res = await axios({
+      url: "/api/clerk",
+      method: "post",
+      data: {
+        userName: infor.userName,
+        password: infor.password,
+        email: infor.email,
       },
     });
+    if (res.status === 200) {
+      let arg = {
+        clerk_user_id: res.data.id,
+        first_name: infor.firtsName,
+        last_name: infor.lastName,
+        date_of_birth: infor.dob,
+        address: infor.address,
+        ward_code: ward?.value,
+        district_code: district?.value,
+        province_code: province?.value,
+        phone_number: infor.phoneNumber,
+        gender_id: infor.gender.value,
+        email: infor.email,
+      };
+
+      // console.log(arg);
+
+      let token = await getToken({
+        template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+      });
+
+      mutation.mutate({ token, arg });
+    }
   }, [infor, district, province, ward, wards]);
 
   return (
@@ -218,7 +226,7 @@ const Add = ({ provinces, districts, jwt }) => {
             ✕
           </label>
           <form
-            onSubmit={handleOnSubmit}
+            // onSubmit={handleOnSubmit}
             className="flex flex-col gap-[20px] mt-[20px]"
             style={{ overflowY: "unset" }}
           >
@@ -267,6 +275,7 @@ const Add = ({ provinces, districts, jwt }) => {
               />
               <TextInput
                 label={"Mật khẩu"}
+                type={"password"}
                 value={infor.password}
                 dispatch={dispatchInfor}
                 action={"change_password"}
@@ -387,12 +396,16 @@ const Add = ({ provinces, districts, jwt }) => {
             </div>
             <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
-              // onClick={(e) => {
-              //   e.preventDefault();
-              //   handleOnSubmit();
-              // }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleOnSubmit();
+              }}
             >
-              Thêm mới
+              {mutation.isLoading ? (
+                <span className="loading loading-spinner loading-sm bg-primary"></span>
+              ) : (
+                "Thêm mới"
+              )}
             </button>
           </form>
         </div>

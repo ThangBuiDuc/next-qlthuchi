@@ -10,7 +10,7 @@ export const sideBarData = [
   {
     id: 1,
     title: "Hệ thống",
-    path: "system",
+    path: "/system",
     subNav: [
       {
         title: "Người dùng",
@@ -36,13 +36,17 @@ export const sideBarData = [
       //   title: "Khối",
       //   path: "catalog/class",
       // },
+      // {
+      //   title: "Đối tượng chính sách",
+      //   path: "/catalog/policy-object",
+      // },
+      // {
+      //   title: "Ưu đãi",
+      //   path: "/catalog/voucher",
+      // },
       {
-        title: "Đối tượng chính sách",
-        path: "/catalog/policy-object",
-      },
-      {
-        title: "Ưu đãi",
-        path: "/catalog/voucher",
+        title: "Giảm giá",
+        path: "/catalog/discounts",
       },
       {
         title: "Quan hệ gia đình",

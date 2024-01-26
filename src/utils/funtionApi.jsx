@@ -110,6 +110,42 @@ export const getWards = async (id) => {
   return res;
 };
 
+//Lấy danh sách giảm giá
+export const getDiscounts = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISCOUNTS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh sách loại giảm giá
+export const getDiscountType = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISCOUNT_TYPE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh sách nhóm dự kiến thu
+// export const getRevenueGroup = async () => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+//     method: "get",
+//     headers: {
+//       "content-type": "Application/json",
+//     },
+//   });
+//   return res;
+// };
+
 //INSERT-----------------------------------------------------
 
 // Tạo mới người dùng
