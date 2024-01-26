@@ -6,6 +6,7 @@ const page = async () => {
   if (ApiTransfer.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
+
   return <Content transfer={ApiTransfer.data} />;
 };
 

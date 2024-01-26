@@ -923,8 +923,6 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
-  console.log(data);
-
   return (
     <div className="flex flex-col gap-4">
       {expectedRevenue.isFetching && expectedRevenue.isLoading ? (
