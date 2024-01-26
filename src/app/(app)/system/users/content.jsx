@@ -12,10 +12,10 @@ import { useAuth } from "@clerk/nextjs";
 const Skeleton = () => {
   return (
     <>
-      {[...Array(3)].map(() => (
-        <tr>
-          {[...Array(7)].map(() => (
-            <td>
+      {[...Array(3)].map((_, index) => (
+        <tr key={index}>
+          {[...Array(7)].map((_, i) => (
+            <td key={i}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -82,7 +82,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
             </tr>
           </thead>
           <tbody>
-            {(data.isFetching || data.isLoading) ? (
+            {data.isFetching || data.isLoading ? (
               <Skeleton />
             ) : data?.data?.data?.length === 0 ? (
               <p>Không có kết quả!</p>
