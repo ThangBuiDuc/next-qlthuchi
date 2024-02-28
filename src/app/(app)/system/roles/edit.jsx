@@ -65,7 +65,7 @@ const Edit = ({ data, roleData }) => {
     <>
       <input
         type="checkbox"
-        id={`modal_add_${data.id}`}
+        id={`modal_fix_${data.id}`}
         className="modal-toggle"
       />
       <div className="modal" role="dialog">
@@ -74,7 +74,7 @@ const Edit = ({ data, roleData }) => {
           style={{ overflowY: "unset" }}
         >
           <label
-            htmlFor={`modal_add_${data.id}`}
+            htmlFor={`modal_fix_${data.id}`}
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 cursor-pointer"
           >
             ✕

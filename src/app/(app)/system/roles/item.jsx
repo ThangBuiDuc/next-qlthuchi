@@ -12,7 +12,7 @@ const Item = ({data, roleData}) => {
       <td>{data.user_roles[0]? <p>{data.user_roles[0]?.role.description}</p> : <p>Chưa được phân quyền</p> }</td>
       <td>
       <label
-        htmlFor={`modal_add_${data.id}`}
+        htmlFor={`modal_fix_${data.id}`}
         className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
       >
         <GoGear size={25} />

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// ##### Hệ Thống ######
+// ##### Hệ Thống, Danh mục ######
 
 //GET---------------------------------------------------------------------
 //Lấy role
@@ -97,7 +97,7 @@ export const getDistrictsOfProvince = async (id) => {
   return res;
 };
 
-//Lay danh sách phường xã
+//Lay danh sách phường xã của một quận huyện
 export const getWards = async (id) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_HASURA_GET_WARDS}${id}`,
@@ -109,6 +109,8 @@ export const getWards = async (id) => {
 
   return res;
 };
+
+
 
 //Lấy danh sách giảm giá
 export const getDiscounts = async () => {
@@ -137,7 +139,7 @@ export const getDiscountType = async () => {
 //Lấy danh sách nhóm dự kiến thu
 export const getRevenueGroup = async () => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUPS,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -173,6 +175,19 @@ export const upsertUserRole = async (token, objects) => {
     },
   });
 };
+
+//Thêm mới giảm giá
+export const insertDiscount = async (token,objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT,
+    method: "post",
+    data: {objects},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+}
 
 //=====================================================================================================================================================
 
@@ -458,6 +473,22 @@ export const updateExpectedRevenueDiscount = async (token, id, discount) => {
     data: {
       id: id,
       discount: discount,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Chỉnh sửa giảm giá
+export const updateDiscount = async (id, token, changes) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_DISCOUNT,
+    method: "put",
+    data: {
+      id: id,
+      changes: changes,
     },
     headers: {
       "content-type": "Application/json",
