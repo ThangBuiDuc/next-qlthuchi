@@ -2,6 +2,7 @@
 import Select from "react-select";
 import {
   useContext,
+  useEffect,
   useState,
   useRef,
   useLayoutEffect,
@@ -31,10 +32,10 @@ function numberWithCommas(x) {
 const Skeleton = () => {
   return (
     <>
-      {[...Array(4)].map((_, index) => (
-        <tr key={index}>
-          {[...Array(9)].map((_, i) => (
-            <td key={i}>
+      {[...Array(4)].map((_, i) => (
+        <tr key={i}>
+          {[...Array(9)].map((_, ii) => (
+            <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -56,63 +57,207 @@ const Item = ({
   discountsData,
 }) => {
   const [checked, setChecked] = useState(false);
-  console.log("discount data : ", discountsData);
-  // console.log("data: ", data)
+  // console.log("discount data : ", discountsData);
+  console.log("data: ", data);
 
   const [mutating, setMutating] = useState(false);
 
   const { getToken } = useAuth();
 
-  const [discount, setDiscount] = useState();
+  //===========================================================================================================
+  const getBiggestRatioInCheckedList = (data) => {
+    // Filter the checked items
+    const checkedItems = data.filter((item) => item.isChecked);
+    if (checkedItems.length === 0) {
+      return null;
+    }
 
-  const mutation = useMutation({
-    mutationFn: async () =>
-      updateExpectedRevenueDiscount(
-        await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-        }),
-        data.id,
-        discount
-      ),
-    onSuccess: () => {
-      setMutating(false);
-      toast.success("Thêm giảm giá thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-    onError: () => {
-      setMutating(false);
-      toast.error("Thêm sự kiến thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-  });
+    const biggestRatioItem = checkedItems.reduce((maxItem, currentItem) => {
+      return currentItem.ratio > maxItem.ratio ? currentItem : maxItem;
+    });
 
-  //bảng giảm giá theo nhập học
-  const [a, setA] = useState(data.actual_amount_collected);
+    return biggestRatioItem;
+  };
+
+  //================================= bảng giảm giá theo nhập học =============================================
+  const [a, setA] = useState(data.prescribed_money);
   const [checkboxA, setCheckboxA] = useState(null);
   const handleCheckboxAChange = (item, index) => {
     setCheckboxA((prev) => (prev === index ? null : index));
     if (data && item) {
       setA(
         checkboxA === index
-          ? data.actual_amount_collected
-          : data.actual_amount_collected * (1 - item.ratio)
+          ? data.prescribed_money
+          : data.prescribed_money * (1 - item.ratio)
       );
     }
   };
-  console.log(a);
+  // console.log("a:",a);
 
-  //bảng ưu đãi
-  const [b, setB] = useState(a);
+  //================================= bảng ưu đãi (b)=============================================
+  const [b, setB] = useState(0);
+  const [discountBData, setDiscountBData] = useState([]);
+  useEffect(() => {
+    // Filter and map the discounts data
+    const filteredData = discountsData
+      ?.filter((item) => item.discount_type.id === 1)
+      .map((item) => ({ ...item, isChecked: false }));
+    setDiscountBData(filteredData);
+  }, [discountsData]);
+  // console.log(discountBData);
+  const [checkedAllb, setCheckedAllb] = useState(false);
+
+  const selectAllb = () => {
+    setCheckedAllb(!checkedAllb);
+    setDiscountBData(
+      discountBData.map((item) => ({
+        ...item,
+        isChecked: !checkedAllb,
+      }))
+    );
+  };
+
+  const toggleItemB = (index) => {
+    setDiscountBData(
+      discountBData.map((item, i) => {
+        if (i == index) {
+          return {
+            ...item,
+            isChecked: !item.isChecked,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (discountBData.length !== 0) {
+      setCheckedAllb(discountBData.every((item) => item.isChecked));
+    }
+  }, [discountBData]);
+
+  useEffect(() => {
+    if (getBiggestRatioInCheckedList(discountBData) !== null) {
+      setB(a * getBiggestRatioInCheckedList(discountBData).ratio);
+    } else {
+      setB(0);
+    }
+  }, [a, discountBData]);
+
+  // console.log("b:",b)
+
+  //================================= bảng đối tượng chính sách (c)=============================================
+  const [c, setC] = useState(0);
+  const [discountCData, setDiscountCData] = useState([]);
+  useEffect(() => {
+    // Filter and map the discounts data
+    const filteredCData = discountsData
+      ?.filter((item) => item.discount_type.id === 2)
+      .map((item) => ({ ...item, isChecked: false }));
+    setDiscountCData(filteredCData);
+  }, [discountsData]);
+  // console.log(discountCData);
+  const [checkedAllc, setCheckedAllc] = useState(false);
+
+  const selectAllc = () => {
+    setCheckedAllc(!checkedAllc);
+    setDiscountCData(
+      discountCData.map((item) => ({
+        ...item,
+        isChecked: !checkedAllc,
+      }))
+    );
+  };
+
+  const toggleItemC = (index) => {
+    setDiscountCData(
+      discountCData.map((item, i) => {
+        if (i == index) {
+          return {
+            ...item,
+            isChecked: !item.isChecked,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (discountCData.length !== 0) {
+      setCheckedAllc(discountCData.every((item) => item.isChecked));
+    }
+  }, [discountCData]);
+
+  useEffect(() => {
+    if (getBiggestRatioInCheckedList(discountCData) !== null) {
+      setC((a - b) * getBiggestRatioInCheckedList(discountCData).ratio);
+    } else {
+      setC(0);
+    }
+  }, [a, b, discountCData]);
+
+  // console.log("c:",c)
+
+  //================================= bảng trừ giảm đối tượng đóng học phí cả năm (d)=============================================
+  const [d, setD] = useState(0);
+  const [discountDData, setDiscountDData] = useState([]);
+  useEffect(() => {
+    // Filter and map the discounts data
+    const filteredDData = discountsData
+      ?.filter((item) => item.discount_type.id === 3)
+      .map((item) => ({ ...item, isChecked: false }));
+    setDiscountDData(filteredDData);
+  }, [discountsData]);
+  // console.log(discountDData);
+  const [checkedAlld, setCheckedAlld] = useState(false);
+
+  const selectAlld = () => {
+    setCheckedAlld(!checkedAlld);
+    setDiscountDData(
+      discountDData.map((item) => ({
+        ...item,
+        isChecked: !checkedAlld,
+      }))
+    );
+  };
+
+  const toggleItemD = (index) => {
+    setDiscountDData(
+      discountDData.map((item, i) => {
+        if (i == index) {
+          return {
+            ...item,
+            isChecked: !item.isChecked,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (discountDData.length !== 0) {
+      setCheckedAlld(discountDData.every((item) => item.isChecked));
+    }
+  }, [discountDData]);
+
+  useEffect(() => {
+    if (getBiggestRatioInCheckedList(discountDData) !== null) {
+      setD((a - b - c) * getBiggestRatioInCheckedList(discountDData).ratio);
+    } else {
+      setD(0);
+    }
+  }, [a, b, c, discountDData]);
+
+  // console.log("d:",d)
+
+  //===================================== Số tiền giảm giá ===================================================
+  const [discount, setDiscount] = useState(0);
+  useEffect(() => {
+    setDiscount(data.prescribed_money - (a - b - c - d));
+  }, [a, b, c, d]);
 
   return (
     <>
@@ -122,10 +267,12 @@ const Item = ({
         </td>
         <td>{data.revenue.name}</td>
         <td>{revenue_type.name}</td>
+        <td>{numberWithCommas(data.prescribed_money)} đ</td>
+        <td>{numberWithCommas(data.discount)} đ</td>
         <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
         <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
         {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
-        <td>
+        {/* <td>
           <>
             <CurrencyInput
               autoComplete="off"
@@ -151,7 +298,7 @@ const Item = ({
               decimalsLimit={2}
             />
           </>
-        </td>
+        </td> */}
         <td>{numberWithCommas(data.amount_collected)} ₫</td>
         <td>
           {numberWithCommas(
@@ -162,7 +309,7 @@ const Item = ({
           )}{" "}
           ₫
         </td>
-        <td>
+        {/* <td>
           <>
             <input
               type="text"
@@ -189,7 +336,7 @@ const Item = ({
               }
             />
           </>
-        </td>
+        </td> */}
         <td
           className="tooltip tooltip-left cursor-pointer"
           data-tip="Cập nhật giảm giá"
@@ -205,7 +352,7 @@ const Item = ({
         </td>
       </tr>
       <tr>
-        <td colspan="10">
+        <td colSpan="10">
           <AnimatePresence>
             {checked && (
               <motion.div
@@ -273,7 +420,12 @@ const Item = ({
                           <tr>
                             <th>
                               <label>
-                                <input type="checkbox" className="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  className="checkbox"
+                                  onChange={() => selectAllb()}
+                                  checked={checkedAllb}
+                                />
                               </label>
                             </th>
                             <th>STT</th>
@@ -283,25 +435,25 @@ const Item = ({
                           </tr>
                         </thead>
                         <tbody>
-                          {discountsData
-                            .filter((item) => item.discount_type.id == 1)
-                            .map((item, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <label key={index}>
-                                    <input
-                                      key={index}
-                                      type="checkbox"
-                                      className="checkbox"
-                                    />
-                                  </label>
-                                </td>
-                                <td>{index + 1}. </td>
-                                <td>{item.code}</td>
-                                <td>{item.description}</td>
-                                <td>{item.ratio * 100}</td>
-                              </tr>
-                            ))}
+                          {discountBData?.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <label key={index}>
+                                  <input
+                                    key={index}
+                                    type="checkbox"
+                                    className="checkbox"
+                                    onChange={() => toggleItemB(index)}
+                                    checked={item.isChecked}
+                                  />
+                                </label>
+                              </td>
+                              <td>{index + 1}. </td>
+                              <td>{item.code}</td>
+                              <td>{item.description}</td>
+                              <td>{item.ratio * 100}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -314,7 +466,12 @@ const Item = ({
                           <tr>
                             <th>
                               <label>
-                                <input type="checkbox" className="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  className="checkbox"
+                                  onChange={() => selectAllc()}
+                                  checked={checkedAllc}
+                                />
                               </label>
                             </th>
                             <th>STT</th>
@@ -324,24 +481,24 @@ const Item = ({
                           </tr>
                         </thead>
                         <tbody>
-                          {discountsData
-                            .filter((item) => item.discount_type.id == 2)
-                            .map((item, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <label>
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox"
-                                    />
-                                  </label>
-                                </td>
-                                <td>{index + 1}. </td>
-                                <td>{item.code}</td>
-                                <td>{item.description}</td>
-                                <td>{item.ratio * 100}</td>
-                              </tr>
-                            ))}
+                          {discountCData?.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="checkbox"
+                                    onChange={() => toggleItemC(index)}
+                                    checked={item.isChecked}
+                                  />
+                                </label>
+                              </td>
+                              <td>{index + 1}. </td>
+                              <td>{item.code}</td>
+                              <td>{item.description}</td>
+                              <td>{item.ratio * 100}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -354,7 +511,12 @@ const Item = ({
                           <tr>
                             <th>
                               <label>
-                                <input type="checkbox" className="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  className="checkbox"
+                                  onChange={() => selectAlld()}
+                                  checked={checkedAlld}
+                                />
                               </label>
                             </th>
                             <th>STT</th>
@@ -364,28 +526,31 @@ const Item = ({
                           </tr>
                         </thead>
                         <tbody>
-                          {discountsData
-                            .filter((item) => item.discount_type.id == 3)
-                            .map((item, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <label>
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox"
-                                    />
-                                  </label>
-                                </td>
-                                <td>{index + 1}. </td>
-                                <td>{item.code}</td>
-                                <td>{item.description}</td>
-                                <td>{item.ratio * 100}</td>
-                              </tr>
-                            ))}
+                          {discountDData?.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="checkbox"
+                                    onChange={() => toggleItemD(index)}
+                                    checked={item.isChecked}
+                                  />
+                                </label>
+                              </td>
+                              <td>{index + 1}. </td>
+                              <td>{item.code}</td>
+                              <td>{item.description}</td>
+                              <td>{item.ratio * 100}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
                   </div>
+                  {discount == 0 ? null : (
+                    <h6>Số tiền giảm giá: {numberWithCommas(discount)} ₫</h6>
+                  )}
                   <button
                     className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
                     // onClick={()=>}
@@ -454,7 +619,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
     throw new Error();
   }
 
-  console.log("expectedRevenue : ", expectedRevenue);
+  // console.log("expectedRevenue : ", expectedRevenue);
 
   return (
     <div className="flex flex-col gap-4">
@@ -467,13 +632,15 @@ const SubContent = ({ student, selectPresent, discounts }) => {
               <th>TT</th>
               <th>Khoản thu</th>
               <th>Loại khoản thu</th>
+              <th>Số tiền quy định</th>
+              <th>Số tiền giảm giá</th>
               <th>Công nợ đầu kỳ</th>
               <th>Số phải nộp kỳ này</th>
               {/* <th>Nộp cả năm</th> */}
-              <th>Điều chỉnh</th>
+              {/* <th>Điều chỉnh</th> */}
               <th>Số đã nộp trong kỳ</th>
               <th>Công nợ cuối kỳ</th>
-              <th>Căn cứ điều chỉnh</th>
+              {/* <th>Căn cứ điều chỉnh</th> */}
               <th>
                 <div
                   className="tooltip tooltip-left cursor-pointer"
@@ -494,7 +661,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
             ) : data?.length === 0 ? (
-              <tr>
+              <tr key={data.id}>
                 <td colSpan={11} className="text-center">
                   Không có kết quả!
                 </td>
@@ -512,7 +679,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                 .map((item, index) => {
                   if (item.expected_revenues.length === 0) {
                     return (
-                      <tr key={index} className="hover">
+                      <tr className="hover" key={item.id}>
                         <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.revenue_type.name}</td>
@@ -523,6 +690,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                     );
                   }
                   if (item.expected_revenues.length === 1) {
+                    // console.log("item:", item);
                     return (
                       <Item
                         key={item.id}

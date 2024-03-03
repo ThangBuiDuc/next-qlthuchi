@@ -1,20 +1,12 @@
 "use client";
-import axios from "axios";
-import TextInput from "@/app/_component/textInput";
 import { useReducer, useState, useEffect, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import TextInput from "@/app/_component/textInput";
 import Select from "react-select";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
-import moment from "moment";
-import "moment/locale/vi";
-import { insertDiscount } from "@/utils/funtionApi";
-
-import "react-datepicker/dist/react-datepicker.css";
-
+import { updateDiscount } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-
 
 
 function reducer(state, action) {
@@ -43,48 +35,51 @@ function reducer(state, action) {
   }
 }
 
-
-
-const Add = ({ discountTypeData, revenueGroupData }) => {
-
+const Edit = ({ data, revenueGroupData, discountTypeData }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-  const [discountType,setDiscountType] = useState();
-  const [revenueGroup,setRevenueGroup] = useState();
+
+
+
+
+  const [discountType,setDiscountType] = useState(
+    data.discount_type ? {
+      value: data.discount_type.id,
+      label: data.discount_type.name
+    } : null
+  );
+  const [revenueGroup,setRevenueGroup] = useState(
+    data.revenue_group ? {
+      value: data.revenue_group.id,
+      label: data.revenue_group.name
+    } : null
+  );
   const [infor, dispatchInfor] = useReducer(reducer, {
-    code: "",
-    description: "",
-    ratio: "",
+    code: data.code,
+    description: data.description,
+    ratio: data.ratio * 100,
   });
 
   const mutation = useMutation({
-    mutationFn: ({token, arg}) => insertDiscount(token, arg),
-    onSuccess:  () => {
-      queryClient.invalidateQueries(["get_discount"]);
-      dispatchInfor({
-        type: "reset",
-        payload: {
-          value: {
-            code:"",
-            description:"",
-            ratio:""
-          },
-        },
+    mutationFn: ({id, token, changes }) => updateDiscount(id, token, changes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get_discount"],
       });
-      toast.success("Tạo mã giảm giá thành công!", {
+      toast.success("Cập nhật mã giảm giá thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         theme: "light",
       });
-      const modalCheckbox = document.getElementById(`modal_add`);
+      const modalCheckbox = document.getElementById(`modal_fix_${data.id}`);
       if (modalCheckbox) {
         modalCheckbox.checked = false;
       }
     },
     onError: () => {
-      toast.error("Tạo mã giảm giá không thành công!", {
+      toast.error("Cập nhật mã giảm giá không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -92,46 +87,54 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
         theme: "light",
       });
     },
-  })
-
+  });
 
   const handleOnSubmit = useCallback(async () => {
-      let arg = {
-        code: infor.code,
-        description: infor.description,
-        ratio: infor.ratio / 100,
-        discount_type_id: discountType?.value,
-        revenue_group_id: revenueGroup?.value
-      }
-      let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-      });
+    let id = data.id;
+    let changes = {
+      code: infor.code,
+      description: infor.description,
+      ratio: infor.ratio / 100,
+      discount_type_id: discountType?.value,
+      revenue_group_id: revenueGroup?.value
+    };
 
-      mutation.mutate({ token, arg });
-      console.log(arg)
-    
-  }, [infor, discountType, revenueGroup]);
+    console.log(id)
 
+    let token = await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+    });
+
+    console.log(token)
+    mutation.mutate({id, token, changes });
+  }, [discountType,revenueGroup,infor.code,infor.description,infor.ratio]);
+
+  // console.log("data:",data)
 
   return (
     <>
-      <input type="checkbox" id={`modal_add`} className="modal-toggle" />
+      <input
+        type="checkbox"
+        id={`modal_fix_${data.id}`}
+        className="modal-toggle"
+      />
       <div className="modal" role="dialog">
         <div
-          className="modal-box flex flex-col gap-3 max-w-full w-9/12"
+          className="modal-box flex flex-col gap-3 max-w-full w-6/12"
           style={{ overflowY: "unset" }}
         >
           <label
-            htmlFor={`modal_add`}
+            htmlFor={`modal_fix_${data.id}`}
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 cursor-pointer"
           >
             ✕
           </label>
           <form
             // onSubmit={handleOnSubmit}
-            className="flex flex-col gap-[20px] mt-[20px]"
+            className="flex flex-col gap-[20px] mb-[10px]"
             style={{ overflowY: "unset" }}
           >
+            <h4 className="self-center">Cập nhật mã giảm giá</h4>
             <div className="grid grid-cols-2 gap-[20px]">
               <Select
                 placeholder="Loại giảm giá"
@@ -163,7 +166,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 dispatch={dispatchInfor}
                 action={"change_description"}
                 id={"add_description"}
-                className={"w-[70%]"}
+                className={"w-fit"}
               />
               <TextInput
                 label={"Tỉ lệ giảm"}
@@ -191,7 +194,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
               />
             </div>
             <button
-              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center mt-[30px]"
               onClick={(e) => {
                 e.preventDefault();
                 handleOnSubmit();
@@ -200,7 +203,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
               {mutation.isLoading ? (
                 <span className="loading loading-spinner loading-sm bg-primary"></span>
               ) : (
-                "Thêm mới"
+                "Cập nhật"
               )}
             </button>
           </form>
@@ -210,4 +213,4 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
   );
 };
 
-export default Add;
+export default Edit;

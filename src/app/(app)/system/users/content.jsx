@@ -12,10 +12,10 @@ import { useAuth } from "@clerk/nextjs";
 const Skeleton = () => {
   return (
     <>
-      {[...Array(3)].map((_, index) => (
-        <tr key={index}>
-          {[...Array(7)].map((_, i) => (
-            <td key={i}>
+      {[...Array(3)].map((_, i) => (
+        <tr key={i}>
+          {[...Array(7)].map((_, ii) => (
+            <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
               </>
@@ -54,7 +54,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
         Thêm mới
       </label>
       <Add provinces={provinces} districts={districts} jwt={jwt} />
-      <form className="flex flex-row justify-around mt-[10px] p-[20px]">
+      {/* <form className="flex flex-row justify-around mt-[10px] p-[20px]">
         <TextInput
           className={"!w-[70%]"}
           label={"Tìm kiếm người dùng"}
@@ -65,7 +65,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
         <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl">
           Tìm kiếm
         </button>
-      </form>
+      </form> */}
 
       <div className="overflow-x-auto">
         <table className="table table-pin-rows">

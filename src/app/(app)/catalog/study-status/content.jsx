@@ -41,7 +41,7 @@ const Content = () => {
             <tr>
               <th></th>
               <th>Mã</th>
-              <th>Quan hệ</th>
+              <th>Tình trạng</th>
             </tr>
           </thead>
           <tbody>
