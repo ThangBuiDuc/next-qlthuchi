@@ -4,16 +4,16 @@ import Content from "./content";
 const Page = async ({ params }) => {
   const student = await meilisearchStudentGet(params.student_code);
 
-  const apiGetSchoolYear = await getSchoolYear();
+  const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  if (apiGetSchoolYear.status !== 200 || !student) {
+  if (present.status !== 200 || !student) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
   return (
     <Content
       student_code={params.student_code}
       student={student}
-      schoolYear={apiGetSchoolYear.data}
+      present={present.data}
     />
   );
 };

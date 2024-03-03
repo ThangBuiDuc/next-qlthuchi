@@ -8,13 +8,19 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment";
 
-const SubContent = ({ selected, student_code, student }) => {
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+const SubContent = ({ present, student_code, student, school_year }) => {
+  console.log(school_year);
+  console.log(student);
   const data = useQuery({
-    queryKey: ["report_debt_one", student_code, selected],
+    queryKey: ["report_debt_one", student_code, present],
     queryFn: async () =>
       meilisearchReportDebtGet(
         await meilisearchGetToken(),
-        `primary_code = ${student_code}${selected.value}`
+        `primary_code = ${student_code}${present.id}`
       ),
   });
 
@@ -51,7 +57,9 @@ const SubContent = ({ selected, student_code, student }) => {
     } ${student.last_name}       Ngày sinh: ${student.date_of_birth
       .split("-")
       .reverse()
-      .join("-")}    Lớp: ……      Mã lớp: …..`;
+      .join("-")}    Lớp: ${
+      student.class_code[0]
+    }      Mã lớp: ${student.class_code.substring(1)}`;
     tths.font = {
       name: "Times New Roman",
       size: 14,
@@ -84,13 +92,34 @@ const SubContent = ({ selected, student_code, student }) => {
     ];
     worksheet.getCell(7, 1).value = "TT";
     worksheet.getCell(7, 2).value = "Nội dung";
-    worksheet.getCell(7, 3).value = "Công nợ đầu kỳ ... năm 202…-202…";
-    worksheet.getCell(7, 4).value = "Ưu đãi, miễn giảm kỳ ... năm 202…-202…";
-    worksheet.getCell(7, 5).value = "Số phải nộp kỳ... năm 202…-202…";
-    worksheet.getCell(7, 6).value = "Đã điều chỉnh kỳ ... năm 202…-202…";
-    worksheet.getCell(7, 7).value = "Đã hoàn trả kỳ ... năm 202…-202…";
-    worksheet.getCell(7, 8).value = "Số đã nộp kỳ ... năm 202…-202…";
-    worksheet.getCell(7, 9).value = "Công nợ cuối kỳ ... năm 202…-202…";
+    worksheet.getCell(
+      7,
+      3
+    ).value = `Công nợ đầu kỳ ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      4
+    ).value = `Ưu đãi, miễn giảm kỳ ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      5
+    ).value = `Số phải nộp ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      6
+    ).value = `Đã điều chỉnh ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      7
+    ).value = `Đã hoàn trả kỳ ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      8
+    ).value = `Số đã nộp kỳ ${present.batch} năm ${school_year.result[0].school_year}`;
+    worksheet.getCell(
+      7,
+      9
+    ).value = `Công nợ cuối kỳ ${present.batch} năm ${school_year.result[0].school_year}`;
     data?.data?.results[0].sub
       .sort((a, b) => a.position - b.position)
       .map((item, index) => {
@@ -379,22 +408,36 @@ const SubContent = ({ selected, student_code, student }) => {
                       <td>{item.name}</td>
                       <td>
                         {item.previous_batch_money
-                          ? item.previous_batch_money
+                          ? numberWithCommas(item.previous_batch_money)
                           : 0}
                       </td>
-                      <td>{item.discount ? item.discount : 0}</td>
+                      <td>
+                        {item.discount ? numberWithCommas(item.discount) : 0}
+                      </td>
                       <td>
                         {item.actual_amount_collected
-                          ? item.actual_amount_collected
+                          ? numberWithCommas(item.actual_amount_collected)
                           : 0}
                       </td>
-                      <td>{item.amount_edited ? item.amount_collected : 0}</td>
-                      <td>{item.amount_of_spend ? item.amount_of_spend : 0}</td>
                       <td>
-                        {item.amount_collected ? item.amount_collected : 0}
+                        {item.amount_edited
+                          ? numberWithCommas(item.amount_collected)
+                          : 0}
                       </td>
                       <td>
-                        {item.next_batch_money ? item.next_batch_money : 0}
+                        {item.amount_of_spend
+                          ? numberWithCommas(item.amount_of_spend)
+                          : 0}
+                      </td>
+                      <td>
+                        {item.amount_collected
+                          ? numberWithCommas(item.amount_collected)
+                          : 0}
+                      </td>
+                      <td>
+                        {item.next_batch_money
+                          ? numberWithCommas(item.next_batch_money)
+                          : 0}
                       </td>
                     </tr>
                   ))

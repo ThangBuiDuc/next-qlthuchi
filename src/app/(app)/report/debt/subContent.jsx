@@ -4,18 +4,21 @@ import {
   meilisearchReportDebtGet,
 } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment";
 
-const SubContent = ({ selected }) => {
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+const SubContent = ({ present }) => {
   const data = useQuery({
-    queryKey: ["report_debt", selected],
+    queryKey: ["report_debt", present],
     queryFn: async () =>
       meilisearchReportDebtGet(
         await meilisearchGetToken(),
-        `batch_id = ${selected.value}`
+        `batch_id = ${present.id}`
       ),
   });
 
@@ -324,45 +327,60 @@ const SubContent = ({ selected }) => {
                       <td>{item.code}</td>
                       <td>{`${item.first_name} ${item.last_name}`}</td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.previous_batch_money,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.previous_batch_money,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.discount,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.discount,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.actual_amount_collected,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) =>
+                              total + curr.actual_amount_collected,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.amount_edited,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.amount_edited,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.amount_of_spend,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.amount_of_spend,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.amount_collected,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.amount_collected,
+                            0
+                          )
                         )}
                       </td>
                       <td>
-                        {item.sub.reduce(
-                          (total, curr) => total + curr.next_batch_money,
-                          0
+                        {numberWithCommas(
+                          item.sub.reduce(
+                            (total, curr) => total + curr.next_batch_money,
+                            0
+                          )
                         )}
                       </td>
                     </tr>

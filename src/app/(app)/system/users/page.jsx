@@ -1,5 +1,10 @@
 import Content from "./content";
-import { getProvinces, getDistricts, getRole, getUsers } from "@/utils/funtionApi";
+import {
+  getProvinces,
+  getDistricts,
+  getRole,
+  getUsers,
+} from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
@@ -11,10 +16,9 @@ const Page = async () => {
     })
   );
 
-  console.log(role.data.result[0]?.role_id);
-
   if (
-    role.data.result[0]?.role_id.toString() !== process.env.NEXT_PUBLIC_HASURA_ROLE_SUPER_ADMIN
+    role.data.result[0]?.role_id.toString() !==
+    process.env.NEXT_PUBLIC_HASURA_ROLE_SUPER_ADMIN
   ) {
     return (
       <div className="flex justify-center">
@@ -37,10 +41,10 @@ const Page = async () => {
   // console.log(jwt)
 
   if (
-      apiGetProvinces.status !== 200 
-      || apiGetDistricts.status !== 200 
-      || apiGetUsers.status !== 200
-    )
+    apiGetProvinces.status !== 200 ||
+    apiGetDistricts.status !== 200 ||
+    apiGetUsers.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (

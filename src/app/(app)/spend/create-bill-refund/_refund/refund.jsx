@@ -76,9 +76,17 @@ const Refund = ({ selected }) => {
   const [condition, setCondition] = useState([]);
 
   const handleSearchOnClick = () => {
+    // const formality = `${
+    //   selectedFilter.formality?.length
+    //     ? `formality_id IN [${selectedFilter?.formality
+    //         ?.map((item) => item.value)
+    //         .toString()}]`
+    //     : ""
+    // }`;
+
     const users = `${
       selectedFilter.users?.length
-        ? `created_by IN [${selectedFilter?.users
+        ? `user.clerk_id IN [${selectedFilter?.users
             ?.map((item) => item.value)
             .toString()}]`
         : ""
@@ -88,13 +96,13 @@ const Refund = ({ selected }) => {
       ? `start_year = ${selectedFilter.year}`
       : "";
 
-    const school_year = `${
-      selectedFilter.school_year?.length
-        ? `schoolyear_student.school_year_id IN [${selectedFilter?.school_year
-            ?.map((item) => item.value)
-            .toString()}]`
-        : ""
-    }`;
+    // const school_year = `${
+    //   selectedFilter.school_year?.length
+    //     ? `schoolyear_student.school_year_id IN [${selectedFilter?.school_year
+    //         ?.map((item) => item.value)
+    //         .toString()}]`
+    //     : ""
+    // }`;
 
     const batch = `${
       !selectedFilter.batch?.length
@@ -113,37 +121,38 @@ const Refund = ({ selected }) => {
       : "";
 
     const fromReceipt = selectedFilter.fromReceipt
-      ? `code >= ${selectedFilter.fromReceipt}`
+      ? `receipt_code >= ${selectedFilter.fromReceipt}`
       : "";
 
     const toReceipt = selectedFilter.toReceipt
-      ? `code <= ${selectedFilter.toReceipt}`
+      ? `receipt_code <= ${selectedFilter.toReceipt}`
       : "";
 
     const school_level = selectedFilter.school_level?.length
-      ? `schoolyear_student.class.school_level_code IN [${selectedFilter.school_level
+      ? `student.school_level_code IN [${selectedFilter.school_level
           .map((item) => item.code)
           .toString()}]`
       : "";
 
     const class_level = selectedFilter.class_level?.length
-      ? `schoolyear_student.class.class_level_code IN [${selectedFilter.class_level
+      ? `student.class_level_code IN [${selectedFilter.class_level
           .map((item) => item.code)
           .toString()}]`
       : "";
 
     const classes = selectedFilter.class?.length
-      ? `schoolyear_student.class_code IN [${selectedFilter.class
+      ? `student.class_code IN [${selectedFilter.class
           .map((item) => item.name)
           .toString()}]`
       : "";
 
     const studentCode = selectedFilter.studentCode
-      ? `student.code = ${selectedFilter.studentCode}`
+      ? `code = ${selectedFilter.studentCode}`
       : "";
 
     setCondition(
       [
+        formality && formality,
         users && users,
         selectedConditionFilter.first
           ? selectedConditionFilter.first.value === 1

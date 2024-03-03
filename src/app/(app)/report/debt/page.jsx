@@ -2,11 +2,12 @@ import { getSchoolYear } from "@/utils/funtionApi";
 import Content from "./content";
 
 const Page = async () => {
-  const apiGetSchoolYear = await getSchoolYear();
-  if (apiGetSchoolYear.status !== 200) {
+  const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  if (present.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
-  return <Content schoolYear={apiGetSchoolYear.data} />;
+  return <Content present={present.data} />;
 };
 
 export default Page;

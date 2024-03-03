@@ -56,7 +56,7 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
             selected.school
               ? listSearch.class_level
                   .filter(
-                    (item) => item.school_level_id === selected.school.value
+                    (item) => item.school_level_code === selected.school.value
                   )
                   .sort((a, b) => a.code - b.code)
                   .map((item) => ({
@@ -97,19 +97,20 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
             selected.class_level
               ? listSearch.classes
                   .filter(
-                    (item) => item.class_level_id === selected.class_level.value
+                    (item) =>
+                      item.class_level_code === selected.class_level.value
                   )
-                  .sort((a, b) => a.class_level_id - b.class_level_id)
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
                   .map((item) => ({
                     ...item,
-                    value: item.id,
+                    value: item.code,
                     label: item.name,
                   }))
               : listSearch.classes
-                  .sort((a, b) => a.class_level_id - b.class_level_id)
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
                   .map((item) => ({
                     ...item,
-                    value: item.id,
+                    value: item.code,
                     label: item.name,
                   }))
           }

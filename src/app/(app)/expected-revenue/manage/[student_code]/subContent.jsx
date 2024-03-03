@@ -22,7 +22,6 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
-import { Scrollbars } from "react-custom-scrollbars-2";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const getDiffArray = (a, b) => {
@@ -57,7 +56,7 @@ const Skeleton = () => {
   );
 };
 
-const AddContent1 = ({ student, currentRef }) => {
+const AddContent1 = ({ student, currentRef, existRevenue }) => {
   const queryClient = useQueryClient();
   const { selectPresent, listRevenue, calculationUnit } =
     useContext(listContext);
@@ -231,7 +230,8 @@ const AddContent1 = ({ student, currentRef }) => {
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
                 .revenue_groups.find((item) => item.id === norm.group.value)
-                .revenues.map((item) => {
+                .revenues.filter((item) => !existRevenue.includes(item.id))
+                .map((item) => {
                   return {
                     ...item,
                     value: item.id,
@@ -535,11 +535,13 @@ const AddContent2 = ({ student, currentRef }) => {
               placeholder="Nhóm khoản thu"
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
+
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === student.school_level_code)
                 )
+                .filter((item) => item.position === 12 || item.position === 18)
                 .filter((item) => item.revenues.length > 0)
-                .sort((a, b) => a.id - b.id)
+                .sort((a, b) => a.position - b.position)
                 .map((item) => ({
                   value: item.id,
                   label: item.name,
@@ -750,6 +752,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td>
         <>
           <CurrencyInput
+            disabled={data.note?.trim() ? false : true}
             autoComplete="off"
             intlConfig={{ locale: "vi-VN", currency: "VND" }}
             className={`input input-xs`}
@@ -923,6 +926,13 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
+  // console.log(
+  //   expectedRevenue.data?.data?.result
+  //     .filter((item) => item.expected_revenues.length > 0)
+  //     .map((item) => item.expected_revenues.map((el) => el.revenue.code))
+  //     .reduce((total, curr) => [...total, ...curr], [])
+  // );
+
   return (
     <div className="flex flex-col gap-4">
       {expectedRevenue.isFetching && expectedRevenue.isLoading ? (
@@ -970,7 +980,16 @@ const SubContent = ({ student, selectPresent }) => {
                   ✕
                 </button>
               </form>
-              <AddContent1 student={student} currentRef={addContent1} />
+              <AddContent1
+                student={student}
+                currentRef={addContent1}
+                existRevenue={expectedRevenue.data?.data?.result
+                  .filter((item) => item.expected_revenues.length > 0)
+                  .map((item) =>
+                    item.expected_revenues.map((el) => el.revenue.id)
+                  )
+                  .reduce((total, curr) => [...total, ...curr], [])}
+              />
             </div>
           </dialog>
           <dialog

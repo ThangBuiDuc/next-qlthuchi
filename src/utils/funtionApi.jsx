@@ -134,6 +134,19 @@ export const getDiscountType = async () => {
   return res;
 };
 
+//Lấy danh sách loại giảm giá
+export const getCashFund = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+  return res;
+};
+
 //Lấy danh sách nhóm dự kiến thu
 // export const getRevenueGroup = async () => {
 //   const res = await axios({
@@ -520,6 +533,19 @@ export const createStudent = async (token, objects) => {
   });
 };
 
+// Tạo quỹ tiền mặt
+export const createCashFund = async (token, object) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_CASH_FUND,
+    method: "post",
+    data: { object },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 // Tạo mới người dùng
 export const createParent = async (token, objects) => {
   return await axios({
@@ -857,6 +883,45 @@ export const meilisearchReportReceiptOneGet = async (token, data) => {
       offset: 0,
     },
     headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin lịch sử thanh toán theo nhiều học sinh
+export const meilisearchReportPaymentHistoryGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_payment_history/documents/fetch`,
+    method: "post",
+    data: {
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      // "Content-Type": "application/json",
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin lịch sử thanh toán theo nhiều học sinh
+export const meilisearchReportPaymentHistoryOneGet = async (token, filter) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_payment_history_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: filter,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      // "Content-Type": "application/json",
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },

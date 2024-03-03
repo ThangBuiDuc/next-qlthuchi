@@ -4,6 +4,7 @@ import {
   updateReceipt,
   meilisearchGetToken,
   createBillRefund,
+  meilisearchReportRefundOneGet,
 } from "@/utils/funtionApi";
 import { listContext } from "../content";
 // import { useState, useContext, useRef, useMemo } from "react";
@@ -30,28 +31,28 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function sumDuplicated(arr) {
-  return arr.reduce((acc, curr) => {
-    const objInAcc = acc.find(
-      (o) =>
-        o.expected_revenue.revenue.revenue_group.id ===
-        curr.expected_revenue.revenue.revenue_group.id
-    );
-    if (objInAcc)
-      return [
-        ...acc.map((item) =>
-          item.expected_revenue.revenue.revenue_group.id ===
-          curr.expected_revenue.revenue.revenue_group.id
-            ? {
-                ...item,
-                amount_spend: item.amount_spend + curr.amount_spend,
-              }
-            : item
-        ),
-      ];
-    else return [...acc, curr];
-  }, []);
-}
+// function sumDuplicated(arr) {
+//   return arr.reduce((acc, curr) => {
+//     const objInAcc = acc.find(
+//       (o) =>
+//         o.expected_revenue.revenue.revenue_group.id ===
+//         curr.expected_revenue.revenue.revenue_group.id
+//     );
+//     if (objInAcc)
+//       return [
+//         ...acc.map((item) =>
+//           item.expected_revenue.revenue.revenue_group.id ===
+//           curr.expected_revenue.revenue.revenue_group.id
+//             ? {
+//                 ...item,
+//                 amount_spend: item.amount_spend + curr.amount_spend,
+//               }
+//             : item
+//         ),
+//       ];
+//     else return [...acc, curr];
+//   }, []);
+// }
 
 const RowTable = ({ data }) => {
   return (
@@ -88,9 +89,9 @@ const ListRefund = ({
   const { user } = useUser();
 
   const { data, isFetching, isLoading, isRefetching } = useQuery({
-    queryKey: [`searchReceipt`, condition],
+    queryKey: [`searchRefund`, condition],
     queryFn: async () =>
-      meilisearchRefundGet(condition, await meilisearchGetToken(), null),
+      meilisearchReportRefundOneGet(await meilisearchGetToken(), condition),
   });
 
   useEffect(() => {
@@ -175,6 +176,8 @@ const ListRefund = ({
     mutation.mutate(objects);
   }, [billRefund, data]);
 
+  console.log(data);
+
   return isFetching && isLoading ? (
     <span className="loading loading-spinner loading-lg self-center"></span>
   ) : (
@@ -197,10 +200,7 @@ const ListRefund = ({
                     className="tooltip items-center flex cursor-pointer w-fit tooltip-left"
                     data-tip="Tải lại danh sách tìm kiếm"
                     onClick={() =>
-                      queryClient.invalidateQueries([
-                        `searchReceipt`,
-                        condition,
-                      ])
+                      queryClient.invalidateQueries([`searchRefund`, condition])
                     }
                   >
                     <TbReload size={30} />

@@ -24,6 +24,10 @@ export const sideBarData = [
         title: "Kết chuyển công nợ",
         path: "/system/transfer",
       },
+      {
+        title: "Quỹ tiền mặt",
+        path: "/system/cash-fund",
+      },
     ],
   },
 
@@ -130,7 +134,14 @@ export const sideBarData = [
     path: "/report",
     subNav: [
       { title: "Quỹ tiền mặt", path: "/report/cash-fund" },
-      { title: "Lịch sử thanh toán", path: "/report/pay-history" },
+      {
+        title: "Lịch sử thanh toán theo một học sinh",
+        path: "/report/one-payment-history",
+      },
+      {
+        title: "Lịch sử thanh toán theo nhiều học sinh",
+        path: "/report/payment-history",
+      },
       { title: "Công nợ theo một học sinh", path: "/report/one-debt" },
       { title: "Công nợ theo nhiều học sinh", path: "/report/debt" },
       {

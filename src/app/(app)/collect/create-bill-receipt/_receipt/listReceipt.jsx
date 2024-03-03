@@ -1,16 +1,22 @@
 "use client";
 import {
-  meilisearchReceiptGet,
-  updateReceipt,
+  // meilisearchReceiptGet,
+  // updateReceipt,
   meilisearchGetToken,
   createBillReceipt,
+  meilisearchReportReceiptOneGet,
 } from "@/utils/funtionApi";
 import { listContext } from "../content";
 // import { useState, useContext, useRef, useMemo } from "react";
-import moment from "moment";
+import moment from "moment-timezone";
+import { getText } from "number-to-text-vietnamese";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
-import { useEffect, useContext, useCallback } from "react";
+import { useEffect, useContext, useCallback, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../../times.ttf" });
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
     "0000" +
@@ -30,44 +36,119 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function sumDuplicated(arr) {
-  return arr.reduce((acc, curr) => {
-    const objInAcc = acc.find(
-      (o) =>
-        o.expected_revenue.revenue.revenue_group.id ===
-        curr.expected_revenue.revenue.revenue_group.id
-    );
-    if (objInAcc)
-      return [
-        ...acc.map((item) =>
-          item.expected_revenue.revenue.revenue_group.id ===
-          curr.expected_revenue.revenue.revenue_group.id
-            ? {
-                ...item,
-                amount_collected: item.amount_collected + curr.amount_collected,
-              }
-            : item
-        ),
-      ];
-    else return [...acc, curr];
-  }, []);
-}
+const PrintComponent = ({ printRef, billReceipt, preBill }) => {
+  return (
+    <div className="hidden">
+      <div className={`flex flex-col ${times.className}`} ref={printRef}>
+        <style type="text/css" media="print">
+          {"@page { size: A5 landscape; margin: 10px;}"}
+        </style>
+        <p className="text-[13px]">
+          TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
+        </p>
+        <p className="text-[13px]">
+          Địa chỉ Số 50, đường Quán Nam, phường Kênh Dương, quận Lê Chân, thành
+          phố Hải Phòng
+        </p>
+        <p className="uppercase font-semibold text-[27px] text-center">
+          phiếu thu
+        </p>
+        <p className=" text-[18px] text-center">
+          Ngày {moment().date()} Tháng {moment().month() + 1} Năm{" "}
+          {moment().year()}
+        </p>
+        <p className=" text-[18px] text-end">
+          Số: {`PT${createCode(preBill.count_bill[0].bill_receipt)}`}
+        </p>
+        <p className=" text-[18px]">
+          Họ tên người nộp tiền: {billReceipt.payer}
+        </p>
+        <p className=" text-[18px]">Địa chỉ: {billReceipt.location}</p>
+        <p className=" text-[18px]">Lý do nộp: {billReceipt.bill_name}</p>
+        <p className=" text-[18px]">
+          Số tiền:{" "}
+          {billReceipt.nowMoney ? numberWithCommas(billReceipt.nowMoney) : ""}{" "}
+          đồng
+        </p>
+        <p className=" text-[18px]">
+          Bằng chữ:{" "}
+          {billReceipt.nowMoney
+            ? getText(billReceipt.nowMoney).charAt(0).toUpperCase() +
+              getText(billReceipt.nowMoney).slice(1) +
+              " đồng"
+            : ""}{" "}
+        </p>
+        <p className=" text-[18px]">Kèm theo: {billReceipt.description}</p>
+        <p className=" text-[18px] text-end">
+          Ngày {moment().date()} Tháng {moment().month() + 1} Năm{" "}
+          {moment().year()}
+        </p>
+        <p className="flex justify-around text-[18px] font-semibold">
+          <span>Thủ trưởng</span>
+          <span>Kế toán trưởng</span>
+          <span>Người nộp tiền</span>
+          <span>Người lập phiếu</span>
+          <span>Thủ quỹ</span>
+        </p>
+        <p className=" text-[18px] mt-[120px]">
+          {`Đã nhận đủ số tiền (viết bằng chữ): 
+        ${
+          billReceipt.nowMoney
+            ? getText(billReceipt.nowMoney).charAt(0).toUpperCase() +
+              getText(billReceipt.nowMoney).slice(1) +
+              " đồng"
+            : ""
+        }`}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const SecondPrintComponent = ({ data, secondPrintRef }) => {
+  console.log(data);
+  return (
+    <div className="hidden">
+      <div className={`flex flex-col ${times.className}`} ref={secondPrintRef}>
+        <style type="text/css" media="print">
+          {"@page { size: A4 landscape; margin: 10px;}"}
+        </style>
+      </div>
+    </div>
+  );
+};
+
+// function sumDuplicated(arr) {
+//   return arr.reduce((acc, curr) => {
+//     const objInAcc = acc.find(
+//       (o) =>
+//         o.expected_revenue.revenue.revenue_group.id ===
+//         curr.expected_revenue.revenue.revenue_group.id
+//     );
+//     if (objInAcc)
+//       return [
+//         ...acc.map((item) =>
+//           item.expected_revenue.revenue.revenue_group.id ===
+//           curr.expected_revenue.revenue.revenue_group.id
+//             ? {
+//                 ...item,
+//                 amount_collected: item.amount_collected + curr.amount_collected,
+//               }
+//             : item
+//         ),
+//       ];
+//     else return [...acc, curr];
+//   }, []);
+// }
 
 const RowTable = ({ data }) => {
   return (
     <tr className="hover">
+      <td>{data.receipt_code}</td>
       <td>{data.code}</td>
-      <td>{data.student.code}</td>
       <td>{`${data.student.first_name} ${data.student.last_name}`}</td>
-      <td>
-        {numberWithCommas(
-          data.receipt_details.reduce(
-            (total, curr) => total + curr.amount_collected,
-            0
-          )
-        )}
-      </td>
-      <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
+      <td>{numberWithCommas(data.amount_collected)}</td>
+      <td>{moment.unix(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
       <td>{data.canceled && "✓"}</td>
       <td></td>
     </tr>
@@ -86,11 +167,22 @@ const ListReceipt = ({
   const { selectPresent, preBill } = useContext(listContext);
   const { getToken } = useAuth();
   const { user } = useUser();
+  const printRef = useRef();
+  const secondPrintRef = useRef();
+
+  const handleSecondPrint = useReactToPrint({
+    content: () => secondPrintRef.current,
+  });
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    onAfterPrint: () => handleSecondPrint(),
+  });
 
   const { data, isFetching, isLoading, isRefetching } = useQuery({
     queryKey: [`searchReceipt`, condition],
     queryFn: async () =>
-      meilisearchReceiptGet(condition, await meilisearchGetToken(), null),
+      meilisearchReportReceiptOneGet(await meilisearchGetToken(), condition),
   });
 
   useEffect(() => {
@@ -98,12 +190,7 @@ const ListReceipt = ({
       setBillReceipt((pre) => ({
         ...pre,
         nowMoney: data.results.reduce(
-          (total, curr) =>
-            total +
-            curr.receipt_details.reduce(
-              (total, current) => total + current.amount_collected,
-              0
-            ),
+          (total, curr) => total + curr.amount_collected,
           0
         ),
       }));
@@ -119,6 +206,7 @@ const ListReceipt = ({
         objects
       ),
     onSuccess: () => {
+      handlePrint();
       setMutating(false);
       setBillReceipt({
         payer: "",
@@ -160,12 +248,9 @@ const ListReceipt = ({
       payer: billReceipt.payer,
       bill_receipt_details: {
         data: data.results.map((item) => ({
-          receipt_code: item.code,
+          receipt_code: item.receipt_code,
           batch_id: selectPresent.id,
-          amount_collected: item.receipt_details.reduce(
-            (total, current) => total + current.amount_collected,
-            0
-          ),
+          amount_collected: item.amount_collected,
           created_by: user.id,
           start_at: moment().format(),
         })),
@@ -217,13 +302,15 @@ const ListReceipt = ({
                 </td>
               </tr>
             ) : (
-              data.results.map((item) => (
-                <RowTable
-                  key={item.code}
-                  data={item}
-                  isRefetching={isRefetching}
-                />
-              ))
+              data.results
+                .sort((a, b) => a.start_at - b.start_at)
+                .map((item) => (
+                  <RowTable
+                    key={item.receipt_code}
+                    data={item}
+                    isRefetching={isRefetching}
+                  />
+                ))
             )}
           </tbody>
         </table>
@@ -246,6 +333,21 @@ const ListReceipt = ({
       ) : (
         <></>
       )}
+      <button
+        className="btn w-fit self-center"
+        onClick={() => handleSecondPrint()}
+      >
+        Hoàn thành
+      </button>
+      <PrintComponent
+        printRef={printRef}
+        billReceipt={billReceipt}
+        preBill={preBill}
+      />
+      <SecondPrintComponent
+        data={data.results}
+        secondPrintRef={secondPrintRef}
+      />
     </>
   );
 };

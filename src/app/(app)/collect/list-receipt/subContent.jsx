@@ -127,7 +127,7 @@ const ModalPrint = ({ data }) => {
                   >
                     {index + 1}.{" "}
                     {item.expected_revenue.revenue.revenue_group.name}:{" "}
-                    {numberWithCommas(item.amount_collected)} <span>₫</span>
+                    <span>{numberWithCommas(item.amount_collected)}₫</span>
                   </p>
                 ))}
               </div>
@@ -139,7 +139,7 @@ const ModalPrint = ({ data }) => {
                   >
                     {middleIndex + index + 1}.{" "}
                     {item.expected_revenue.revenue.revenue_group.name}:{" "}
-                    {numberWithCommas(item.amount_collected)} <span>₫</span>
+                    <span>{numberWithCommas(item.amount_collected)}₫</span>
                   </p>
                 ))}
               </div>
@@ -204,6 +204,9 @@ const ModalPrint = ({ data }) => {
             ref={ref}
             className="flex flex-col relative justify-center items-center gap-1 mb-5"
           >
+            <style type="text/css" media="print">
+              {"@page {size: 8.5in 11in;size: landscape; margin: 10px;}"}
+            </style>
             <h5 className="text-center">
               {(data.formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
                 (data.formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
@@ -249,7 +252,7 @@ const ModalPrint = ({ data }) => {
                     >
                       {index + 1}.{" "}
                       {item.expected_revenue.revenue.revenue_group.name}:{" "}
-                      {numberWithCommas(item.amount_collected)} <span>₫</span>
+                      <span>{numberWithCommas(item.amount_collected)}₫</span>
                     </p>
                   ))}
                 </div>
@@ -261,7 +264,7 @@ const ModalPrint = ({ data }) => {
                     >
                       {middleIndex + index + 1}.{" "}
                       {item.expected_revenue.revenue.revenue_group.name}:{" "}
-                      {numberWithCommas(item.amount_collected)} <span>₫</span>
+                      <span>{numberWithCommas(item.amount_collected)}₫</span>
                     </p>
                   ))}
                 </div>
