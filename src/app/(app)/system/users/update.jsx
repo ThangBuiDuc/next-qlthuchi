@@ -80,29 +80,51 @@ function reducer(state, action) {
 const Edit = ({ data, provinces, districts }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
- 
+  console.log(data)
   const [infor, dispatchInfor] = useReducer(reducer, {
-    firtsName: "",
-    lastName: "",
-    address: "",
-    phoneNumber: "",
-    email: "",
+    firtsName: data.first_name,
+    lastName: data.last_name,
+    address: data.address,
+    phoneNumber: data.phone_number,
+    email: data.email,
     gender: null,
-    dob: new Date(),
+    dob: new Date(data.date_of_birth),
   });
 
-  const [province, setProvince] = useState();
+  const [province, setProvince] = useState(
+    data.province 
+      ? {
+        value: data.province?.code,
+        label: data.province?.name
+      }
+      : null
+  );
   // console.log(province);
 
-  const [district, setDistrict] = useState();
+  const [district, setDistrict] = useState(
+    data.district 
+      ? {
+        value: data.district?.code,
+        label: data.district?.name
+      }
+      : null
+  );
   // console.log(district);
 
-  const [ward, setWard] = useState();
+  const [ward, setWard] = useState(
+    data.ward 
+    ? {
+      value: data.ward?.code,
+      label: data.ward?.name
+    }
+    : null
+  );
 
   useEffect(() => {
     province && setDistrict(null);
   }, [province]);
 
+  // danh sách các xã
   const [wards, setWards] = useState();
 
   useEffect(() => {
@@ -114,7 +136,7 @@ const Edit = ({ data, provinces, districts }) => {
 
 
   const mutation = useMutation({
-    mutationFn: ({ token, objects }) => updateUser(token, objects),
+    mutationFn: ({id, token, changes }) => updateUser(id, token, changes),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["get_user"],
@@ -142,18 +164,27 @@ const Edit = ({ data, provinces, districts }) => {
     },
   });
 
-  // const handleOnSubmit = useCallback(async () => {
-  //   let objects = {
-  //     user_id: data.id,
-  //     role_id: roleId?.value,
-  //   };
+  const handleOnSubmit = useCallback(async () => {
+    let id = data.id;
+    let changes = {
+      first_name: infor.firtsName,
+      last_name: infor.lastName,
+      date_of_birth: infor.dob,
+      address: infor.address,
+      ward_code: ward?.value,
+      district_code: district?.value,
+      province_code: province?.value,
+      phone_number: infor.phoneNumber,
+      gender_id: infor.gender.value,
+      email: infor.email,
+    };
 
-  //   let token = await getToken({
-  //     template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
-  //   });
+    let token = await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+    });
 
-  //   mutation.mutate({ token, objects });
-  // }, [roleId]);
+    mutation.mutate({id, token, changes });
+  }, [infor, district, province, ward, wards]);
 
   return (
     <>
@@ -332,7 +363,7 @@ const Edit = ({ data, provinces, districts }) => {
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center mt-[30px]"
               onClick={(e) => {
                 e.preventDefault();
-                // handleOnSubmit();
+                handleOnSubmit();
               }}
             >
               {mutation.isLoading ? (
@@ -366,7 +397,7 @@ const Update = ({ data, provinces, districts }) => {
       <td>{data.address}</td>
       <td>{data.ward?.name}</td>
       <td>{data.district?.name}</td>
-      <td>{data.provice?.name}</td>
+      <td>{data.province?.name}</td>
       <td>{data.email}</td>
       <td>{data.phone_number}</td>
       <td>
