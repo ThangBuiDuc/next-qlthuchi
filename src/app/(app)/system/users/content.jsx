@@ -14,7 +14,7 @@ const Skeleton = () => {
     <>
       {[...Array(3)].map((_,i) => (
         <tr key={i}>
-          {[...Array(7)].map((_,ii) => (
+          {[...Array(11)].map((_,ii) => (
             <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
@@ -76,6 +76,9 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
               <th>Giới tính</th>
               <th>Ngày sinh</th>
               <th>Địa chỉ</th>
+              <th>Phường, xã</th>
+              <th>Quận, huyện</th>
+              <th>Tỉnh, thành phố</th>
               <th>Email</th>
               <th>Số điện thoại</th>
               <th></th>
@@ -88,7 +91,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
               <p>Không có kết quả!</p>
             ) : data ? (
               data?.data?.data.result.map((item) => (
-                <Update key={item.id} data={item} />
+                <Update key={item.id} data={item} provinces={provinces} districts={districts}/>
               ))
             ) : (
               <></>

@@ -497,6 +497,23 @@ export const updateDiscount = async (id, token, changes) => {
   });
 };
 
+
+//Chỉnh sửa thông tin người dùng
+export const updateUser = async (id, token, changes) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_USERS,
+    method: "put",
+    data: {
+      id: id,
+      changes: changes,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh

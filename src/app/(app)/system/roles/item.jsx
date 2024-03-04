@@ -18,7 +18,7 @@ const Item = ({data, roleData}) => {
         <GoGear size={25} />
       </label>
       </td>
-      <td><><Edit data={data} roleData={roleData}/></></td>
+      <td><><Edit data={data} roleData={roleData}/></></td> 
     </tr>
   );
 };
