@@ -1,23 +1,31 @@
-import { getWards, getRole } from "@/utils/funtionApi";
+import { getWards, getPermission } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 import Content from "./content";
 
 const Page = async ({ params }) => {
-  console.log(params.district_code);
-
+  const pathName = "/catalog/provinces";
   const { getToken } = auth();
 
-  const role = await getRole(
+  const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    })
+    }),
+    pathName
   );
 
-  // console.log(role.data.result[0]?.role_id);
+  if (permission.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  if (permission.data.result.length === 0)
+    return (
+      <div className="flex justify-center">
+        <h3>Tài khoản chưa được phân quyền cho chức năng hiện tại!</h3>
+      </div>
+    );
 
   if (
-    role.data.result[0]?.role_id.toString() !==
-    process.env.NEXT_PUBLIC_HASURA_ROLE_SUPER_ADMIN
+    permission.data.result[0]?.permission.id.toString() ===
+    process.env.NEXT_PUBLIC_PERMISSION_NONE
   ) {
     return (
       <div className="flex justify-center">
@@ -27,11 +35,15 @@ const Page = async ({ params }) => {
   }
 
   const apiGetWard = await getWards(params.district_code);
-  console.log(apiGetWard.data)
 
   if (apiGetWard.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
-  return (<Content wards={apiGetWard.data}/>);
+  return (
+    <Content
+      wards={apiGetWard.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
+    />
+  );
 };
 
 export default Page;

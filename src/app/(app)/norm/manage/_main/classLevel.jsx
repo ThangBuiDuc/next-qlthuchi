@@ -71,6 +71,8 @@ const UpdateModal = ({ data, queryKey }) => {
           unit_price: norm.unit_price,
           amount: norm.amount,
           start_at: time,
+          calculation_unit_id: data.calculation_unit.id,
+          revenue_group_id: data.revenue.revenue_group.id,
         },
         {
           clerk_user_id: user.id,

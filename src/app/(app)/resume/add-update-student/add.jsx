@@ -33,10 +33,10 @@ function reducer(state, action) {
       };
     }
 
-    case "change_class": {
+    case "change_bgd_code": {
       return {
         ...state,
-        class: action.payload.value,
+        bgd_code: action.payload.value,
       };
     }
 
@@ -46,6 +46,13 @@ function reducer(state, action) {
         class: action.payload.value,
       };
     }
+
+    // case "change_class": {
+    //   return {
+    //     ...state,
+    //     class: action.payload.value,
+    //   };
+    // }
 
     case "change_first_name": {
       return {
@@ -127,6 +134,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
       ).count,
       catalogStudent.classes[0].school_level_code
     ),
+    bgd_code: null,
     gender: null,
     class: {
       ...catalogStudent.classes[0],
@@ -214,6 +222,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
       e.preventDefault();
       let arg = {
         code: infor.code,
+        bgd_code: infor.bgd_code,
         first_name: infor.firtsName,
         last_name: infor.lastName,
         date_of_birth: moment(infor.dob).format("MM/DD/YYYY"),
@@ -267,28 +276,41 @@ const Add = ({ catalogStudent, countStudent, present }) => {
               isRequire={true}
               id={"add_code"}
               action={"change_code"}
+              dispatch={dispatchInfor}
             />
-            <Select
-              placeholder="Lớp"
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-              options={catalogStudent.classes
-                .sort((a, b) => a.class_level_code - b.class_level_code)
-                .map((item) => ({
-                  ...item,
-                  value: item.name,
-                  label: item.name,
-                }))}
-              value={infor.class}
-              onChange={(e) =>
-                dispatchInfor({ type: "change_class", payload: { value: e } })
-              }
+            <TextInput
+              label={"Mã bộ giáo dục học sinh"}
+              disable={false}
+              value={infor.bgd_code}
+              isRequire={true}
+              id={"add_bgd_code"}
+              action={"change_bgd_code"}
+              dispatch={dispatchInfor}
             />
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Lớp học:</p>
+              <Select
+                placeholder="Lớp"
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+                options={catalogStudent.classes
+                  .sort((a, b) => a.class_level_code - b.class_level_code)
+                  .map((item) => ({
+                    ...item,
+                    value: item.name,
+                    label: item.name,
+                  }))}
+                value={infor.class}
+                onChange={(e) =>
+                  dispatchInfor({ type: "change_class", payload: { value: e } })
+                }
+              />
+            </div>
             <div className="flex w-full gap-[10px]">
               <TextInput
                 label={"Họ đệm"}
@@ -308,7 +330,8 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                 className={"w-[30%]"}
               />
             </div>
-            <div className="relative w-full">
+            <div className=" w-full flex flex-col gap-1">
+              <p className="text-xs">Ngày sinh:</p>
               <DatePicker
                 placeholderText="Nhập ngày sinh"
                 locale={"vi"}
@@ -331,40 +354,38 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                   })
                 }
               />
-              <label
+              {/* <label
                 htmlFor={"add_change_dob"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
               >
                 Ngày sinh
-              </label>
+              </label> */}
             </div>
 
-            <Select
-              placeholder="Giới tính"
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-              options={catalogStudent.gender.map((item) => ({
-                value: item.id,
-                label: item.description,
-              }))}
-              value={infor.gender}
-              onChange={(e) =>
-                dispatchInfor({ type: "change_gender", payload: { value: e } })
-              }
-            />
-
-            <TextInput
-              label={"Địa chỉ"}
-              value={infor.address}
-              dispatch={dispatchInfor}
-              action={"change_address"}
-              id={"add_address"}
-            />
+            <div className=" flex flex-col gap-1">
+              <p className="text-xs">Giới tính:</p>
+              <Select
+                placeholder="Giới tính"
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+                options={catalogStudent.gender.map((item) => ({
+                  value: item.id,
+                  label: item.description,
+                }))}
+                value={infor.gender}
+                onChange={(e) =>
+                  dispatchInfor({
+                    type: "change_gender",
+                    payload: { value: e },
+                  })
+                }
+              />
+            </div>
 
             {/* <TextInput
               label={"Email"}
@@ -383,7 +404,8 @@ const Add = ({ catalogStudent, countStudent, present }) => {
               id="add_phoneNumber"
             /> */}
 
-            <div className="relative w-full">
+            <div className="flex flex-col gap-1">
+              <p className="text-xs">Ngày nhập học:</p>
               <DatePicker
                 locale={"vi"}
                 placeholderText="Nhập ngày nhập học"
@@ -405,30 +427,44 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                   })
                 }
               />
-              <label
+              {/* <label
                 htmlFor={"add_change_joinDate"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2  left-1"
               >
                 Ngày nhập học
-              </label>
+              </label> */}
             </div>
-            <Select
-              placeholder="Trạng thái"
-              className="text-black text-sm"
-              classNames={{
-                control: () => "!rounded-[5px]",
-                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                valueContainer: () => "!p-[0_8px]",
-                menu: () => "!z-[11]",
-              }}
-              options={catalogStudent.status.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
-              value={infor.status}
-              onChange={(e) =>
-                dispatchInfor({ type: "change_status", payload: { value: e } })
-              }
+            <div className=" w-full flex flex-col gap-1">
+              <p className="text-xs">Trạng thái:</p>
+              <Select
+                placeholder="Trạng thái"
+                className="text-black text-sm"
+                classNames={{
+                  control: () => "!rounded-[5px]",
+                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                  valueContainer: () => "!p-[0_8px]",
+                  menu: () => "!z-[11]",
+                }}
+                options={catalogStudent.status.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                value={infor.status}
+                onChange={(e) =>
+                  dispatchInfor({
+                    type: "change_status",
+                    payload: { value: e },
+                  })
+                }
+              />
+            </div>
+            <TextInput
+              className={"col-span-2"}
+              label={"Địa chỉ"}
+              value={infor.address}
+              dispatch={dispatchInfor}
+              action={"change_address"}
+              id={"add_address"}
             />
           </div>
           <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
@@ -441,5 +477,3 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 };
 
 export default Add;
-
-

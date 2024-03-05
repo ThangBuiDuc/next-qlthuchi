@@ -3,7 +3,7 @@ import { CiCircleMore } from "react-icons/ci";
 
 import Link from "next/link";
 
-const Content = async ({ provinces}) => {
+const Content = async ({ provinces }) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra">
@@ -14,9 +14,7 @@ const Content = async ({ provinces}) => {
             <th>Mã tỉnh</th>
             <th>Cấp</th>
             <th>Tên tỉnh</th>
-            <th>
-            
-            </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>

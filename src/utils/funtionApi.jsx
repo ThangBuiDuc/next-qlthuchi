@@ -17,6 +17,38 @@ export const getRole = async (token) => {
   return res;
 };
 
+//Lấy permission
+export const getPermission = async (token, path) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
+    method: "post",
+    data: {
+      _eq: path,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách quan hệ gia đình
+export const getFamilyRalationship = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_FAMILY_RELATIONSHIP,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+
+
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
@@ -110,8 +142,6 @@ export const getWards = async (id) => {
   return res;
 };
 
-
-
 //Lấy danh sách giảm giá
 export const getDiscounts = async () => {
   const res = await axios({
@@ -136,17 +166,31 @@ export const getDiscountType = async () => {
   return res;
 };
 
-//Lấy danh sách nhóm dự kiến thu
-export const getRevenueGroup = async () => {
+//Lấy danh sách loại giảm giá
+export const getCashFund = async (token) => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUPS,
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
+    // url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUPS,
     method: "get",
     headers: {
       "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
     },
   });
   return res;
 };
+
+//Lấy danh sách nhóm dự kiến thu
+// export const getRevenueGroup = async () => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+//     method: "get",
+//     headers: {
+//       "content-type": "Application/json",
+//     },
+//   });
+//   return res;
+// };
 
 //INSERT-----------------------------------------------------
 
@@ -177,17 +221,30 @@ export const upsertUserRole = async (token, objects) => {
 };
 
 //Thêm mới giảm giá
-export const insertDiscount = async (token,objects) => {
+export const insertDiscount = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT,
     method: "post",
-    data: {objects},
+    data: { objects },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
   });
-}
+};
+
+//Thêm mới quan hệ gia đình
+export const insertRelationship = async (token, name) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREAT_FAMILY_RELATIONSHIP,
+    method: "post",
+    data: {name},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
 
 //=====================================================================================================================================================
 
@@ -201,6 +258,19 @@ export const getSchoolYear = async (where) => {
     data: {
       where,
     },
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin nhóm khoản thu
+export const getRevenueGroup = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUP,
+    method: "get",
     headers: {
       "content-type": "Application/json",
     },
@@ -324,7 +394,7 @@ export const getStudent = async (token, where) => {
     url: process.env.NEXT_PUBLIC_HASURA_GET_STUDENT,
     method: "post",
     data: {
-      where,
+      where: where,
     },
     headers: {
       "content-type": "Application/json",
@@ -465,6 +535,32 @@ export const updateBillRefund = async (token, updates) => {
   });
 };
 
+//Cập nhật phụ huynh học sinh
+export const updateParent = async (token, data) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_PARENT,
+    method: "patch",
+    data: { ...data },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật  học sinh
+export const updateStudent = async (token, data) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_STUDENT,
+    method: "patch",
+    data: { ...data },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //Cập nhật giảm giá cho dự kiến thu
 export const updateExpectedRevenueDiscount = async (token, id, discount) => {
   return await axios({
@@ -520,6 +616,32 @@ export const updateUser = async (id, token, changes) => {
 export const createStudent = async (token, objects) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_STUDENT,
+    method: "put",
+    data: { objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Tạo quỹ tiền mặt
+export const createCashFund = async (token, object) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_CASH_FUND,
+    method: "post",
+    data: { object },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Tạo mới người dùng
+export const createParent = async (token, objects) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_PARENT,
     method: "put",
     data: { objects },
     headers: {
@@ -594,11 +716,35 @@ export const createBillRefund = async (token, objects) => {
   });
 };
 
-//Tạo định mức thu BHYT
+//Tạo định mức thu BHYT router handler
 export const createInsuranceRevenueNorm = async (data) => {
   const res = await axios({
     url: "/api/norm",
     method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Thực hiện kết chuyển công nợ
+export const Transfer = async (token, updates, objects, update_columns) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_TRANSFER,
+    method: "post",
+    data: { objects, updates, update_columns },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Thực hiện kết chuyển công nợ router handler
+export const handleTransfer = async (data) => {
+  const res = await axios({
+    url: "/api/transfer",
+    method: "POST",
     data,
   });
 
@@ -797,6 +943,140 @@ export const meilisearchBillRefundGet = async (data, token, pageParam) => {
   } else {
     return res.data;
   }
+};
+
+//Lấy thông tin báo cáo khoản đã thu nhiều học sinh
+export const meilisearchReportReceiptGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt/documents/fetch`,
+    method: "post",
+    data: {
+      // filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã thu một học sinh
+export const meilisearchReportReceiptOneGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin lịch sử thanh toán theo nhiều học sinh
+export const meilisearchReportPaymentHistoryGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_payment_history/documents/fetch`,
+    method: "post",
+    data: {
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      // "Content-Type": "application/json",
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin lịch sử thanh toán theo nhiều học sinh
+export const meilisearchReportPaymentHistoryOneGet = async (token, filter) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_payment_history_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: filter,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      // "Content-Type": "application/json",
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin tổng hợp công nợ
+export const meilisearchReportDebtGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_f_batch_debt/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã hoàn trả nhiều học sinh
+export const meilisearchReportRefundGet = async (token) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund/documents/fetch`,
+    method: "post",
+    data: {
+      // filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+//Lấy thông tin báo cáo khoản đã hoàn một học sinh
+export const meilisearchReportRefundOneGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund_one/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
 };
 
 //Lấy thông tin học sinh qua Meilisearch

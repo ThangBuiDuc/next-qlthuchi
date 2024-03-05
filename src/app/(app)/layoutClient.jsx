@@ -8,7 +8,8 @@ import { usePathname } from "next/navigation";
 import { memo } from "react";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "next/navigation";
-import { Scrollbars } from "react-custom-scrollbars-2";import "react-toastify/dist/ReactToastify.css";
+import { Scrollbars } from "react-custom-scrollbars-2";
+import "react-toastify/dist/ReactToastify.css";
 const LayoutClient = ({ children }) => {
   const pathName = usePathname();
   const breadCrumbs = sideBarData.find((item) => pathName.includes(item.path));
@@ -63,7 +64,7 @@ const LayoutClient = ({ children }) => {
           >
             <div
               className={`bg-white w-full  ${
-                pathName === "/norm/create" ? "h-full" : "h-fit"
+                pathName.includes("/norm/create") ? "h-full" : "h-fit"
               } p-[10px]`}
             >
               {children}

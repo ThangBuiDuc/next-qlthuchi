@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
-import moment from "moment";
 import "moment/locale/vi";
 
 import { getWards } from "@/utils/funtionApi";
@@ -90,7 +89,8 @@ function reducer(state, action) {
   }
 }
 
-const Add = ({ provinces, districts, jwt }) => {
+const Add = ({ provinces, districts }) => {
+  const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const [infor, dispatchInfor] = useReducer(reducer, {
@@ -133,6 +133,7 @@ const Add = ({ provinces, districts, jwt }) => {
   const mutation = useMutation({
     mutationFn: ({ token, arg }) => createUser(token, arg),
     onSuccess: () => {
+      setMutating(false);
       queryClient.invalidateQueries(["get_user"]);
       dispatchInfor({
         type: "reset",
@@ -166,7 +167,8 @@ const Add = ({ provinces, districts, jwt }) => {
     },
 
     onError: () => {
-      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+      setMutating(false);
+      toast.error("Tạo người dùng không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -177,6 +179,7 @@ const Add = ({ provinces, districts, jwt }) => {
   });
 
   const handleOnSubmit = useCallback(async () => {
+    setMutating(true);
     const res = await axios({
       url: "/api/clerk",
       method: "post",
@@ -204,10 +207,12 @@ const Add = ({ provinces, districts, jwt }) => {
       // console.log(arg);
 
       let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
       mutation.mutate({ token, arg });
+    } else {
+      setMutating(false);
     }
   }, [infor, district, province, ward, wards]);
 
@@ -401,7 +406,7 @@ const Add = ({ provinces, districts, jwt }) => {
                 handleOnSubmit();
               }}
             >
-              {mutation.isLoading ? (
+              {mutating ? (
                 <span className="loading loading-spinner loading-sm bg-primary"></span>
               ) : (
                 "Thêm mới"
@@ -415,3 +420,5 @@ const Add = ({ provinces, districts, jwt }) => {
 };
 
 export default Add;
+
+

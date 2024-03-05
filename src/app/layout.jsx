@@ -1,8 +1,8 @@
 import "./globals.css";
-import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { viVN } from "@clerk/localizations";
 import ReactQueryProvider from "./ReactQueryProvider";
+import localFont from "next/font/local";
 
 const montserrat = localFont({
   src: [

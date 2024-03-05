@@ -12,7 +12,7 @@ import { useAuth } from "@clerk/nextjs";
 const Skeleton = () => {
   return (
     <>
-      {[...Array(3)].map((_,i) => (
+      {[...Array(3)].map((_, i) => (
         <tr key={i}>
           {[...Array(11)].map((_,ii) => (
             <td key={ii}>
@@ -27,8 +27,7 @@ const Skeleton = () => {
   );
 };
 
-const Content = ({ provinces, districts, usersData, jwt }) => {
-  const [query, setQuery] = useState("");
+const Content = ({ provinces, districts, usersData, permission }) => {
   // const [isOpen, setIsOpen] = useState(false);
 
   const { getToken } = useAuth();
@@ -38,7 +37,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
     queryFn: async () =>
       await getUsers(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         })
       ),
     initialData: () => ({ data: usersData }),
@@ -46,14 +45,19 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
 
   return (
     <div className="flex flex-col gap-[30px]">
-      <label
-        htmlFor={`modal_add`}
-        className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-      >
-        <GoPersonAdd size={20} />
-        Thêm mới
-      </label>
-      <Add provinces={provinces} districts={districts} jwt={jwt} />
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+        <>
+          <label
+            htmlFor={`modal_add`}
+            className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+          >
+            <GoPersonAdd size={20} />
+            Thêm mới
+          </label>
+          <Add provinces={provinces} districts={districts} />
+        </>
+      )}
+
       {/* <form className="flex flex-row justify-around mt-[10px] p-[20px]">
         <TextInput
           className={"!w-[70%]"}
@@ -85,7 +89,7 @@ const Content = ({ provinces, districts, usersData, jwt }) => {
             </tr>
           </thead>
           <tbody>
-            {(data.isFetching || data.isLoading) ? (
+            {data.isFetching || data.isLoading ? (
               <Skeleton />
             ) : data?.data?.data?.length === 0 ? (
               <p>Không có kết quả!</p>

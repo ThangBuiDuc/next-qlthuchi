@@ -7,16 +7,16 @@ import { getPreBill } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import Receipt from "./_receipt/receipt";
 
-const options = [
-  {
-    value: 1,
-    label: "Thu khác",
-  },
-  {
-    value: 2,
-    label: "Thu qua bảng kê",
-  },
-];
+// const options = [
+//   {
+//     value: 1,
+//     label: "Thu khác",
+//   },
+//   {
+//     value: 2,
+//     label: "Thu qua bảng kê",
+//   },
+// ];
 
 export const listContext = createContext();
 

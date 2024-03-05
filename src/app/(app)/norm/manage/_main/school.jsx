@@ -69,6 +69,8 @@ const UpdateModal = ({ data, queryKey }) => {
           revenue_code: data.revenue_code,
           school_level_code: data.school_level_code,
           unit_price: norm.unit_price,
+          calculation_unit_id: data.calculation_unit.id,
+          revenue_group_id: data.revenue.revenue_group.id,
           amount: norm.amount,
           start_at: time,
         },
@@ -84,6 +86,7 @@ const UpdateModal = ({ data, queryKey }) => {
             revenue_code: data.revenue_code,
             school_level_code: data.school_level_code,
             calculation_unit: data.calculation_unit.id,
+
             unit_price: data.unit_price,
             amount: data.amount,
             start_at: data.start_at,
@@ -109,7 +112,7 @@ const UpdateModal = ({ data, queryKey }) => {
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", queryKey],
       });
-      toast.success("Xoá định mức thu thành công!", {
+      toast.success("Sửa định mức thu thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -119,7 +122,7 @@ const UpdateModal = ({ data, queryKey }) => {
     },
     onError: () => {
       setMutating(false);
-      toast.error("Xoá định mức thu không thành công!", {
+      toast.error("Sửa định mức thu không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,

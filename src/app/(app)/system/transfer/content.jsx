@@ -1,9 +1,44 @@
 "use client";
-import React from "react";
-import ExpectedRevenue from "./expectedRevenue";
+import { useMutation } from "@tanstack/react-query";
+import { handleTransfer } from "@/utils/funtionApi";
+import moment from "moment";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
-const Content = ({ transfer }) => {
+const Content = ({ transfer, permission }) => {
   const { result } = transfer;
+
+  const [mutating, setMutating] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async () =>
+      handleTransfer({
+        time: moment().format(),
+        id: result[0].id,
+        previous_batch_id: result[0].previous_batch_id,
+      }),
+    onSuccess: () => {
+      setMutating(false);
+      toast.success("Kết chuyển công nợ thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+    onError: () => {
+      setMutating(false);
+      toast.error("Kết chuyển công nợ không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
+
   if (!result[0].previous_batch_id) {
     return (
       <div className="flex gap-1 items-center w-full justify-center p-10">
@@ -32,7 +67,24 @@ const Content = ({ transfer }) => {
           </h6>
         </div>
       </div>
-      <button className="btn w-fit self-center">Kết chuyển</button>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        mutating ? (
+          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+        ) : (
+          <button
+            className="btn w-fit self-center"
+            onClick={() => {
+              setMutating(true);
+              mutation.mutate();
+            }}
+          >
+            Kết chuyển
+          </button>
+        )
+      ) : (
+        <></>
+      )}
+
       {/* <ExpectedRevenue previous_batch_id={result[0].previous_batch_id} /> */}
     </div>
   );

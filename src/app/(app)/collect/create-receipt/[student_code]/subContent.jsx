@@ -61,6 +61,7 @@ const Modal = ({ data, modalRef }) => {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const { user } = useUser();
+
   const [formality, setFormality] = useState({
     label: preReceipt.formality[1].name,
     value: preReceipt.formality[1].id,
@@ -519,7 +520,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
             autoComplete="off"
             intlConfig={{ locale: "vi-VN", currency: "VND" }}
             className={`input input-xs`}
-            value={data.nowMoney}
+            value={Math.abs(data.nowMoney)}
             onValueChange={(value) =>
               setData((pre) =>
                 pre.map((el) =>
@@ -729,11 +730,19 @@ const SubContent = ({ student, selectPresent }) => {
                           : {
                               ...item,
                               expected_revenues: item.expected_revenues.map(
-                                (el) => ({
-                                  ...el,
-                                  isChecked: true,
-                                  nowMoney: el.next_batch_money,
-                                })
+                                (el) =>
+                                  el.isChecked
+                                    ? { ...el, isChecked: false, nowMoney: 0 }
+                                    : {
+                                        ...el,
+                                        isChecked: true,
+                                        nowMoney:
+                                          el.previous_batch_money +
+                                          el.actual_amount_collected +
+                                          el.amount_edited -
+                                          el.amount_collected -
+                                          el.nowMoney,
+                                      }
                               ),
                             }
                       )
@@ -774,9 +783,9 @@ const SubContent = ({ student, selectPresent }) => {
             {expectedRevenue.isRefetching ||
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
-            ) : data?.length === 0 ? (
+            ) : data?.every((item) => item.expected_revenues.length === 0) ? (
               <tr>
-                <td colSpan={6} className="text-center">
+                <td colSpan={12} className="text-center">
                   Không có kết quả!
                 </td>
               </tr>

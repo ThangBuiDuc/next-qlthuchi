@@ -1,8 +1,6 @@
 "use client";
 
-
-const Content = async ({ wards }) => {
-    console.log(wards)
+const Content = async ({ wards, permission }) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra">
@@ -27,8 +25,6 @@ const Content = async ({ wards }) => {
               <td>{item.name}</td>
               <td>{item.district_code}</td>
               <td>{item.district_name}</td>
-
-              
             </tr>
           ))}
         </tbody>

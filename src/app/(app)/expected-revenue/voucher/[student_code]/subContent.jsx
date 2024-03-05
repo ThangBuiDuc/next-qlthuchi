@@ -25,7 +25,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TbPencilDiscount } from "react-icons/tb";
 import item from "@/app/(app)/system/roles/item";
 
-
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -59,7 +58,7 @@ const Item = ({
 }) => {
   const [checked, setChecked] = useState(false);
   // console.log("discount data : ", discountsData);
-  console.log("data: ", data)
+  console.log("data: ", data);
 
   const [mutating, setMutating] = useState(false);
 
@@ -68,7 +67,7 @@ const Item = ({
   //===========================================================================================================
   const getBiggestRatioInCheckedList = (data) => {
     // Filter the checked items
-    const checkedItems = data.filter(item => item.isChecked);
+    const checkedItems = data.filter((item) => item.isChecked);
     if (checkedItems.length === 0) {
       return null;
     }
@@ -76,10 +75,9 @@ const Item = ({
     const biggestRatioItem = checkedItems.reduce((maxItem, currentItem) => {
       return currentItem.ratio > maxItem.ratio ? currentItem : maxItem;
     });
-  
+
     return biggestRatioItem;
   };
-
 
   //================================= bảng giảm giá theo nhập học =============================================
   const [a, setA] = useState(data.prescribed_money);
@@ -134,22 +132,18 @@ const Item = ({
   };
 
   useEffect(() => {
-    if(discountBData.length !== 0) {
+    if (discountBData.length !== 0) {
       setCheckedAllb(discountBData.every((item) => item.isChecked));
     }
   }, [discountBData]);
 
-  
   useEffect(() => {
-    if(getBiggestRatioInCheckedList(discountBData) !== null) {
-      setB(a * getBiggestRatioInCheckedList(discountBData).ratio)
+    if (getBiggestRatioInCheckedList(discountBData) !== null) {
+      setB(a * getBiggestRatioInCheckedList(discountBData).ratio);
     } else {
-      setB(0)
+      setB(0);
     }
-  
-  },[a,discountBData])
-
-  
+  }, [a, discountBData]);
 
   // console.log("b:",b)
 
@@ -191,23 +185,20 @@ const Item = ({
   };
 
   useEffect(() => {
-    if(discountCData.length !== 0) {
+    if (discountCData.length !== 0) {
       setCheckedAllc(discountCData.every((item) => item.isChecked));
     }
   }, [discountCData]);
 
   useEffect(() => {
-    if(getBiggestRatioInCheckedList(discountCData) !== null) {
-      setC((a-b) * getBiggestRatioInCheckedList(discountCData).ratio)
+    if (getBiggestRatioInCheckedList(discountCData) !== null) {
+      setC((a - b) * getBiggestRatioInCheckedList(discountCData).ratio);
     } else {
-      setC(0)
+      setC(0);
     }
-  
-  },[a,b,discountCData])
-
+  }, [a, b, discountCData]);
 
   // console.log("c:",c)
-
 
   //================================= bảng trừ giảm đối tượng đóng học phí cả năm (d)=============================================
   const [d, setD] = useState(0);
@@ -247,30 +238,26 @@ const Item = ({
   };
 
   useEffect(() => {
-    if(discountDData.length !== 0) {
+    if (discountDData.length !== 0) {
       setCheckedAlld(discountDData.every((item) => item.isChecked));
     }
   }, [discountDData]);
 
   useEffect(() => {
-    if(getBiggestRatioInCheckedList(discountDData) !== null) {
-      setD((a-b-c) * getBiggestRatioInCheckedList(discountDData).ratio)
+    if (getBiggestRatioInCheckedList(discountDData) !== null) {
+      setD((a - b - c) * getBiggestRatioInCheckedList(discountDData).ratio);
     } else {
-      setD(0)
+      setD(0);
     }
-  
-  },[a,b,c,discountDData])
-
+  }, [a, b, c, discountDData]);
 
   // console.log("d:",d)
 
-
-
   //===================================== Số tiền giảm giá ===================================================
-  const [discount,setDiscount] = useState(0);
+  const [discount, setDiscount] = useState(0);
   useEffect(() => {
-    setDiscount(data.prescribed_money- (a-b-c-d))
-  },[a,b,c,d])
+    setDiscount(data.prescribed_money - (a - b - c - d));
+  }, [a, b, c, d]);
 
   return (
     <>
@@ -540,28 +527,30 @@ const Item = ({
                         </thead>
                         <tbody>
                           {discountDData?.map((item, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <label>
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox"
-                                      onChange={() => toggleItemD(index)}
-                                      checked={item.isChecked}
-                                    />
-                                  </label>
-                                </td>
-                                <td>{index + 1}. </td>
-                                <td>{item.code}</td>
-                                <td>{item.description}</td>
-                                <td>{item.ratio * 100}</td>
-                              </tr>
-                            ))}
+                            <tr key={index}>
+                              <td>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="checkbox"
+                                    onChange={() => toggleItemD(index)}
+                                    checked={item.isChecked}
+                                  />
+                                </label>
+                              </td>
+                              <td>{index + 1}. </td>
+                              <td>{item.code}</td>
+                              <td>{item.description}</td>
+                              <td>{item.ratio * 100}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
                   </div>
-                  {discount == 0 ? null : <h6>Số tiền giảm giá: {numberWithCommas(discount)} ₫</h6>}
+                  {discount == 0 ? null : (
+                    <h6>Số tiền giảm giá: {numberWithCommas(discount)} ₫</h6>
+                  )}
                   <button
                     className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
                     // onClick={()=>}

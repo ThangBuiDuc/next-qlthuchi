@@ -70,6 +70,8 @@ const UpdateModal = ({ data, student_code }) => {
           student_code: student_code,
           unit_price: norm.unit_price,
           amount: norm.amount,
+          calculation_unit_id: data.calculation_unit.id,
+          revenue_group_id: data.revenue.revenue_group.id,
           start_at: time,
         },
         {

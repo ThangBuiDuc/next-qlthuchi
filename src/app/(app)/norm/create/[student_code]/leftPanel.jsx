@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
-import { Scrollbars } from "react-custom-scrollbars-2";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
@@ -331,60 +330,49 @@ const LeftPanel = () => {
   return (
     <div className="flex flex-col pr-3 w-[40%] gap-2">
       <h6 className="text-center">Định mức thu</h6>
-      <Scrollbars
-        hideTracksWhenNotNeeded
-        universal
-        autoHeightMin={"100%"}
-        autoHide
-        //   autoHeight
-      >
-        <div className="flex flex-col gap-1">
-          {norm && (
+      <div className="flex flex-col gap-1">
+        {norm && (
+          <>
+            <Item
+              norm={norm}
+              setNorm={setNorm}
+              school_level_code={student.school_level_code}
+            />
+          </>
+        )}
+        <div className="flex justify-center gap-2">
+          {mutating ? (
+            <span className="loading loading-spinner loading-sm bg-primary"></span>
+          ) : (
             <>
-              <Item
-                norm={norm}
-                setNorm={setNorm}
-                school_level_code={student.school_level_code}
-              />
+              {norm.group &&
+              norm.type &&
+              norm.revenue &&
+              norm.calculation_unit &&
+              norm.price &&
+              norm.quantity &&
+              norm.total ? (
+                <>
+                  <button className="btn w-fit" onClick={() => handleOnclick()}>
+                    Hoàn thành
+                  </button>
+                  <div
+                    className="tooltip flex items-center justify-center"
+                    data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                  >
+                    <IoIosInformationCircleOutline
+                      size={20}
+                      className="text-red-500"
+                    />
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
             </>
           )}
-          <div className="flex justify-center gap-2">
-            {mutating ? (
-              <span className="loading loading-spinner loading-sm bg-primary"></span>
-            ) : (
-              <>
-                {norm.group &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <>
-                    <button
-                      className="btn w-fit"
-                      onClick={() => handleOnclick()}
-                    >
-                      Hoàn thành
-                    </button>
-                    <div
-                      className="tooltip flex items-center justify-center"
-                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
-                    >
-                      <IoIosInformationCircleOutline
-                        size={20}
-                        className="text-red-500"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <></>
-                )}
-              </>
-            )}
-          </div>
         </div>
-      </Scrollbars>
+      </div>
     </div>
   );
 };

@@ -22,7 +22,6 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
-import { Scrollbars } from "react-custom-scrollbars-2";
 // import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
 
