@@ -2,23 +2,35 @@ import Content from "./content";
 import {
   getProvinces,
   getDistricts,
-  getRole,
   getUsers,
+  getPermission,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
+  const pathName = "/system/users";
   const { getToken } = auth();
 
-  const role = await getRole(
+  const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    })
+    }),
+    pathName
   );
 
+  if (permission.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  if (permission.data.result.length === 0)
+    return (
+      <div className="flex justify-center">
+        <h3>Tài khoản chưa được phân quyền cho chức năng hiện tại!</h3>
+      </div>
+    );
+
   if (
-    role.data.result[0]?.role_id.toString() !==
-    process.env.NEXT_PUBLIC_HASURA_ROLE_SUPER_ADMIN
+    permission.data.result[0]?.permission.id.toString() ===
+    process.env.NEXT_PUBLIC_PERMISSION_NONE
   ) {
     return (
       <div className="flex justify-center">
@@ -27,18 +39,18 @@ const Page = async () => {
     );
   }
 
-  const jwt = await getToken({
-    template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
-  });
+  // const jwt = await getToken({
+  //   template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+  // });
   const apiGetProvinces = await getProvinces();
 
   const apiGetDistricts = await getDistricts();
 
-  const apiGetUsers = await getUsers(jwt);
-
-  // console.log(apiGetUsers.data)
-
-  // console.log(jwt)
+  const apiGetUsers = await getUsers(
+    await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+    })
+  );
 
   if (
     apiGetProvinces.status !== 200 ||
@@ -52,7 +64,7 @@ const Page = async () => {
       provinces={apiGetProvinces.data}
       districts={apiGetDistricts.data}
       usersData={apiGetUsers.data}
-      jwt={jwt}
+      permission={permission.data.result[0]?.permission.id.toString()}
     />
   );
 };

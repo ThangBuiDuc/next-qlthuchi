@@ -30,7 +30,7 @@ const Content = ({
         <div className="flex flex-col  gap-[15px]">
           <div className="flex flex-col gap-[10px]">
             <div className="flex gap-1 justify-center items-center w-full">
-              <h4 className="text-center">Quản lý dự kiến thu học sinh</h4>
+              <h4 className="text-center">Miễn giảm học sinh</h4>
             </div>
             <div className="flex gap-1 items-center w-full justify-center">
               <h6>Học kỳ: </h6>
@@ -44,7 +44,11 @@ const Content = ({
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
           </div>
-          <SubContent student={student} selectPresent={selectPresent} discounts={discounts} />
+          <SubContent
+            student={student}
+            selectPresent={selectPresent}
+            discounts={discounts}
+          />
         </div>
       </listContext.Provider>
     </>

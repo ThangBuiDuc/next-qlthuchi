@@ -60,7 +60,7 @@ FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next
     await client.end();
     const res = await Transfer(
       await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       }),
       updates,
       objects,

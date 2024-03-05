@@ -17,6 +17,23 @@ export const getRole = async (token) => {
   return res;
 };
 
+//Lấy permission
+export const getPermission = async (token, path) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
+    method: "post",
+    data: {
+      _eq: path,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
@@ -138,7 +155,7 @@ export const getDiscountType = async () => {
 export const getCashFund = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
-    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUPS,
+    // url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_GROUPS,
     method: "get",
     headers: {
       "content-type": "Application/json",

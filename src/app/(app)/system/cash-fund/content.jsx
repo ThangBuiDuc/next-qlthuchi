@@ -10,7 +10,7 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-const Content = ({ cashFund }) => {
+const Content = ({ cashFund, permission }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { data, isRefetching } = useQuery({
@@ -18,13 +18,11 @@ const Content = ({ cashFund }) => {
     queryFn: async () =>
       await getCashFund(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         })
       ),
     initialData: () => ({ data: cashFund }),
   });
-
-  console.log(cashFund);
 
   const [mutating, setMutating] = useState(false);
   const [cash, setCash] = useState(0);
@@ -64,7 +62,7 @@ const Content = ({ cashFund }) => {
         is_active: true,
       };
       let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
       mutation.mutate({ token, object });
@@ -83,30 +81,34 @@ const Content = ({ cashFund }) => {
     return (
       <div className="flex flex-col gap-2">
         <h5 className="text-center">Hiện tại hệ thống chưa có quỹ tiền mặt</h5>
-        <div className="flex flex-col gap-1 w-[50%] self-center">
-          <p className="text-xs ">Quỹ tiền mặt:</p>
-          <CurrencyInput
-            autoComplete="off"
-            // id={`price_${norm.id}`}
-            intlConfig={{ locale: "vi-VN", currency: "VND" }}
-            className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-            placeholder="Quỹ tiền mặt"
-            value={cash}
-            decimalsLimit={2}
-            onValueChange={(value) => {
-              setCash(parseInt(value));
-            }}
-          />
-        </div>
-        {isRefetching || mutating ? (
-          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
-        ) : (
-          <button
-            className="btn w-fit self-center"
-            onClick={() => handleCreate()}
-          >
-            Hoàn thành
-          </button>
+        {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+          <>
+            <div className="flex flex-col gap-1 w-[50%] self-center">
+              <p className="text-xs ">Quỹ tiền mặt:</p>
+              <CurrencyInput
+                autoComplete="off"
+                // id={`price_${norm.id}`}
+                intlConfig={{ locale: "vi-VN", currency: "VND" }}
+                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                placeholder="Quỹ tiền mặt"
+                value={cash}
+                decimalsLimit={2}
+                onValueChange={(value) => {
+                  setCash(parseInt(value));
+                }}
+              />
+            </div>
+            {isRefetching || mutating ? (
+              <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+            ) : (
+              <button
+                className="btn w-fit self-center"
+                onClick={() => handleCreate()}
+              >
+                Hoàn thành
+              </button>
+            )}
+          </>
         )}
       </div>
     );

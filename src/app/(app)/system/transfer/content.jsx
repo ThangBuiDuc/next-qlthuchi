@@ -5,7 +5,7 @@ import moment from "moment";
 import { toast } from "react-toastify";
 import { useState } from "react";
 
-const Content = ({ transfer }) => {
+const Content = ({ transfer, permission }) => {
   const { result } = transfer;
 
   const [mutating, setMutating] = useState(false);
@@ -67,18 +67,22 @@ const Content = ({ transfer }) => {
           </h6>
         </div>
       </div>
-      {mutating ? (
-        <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        mutating ? (
+          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+        ) : (
+          <button
+            className="btn w-fit self-center"
+            onClick={() => {
+              setMutating(true);
+              mutation.mutate();
+            }}
+          >
+            Kết chuyển
+          </button>
+        )
       ) : (
-        <button
-          className="btn w-fit self-center"
-          onClick={() => {
-            setMutating(true);
-            mutation.mutate();
-          }}
-        >
-          Kết chuyển
-        </button>
+        <></>
       )}
 
       {/* <ExpectedRevenue previous_batch_id={result[0].previous_batch_id} /> */}
