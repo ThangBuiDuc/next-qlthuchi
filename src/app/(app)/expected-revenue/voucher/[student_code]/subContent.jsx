@@ -57,7 +57,7 @@ const Item = ({
   discountsData,
 }) => {
   const [checked, setChecked] = useState(false);
-  // console.log("discount data : ", discountsData);
+  console.log("discount data : ", discountsData);
   console.log("data: ", data);
 
   const [mutating, setMutating] = useState(false);
@@ -271,34 +271,6 @@ const Item = ({
         <td>{numberWithCommas(data.discount)} đ</td>
         <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
         <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
-        {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
-        {/* <td>
-          <>
-            <CurrencyInput
-              autoComplete="off"
-              intlConfig={{ locale: "vi-VN", currency: "VND" }}
-              className={`input input-xs`}
-              value={data.amount_edited}
-              onValueChange={(value) =>
-                setData((pre) =>
-                  pre.map((el) =>
-                    el.id === group_id
-                      ? {
-                          ...el,
-                          expected_revenues: el.expected_revenues.map((item) =>
-                            item.id === data.id
-                              ? { ...item, amount_edited: parseInt(value) }
-                              : item
-                          ),
-                        }
-                      : el
-                  )
-                )
-              }
-              decimalsLimit={2}
-            />
-          </>
-        </td> */}
         <td>{numberWithCommas(data.amount_collected)} ₫</td>
         <td>
           {numberWithCommas(
@@ -309,46 +281,22 @@ const Item = ({
           )}{" "}
           ₫
         </td>
-        {/* <td>
-          <>
-            <input
-              type="text"
-              className="input input-xs"
-              value={data.note ? data.note : ""}
-              onChange={(e) =>
-                setData((pre) =>
-                  pre.map((el) =>
-                    el.id === group_id
-                      ? {
-                          ...el,
-                          expected_revenues: el.expected_revenues.map((item) =>
-                            item.id === data.id
-                              ? {
-                                  ...item,
-                                  note: e.target.value ? e.target.value : null,
-                                }
-                              : item
-                          ),
-                        }
-                      : el
-                  )
-                )
-              }
-            />
-          </>
-        </td> */}
         <td
           className="tooltip tooltip-left cursor-pointer"
           data-tip="Cập nhật giảm giá"
         >
-          <button
-            className={`w-full items-center justify-between flex pl-[15px] pr-[15px] pt-[15px] pb-[15px] hover:bg-[#ECECEC] ${
-              checked ? "bg-[#ECECEC] rounded-lg" : ""
-            }`}
-            onClick={() => setChecked(!checked)}
-          >
-            <TbPencilDiscount size={20} />
-          </button>
+          {discountsData.length ? (
+            <button
+              className={`w-full items-center justify-between flex pl-[15px] pr-[15px] pt-[15px] pb-[15px] hover:bg-[#ECECEC] ${
+                checked ? "bg-[#ECECEC] rounded-lg" : ""
+              }`}
+              onClick={() => setChecked(!checked)}
+            >
+              <TbPencilDiscount size={20} />
+            </button>
+          ) : (
+            <></>
+          )}
         </td>
       </tr>
       <tr>

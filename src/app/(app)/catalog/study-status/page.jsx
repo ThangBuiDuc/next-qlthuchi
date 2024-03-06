@@ -1,6 +1,6 @@
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
-import { getPermission } from "@/utils/funtionApi";
+import { getPermission, getStudyStatus } from "@/utils/funtionApi";
 
 const Page = async () => {
   const pathName = "/catalog/study-status";
@@ -33,8 +33,15 @@ const Page = async () => {
       </div>
     );
   }
+
+  const statusData = await getStudyStatus();
+  if (statusData.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+
+
   return (
-    <Content permission={permission.data.result[0]?.permission.id.toString()} />
+    <Content permission={permission.data.result[0]?.permission.id.toString()} statusData={statusData.data}/>
   );
 };
 

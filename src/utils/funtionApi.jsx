@@ -47,7 +47,18 @@ export const getFamilyRalationship = async () => {
   return res;
 };
 
+//Lấy danh sách trạng thái học tập
+export const getStudyStatus = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_STUDY_STATUS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
 
+  return res;
+};
 
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
@@ -237,6 +248,19 @@ export const insertDiscount = async (token, objects) => {
 export const insertRelationship = async (token, name) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREAT_FAMILY_RELATIONSHIP,
+    method: "post",
+    data: {name},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Thêm mới trạng thái học tập
+export const insertStudyStatus = async (token, name) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREAT_STUDY_STATUS,
     method: "post",
     data: {name},
     headers: {

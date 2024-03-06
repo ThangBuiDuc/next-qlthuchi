@@ -3,34 +3,44 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import Add from "./add";
 import { Fragment } from "react";
 import Item from "./item";
+import { useQuery } from "@tanstack/react-query";
+import { getStudyStatus } from "@/utils/funtionApi";
 
-const rawData = [
-  {
-    id: 1,
-    description: "Đang học",
-  },
-  {
-    id: 2,
-    description: "Tạm dừng học",
-  },
-  {
-    id: 3,
-    description: "Thôi học",
-  },
-];
+const Skeleton = () => {
+  return (
+    <>
+      {[...Array(5)].map((_, i) => (
+        <tr key={i}>
+          {[...Array(3)].map((_, ii) => (
+            <td key={ii}>
+              <>
+                <div className="skeleton h-4 w-full"></div>
+              </>
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+};
 
-const Content = ({ permission }) => {
+const Content = ({ permission, statusData }) => {
+  const data = useQuery({
+    queryKey: ["get_study_status"],
+    queryFn: async () => await getStudyStatus(),
+    initialData: () => ({ data: statusData }),
+  });
   return (
     <div className="flex flex-col gap-[30px] p-[10px]">
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
         <>
-          <button
+          <label
+            htmlFor={`modal_add`}
             className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-            onClick={() => document.getElementById("modal_add").showModal()}
           >
             <IoMdAddCircleOutline size={20} />
             Thêm mới
-          </button>
+          </label>
           <Add />
         </>
       )}
@@ -50,11 +60,24 @@ const Content = ({ permission }) => {
             </tr>
           </thead>
           <tbody>
-            {rawData.map((item, index) => (
+            {/* {rawData.map((item, index) => (
               <Fragment key={item.id}>
                 <Item data={item} index={index} />
               </Fragment>
-            ))}
+            ))} */}
+            {data.isFetching || data.isLoading ? (
+              <Skeleton />
+            ) : data?.data?.data?.length === 0 ? (
+              <p>Không có kết quả!</p>
+            ) : data ? (
+              data?.data?.data.result.map((item, index) => (
+                <Fragment key={item.id}>
+                  <Item data={item} index={index} />
+                </Fragment>
+              ))
+            ) : (
+              <></>
+            )}
           </tbody>
         </table>
       </div>

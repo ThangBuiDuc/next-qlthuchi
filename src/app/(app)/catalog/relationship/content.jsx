@@ -4,7 +4,6 @@ import Add from "./add";
 import { Fragment } from "react";
 import Item from "./item";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/nextjs";
 import { getFamilyRalationship } from "@/utils/funtionApi";
 
 const Skeleton = () => {
