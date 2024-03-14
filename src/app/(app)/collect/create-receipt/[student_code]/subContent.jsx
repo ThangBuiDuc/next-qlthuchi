@@ -22,7 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
-import { Scrollbars } from "react-custom-scrollbars-2";
+// import { Scrollbars } from "react-custom-scrollbars-2";
 import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
 
@@ -79,7 +79,7 @@ const Modal = ({ data, modalRef }) => {
     mutationFn: async (objects) =>
       createReceipt(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects
       ),
@@ -460,7 +460,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
     queryFn: async () =>
       getHistoryReceipt(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where.where,
         where.where1
@@ -637,7 +637,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
 };
 
 const SubContent = ({ student, selectPresent }) => {
-  const { preReceiptIsRefetch } = useContext(listContext);
+  const { preReceiptIsRefetch, permission } = useContext(listContext);
   const ref = useRef();
   const [data, setData] = useState();
   const queryClient = useQueryClient();
@@ -665,7 +665,7 @@ const SubContent = ({ student, selectPresent }) => {
     queryFn: async () =>
       getExpectedRevenue(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),
@@ -863,52 +863,56 @@ const SubContent = ({ student, selectPresent }) => {
         </table>
       </div>
       {/* </Scrollbars> */}
-      {expectedRevenue.isRefetching ? (
-        <></>
-      ) : preReceiptIsRefetch ? (
-        <span className="loading loading-spinner loading-md self-center"></span>
-      ) : (
-        data
-          ?.filter((item) => item.expected_revenues.length > 0)
-          .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
-          .some((item) => item.isChecked && item.nowMoney) && (
-          <>
-            <button
-              className="btn w-fit self-center"
-              onClick={() => ref.current.showModal()}
-            >
-              Lập biên lai
-            </button>
-            <dialog ref={ref} className="modal">
-              <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-4xl"
-                // style={{ overflowY: "unset" }}
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        expectedRevenue.isRefetching ? (
+          <></>
+        ) : preReceiptIsRefetch ? (
+          <span className="loading loading-spinner loading-md self-center"></span>
+        ) : (
+          data
+            ?.filter((item) => item.expected_revenues.length > 0)
+            .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
+            .some((item) => item.isChecked && item.nowMoney) && (
+            <>
+              <button
+                className="btn w-fit self-center"
+                onClick={() => ref.current.showModal()}
               >
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <Modal
-                  modalRef={ref}
-                  data={data
-                    ?.filter(
-                      (item) =>
-                        item.expected_revenues.length > 0 &&
-                        item.expected_revenues.some((el) => el.isChecked)
-                    )
-                    .map((item) => ({
-                      ...item,
-                      nowMoney: item.expected_revenues
-                        .filter((item) => item.nowMoney)
-                        .reduce((total, curr) => total + curr.nowMoney, 0),
-                    }))}
-                />
-              </div>
-            </dialog>
-          </>
+                Lập biên lai
+              </button>
+              <dialog ref={ref} className="modal">
+                <div
+                  className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-4xl"
+                  // style={{ overflowY: "unset" }}
+                >
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                      ✕
+                    </button>
+                  </form>
+                  <Modal
+                    modalRef={ref}
+                    data={data
+                      ?.filter(
+                        (item) =>
+                          item.expected_revenues.length > 0 &&
+                          item.expected_revenues.some((el) => el.isChecked)
+                      )
+                      .map((item) => ({
+                        ...item,
+                        nowMoney: item.expected_revenues
+                          .filter((item) => item.nowMoney)
+                          .reduce((total, curr) => total + curr.nowMoney, 0),
+                      }))}
+                  />
+                </div>
+              </dialog>
+            </>
+          )
         )
+      ) : (
+        <></>
       )}
     </div>
   );

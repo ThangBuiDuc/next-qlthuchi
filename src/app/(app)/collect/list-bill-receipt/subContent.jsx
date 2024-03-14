@@ -4,8 +4,8 @@ import {
   meilisearchBillReceiptGet,
   updateBillReceipt,
 } from "@/utils/funtionApi";
-import { listContext } from "./content";
-import { useState, useContext, useRef, useMemo } from "react";
+// import { listContext } from "./content";
+import { useState, useRef } from "react";
 import moment from "moment";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
@@ -37,28 +37,28 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function sumDuplicated(arr) {
-  return arr.reduce((acc, curr) => {
-    const objInAcc = acc.find(
-      (o) =>
-        o.expected_revenue.revenue.revenue_group.id ===
-        curr.expected_revenue.revenue.revenue_group.id
-    );
-    if (objInAcc)
-      return [
-        ...acc.map((item) =>
-          item.expected_revenue.revenue.revenue_group.id ===
-          curr.expected_revenue.revenue.revenue_group.id
-            ? {
-                ...item,
-                amount_collected: item.amount_collected + curr.amount_collected,
-              }
-            : item
-        ),
-      ];
-    else return [...acc, curr];
-  }, []);
-}
+// function sumDuplicated(arr) {
+//   return arr.reduce((acc, curr) => {
+//     const objInAcc = acc.find(
+//       (o) =>
+//         o.expected_revenue.revenue.revenue_group.id ===
+//         curr.expected_revenue.revenue.revenue_group.id
+//     );
+//     if (objInAcc)
+//       return [
+//         ...acc.map((item) =>
+//           item.expected_revenue.revenue.revenue_group.id ===
+//           curr.expected_revenue.revenue.revenue_group.id
+//             ? {
+//                 ...item,
+//                 amount_collected: item.amount_collected + curr.amount_collected,
+//               }
+//             : item
+//         ),
+//       ];
+//     else return [...acc, curr];
+//   }, []);
+// }
 
 // const ModalPrint = ({ data }) => {
 //   const receipt_details = useMemo(
@@ -416,7 +416,7 @@ const CancelModal = ({ bill_receipt_code, cancelRef, pageIndex, refetch }) => {
   );
 };
 
-const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
+const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
   const printRef = useRef();
   const cancelRef = useRef();
   return (
@@ -429,49 +429,53 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
       <td>{numberWithCommas(data.amount_collected)}</td>
       <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
       <td>{data.canceled && "✓"}</td>
-      {isRefetching ? (
-        <>
-          <span className="loading loading-spinner loading-md self-center"></span>
-        </>
-      ) : (
-        <td>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        isRefetching ? (
           <>
-            <div
-              className="tooltip items-center flex cursor-pointer w-fit"
-              data-tip="Huỷ biên lai"
-              onClick={() => cancelRef.current.showModal()}
-            >
-              <IoTrashBinOutline size={25} />
-            </div>
-
-            {/* MODAL CANCEL */}
-            <dialog ref={cancelRef} className="modal">
-              <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
-                // style={{ overflowY: "unset" }}
-              >
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <CancelModal
-                  bill_receipt_code={data.code}
-                  cancelRef={cancelRef}
-                  pageIndex={pageIndex}
-                  refetch={refetch}
-                />
-              </div>
-            </dialog>
+            <span className="loading loading-spinner loading-md self-center"></span>
           </>
-        </td>
+        ) : (
+          <td>
+            <>
+              <div
+                className="tooltip items-center flex cursor-pointer w-fit"
+                data-tip="Huỷ biên lai"
+                onClick={() => cancelRef.current.showModal()}
+              >
+                <IoTrashBinOutline size={25} />
+              </div>
+
+              {/* MODAL CANCEL */}
+              <dialog ref={cancelRef} className="modal">
+                <div
+                  className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
+                  // style={{ overflowY: "unset" }}
+                >
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                      ✕
+                    </button>
+                  </form>
+                  <CancelModal
+                    bill_receipt_code={data.code}
+                    cancelRef={cancelRef}
+                    pageIndex={pageIndex}
+                    refetch={refetch}
+                  />
+                </div>
+              </dialog>
+            </>
+          </td>
+        )
+      ) : (
+        <></>
       )}
     </tr>
   );
 };
 
-const SubContent = ({ condition }) => {
+const SubContent = ({ condition, permission }) => {
   const {
     data,
     error,
@@ -544,6 +548,7 @@ const SubContent = ({ condition }) => {
                     pageIndex={findIndexInArray(data.pages, item)}
                     isRefetching={isRefetching}
                     refetch={refetch}
+                    permission={permission}
                   />
                 ))
               )

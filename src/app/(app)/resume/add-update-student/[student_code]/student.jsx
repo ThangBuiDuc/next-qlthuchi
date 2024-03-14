@@ -46,6 +46,7 @@ const Student = ({
   setStudentRaw,
   isRefetching,
   catalogStudent,
+  permission,
 }) => {
   const queryClient = useQueryClient();
   const [mutating, setMutating] = useState(false);
@@ -55,7 +56,7 @@ const Student = ({
     onSuccess: () => {
       setMutating(false);
       queryClient.invalidateQueries({
-        queryKey: ["student_information", student_code],
+        queryKey: ["student_information", studentRaw.code],
       });
       toast.success("Cập nhật học sinh thành công!", {
         position: "top-center",
@@ -81,15 +82,21 @@ const Student = ({
   const handleOnclick = async () => {
     setMutating(true);
     let data = {
+      where: {
+        code: {
+          _eq: studentRaw.code,
+        },
+      },
       _set: {
         first_name: studentRaw.first_name,
         last_name: studentRaw.last_name,
         date_of_birth: studentRaw.date_of_birth,
         address: studentRaw.address,
+        status_id: studentRaw.status.id,
       },
     };
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
     mutation.mutate({ token, data });
   };
@@ -190,17 +197,21 @@ const Student = ({
           />
         </div>
       </div>
-      {isRefetching ? (
-        <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
-      ) : mutating ? (
-        <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        isRefetching ? (
+          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+        ) : mutating ? (
+          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+        ) : (
+          <button
+            className="btn w-fit self-center"
+            onClick={() => handleOnclick()}
+          >
+            Cập nhật
+          </button>
+        )
       ) : (
-        <button
-          className="btn w-fit self-center"
-          // onClick={() => handleOnclick()}
-        >
-          Cập nhật
-        </button>
+        <></>
       )}
     </>
   );

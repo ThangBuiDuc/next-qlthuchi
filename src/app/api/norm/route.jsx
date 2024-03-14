@@ -64,7 +64,7 @@ export async function PUT(req) {
 
     //Tạo định mức thu cho khối 1
     const sql_student = await client.query(
-      `SELECT code,date_of_birth as dob FROM v_student WHERE status_id = 1 AND class_level_code = 1;`
+      `SELECT code,date_of_birth::date as dob FROM v_student WHERE status_id = 1 AND class_level_code = 1;`
     );
 
     const oneObjects = sql_student.rows.map((item) => {
@@ -132,7 +132,7 @@ export async function PUT(req) {
 
     const res = await createRevenueNorm(
       await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       }),
       [...exceptOneObjects, ...oneObjects],
       [...exceptOneLog, ...oneLog]

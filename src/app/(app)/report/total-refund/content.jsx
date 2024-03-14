@@ -188,7 +188,9 @@ const Content = ({ revenueGroup }) => {
           </div>
         </>
       ) : (
-        <span className="loading loading-spinner loading-sm bg-primary self-end"></span>
+        <h6 className="text-center">
+          Hiện tại chưa có thông tin về các khoản đã hoàn trả của học sinh
+        </h6>
       )}
     </div>
   );

@@ -28,6 +28,10 @@ export const sideBarData = [
         title: "Quỹ tiền mặt",
         path: "/system/cash-fund",
       },
+      {
+        title: "Năm học/ học kỳ",
+        path: "/system/year-batch",
+      },
     ],
   },
 

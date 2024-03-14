@@ -17,23 +17,6 @@ export const getRole = async (token) => {
   return res;
 };
 
-//Lấy permission
-export const getPermission = async (token, path) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
-    method: "post",
-    data: {
-      _eq: path,
-    },
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
@@ -66,6 +49,50 @@ export const getRolesList = async (token) => {
 export const getUserRole = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy permission
+export const getPermission = async (token, path) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
+    method: "post",
+    data: {
+      _eq: path,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh mục permission
+export const getListPermissionFunction = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_LIST_PERMISSION_FUNCTION,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách quyền cho các chức năng của người dùng
+export const getListUserPermission = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_LIST_USER_PERMISSION,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -192,10 +219,10 @@ export const createUser = async (token, objects) => {
   });
 };
 
-//Thêm quyền cho người dùng
-export const upsertUserRole = async (token, objects) => {
+//Thêm hoặc cập nhật quyền cho người dùng
+export const upsertUserPermission = async (token, objects) => {
   return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_UPSERT_USER_ROLE,
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_USER_PERMISSION,
     method: "put",
     data: { objects },
     headers: {
@@ -205,18 +232,31 @@ export const upsertUserRole = async (token, objects) => {
   });
 };
 
-//Thêm mới giảm giá
-export const insertDiscount = async (token, objects) => {
-  return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT,
-    method: "post",
-    data: { objects },
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-};
+// //Thêm quyền cho người dùng
+// export const upsertUserRole = async (token, objects) => {
+//   return await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_UPSERT_USER_ROLE,
+//     method: "put",
+//     data: { objects },
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
+// };
+
+// //Thêm mới giảm giá
+// export const insertDiscount = async (token, objects) => {
+//   return await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT,
+//     method: "post",
+//     data: { objects },
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
+// };
 
 //=====================================================================================================================================================
 
@@ -265,13 +305,12 @@ export const getTransfer = async () => {
 };
 
 //Lấy thông tin số lượng học sinh
-export const getCountStudent = async (token) => {
+export const getCountStudent = async () => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_COUNT_STUDENT,
     method: "get",
     headers: {
       "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
     },
   });
 
@@ -344,7 +383,7 @@ export const getListSchool = async (token) => {
 };
 
 //Lấy danh sách các lớp học
-export const getCatalogStudent = async (token, code) => {
+export const getCatalogStudent = async (code) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_CATALOG_STUDENT,
     method: "post",
@@ -353,7 +392,6 @@ export const getCatalogStudent = async (token, code) => {
     },
     headers: {
       "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
     },
   });
 
@@ -565,6 +603,21 @@ export const updateDiscount = async (id, token, changes) => {
   });
 };
 
+//Chỉnh sửa giảm giá
+export const updateBatch = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BATCH,
+    method: "patch",
+    data: {
+      updates,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 //INSERT---------------------------------------------------------------------
 
 // Tạo mới học sinh
@@ -743,6 +796,23 @@ export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
     method: "POST",
     data: {
       objects: objects,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Tạo mới năm học
+export const createSchoolYear = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_SCHOOL_YEAR,
+    method: "put",
+    data: {
+      objects,
     },
     headers: {
       "content-type": "Application/json",

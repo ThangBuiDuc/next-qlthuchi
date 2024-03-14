@@ -23,7 +23,6 @@ function createId(lastCount, code) {
 }
 
 const AddExcel = ({ catalogStudent, countStudent, present }) => {
-  console.log(catalogStudent);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const [file, setFile] = useState();

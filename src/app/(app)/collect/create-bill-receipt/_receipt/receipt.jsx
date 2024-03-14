@@ -60,7 +60,7 @@ function createCode(lastCount) {
 }
 
 const Receipt = ({ selected }) => {
-  const { preBill, listSearch } = useContext(listContext);
+  const { preBill, listSearch, permission } = useContext(listContext);
   const [billReceipt, setBillReceipt] = useState({
     payer: "",
     location: "",

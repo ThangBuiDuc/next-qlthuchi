@@ -17,7 +17,7 @@ function createCode(lastCount) {
 }
 
 const Other = ({ selected }) => {
-  const { preBill, selectPresent } = useContext(listContext);
+  const { preBill, selectPresent, permission } = useContext(listContext);
   const [billRefund, setBillRefund] = useState({
     receiver: "",
     location: "",
@@ -34,7 +34,7 @@ const Other = ({ selected }) => {
     mutationFn: async (objects) =>
       createBillRefund(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects
       ),
@@ -163,19 +163,23 @@ const Other = ({ selected }) => {
           />
         </div>
       </div>
-      {billRefund.receiver.trim() &&
-      billRefund.location.trim() &&
-      billRefund.bill_name.trim() &&
-      billRefund.nowMoney ? (
-        mutating ? (
-          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        billRefund.receiver.trim() &&
+        billRefund.location.trim() &&
+        billRefund.bill_name.trim() &&
+        billRefund.nowMoney ? (
+          mutating ? (
+            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+          ) : (
+            <button
+              className="btn w-fit self-center"
+              onClick={() => handleOnClick()}
+            >
+              Hoàn thành
+            </button>
+          )
         ) : (
-          <button
-            className="btn w-fit self-center"
-            onClick={() => handleOnClick()}
-          >
-            Hoàn thành
-          </button>
+          <></>
         )
       ) : (
         <></>

@@ -322,7 +322,7 @@ const LeftPanel = () => {
     };
 
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ token, objects, log });

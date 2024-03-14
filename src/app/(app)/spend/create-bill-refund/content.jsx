@@ -9,7 +9,7 @@ import Refund from "./_refund/refund";
 
 export const listContext = createContext();
 
-const Content = ({ listSearch, InitialPreBill, present }) => {
+const Content = ({ listSearch, InitialPreBill, present, permission }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -30,6 +30,7 @@ const Content = ({ listSearch, InitialPreBill, present }) => {
           listSearch,
           preBill: preBill.data,
           selectPresent,
+          permission,
         }}
       >
         <div className="flex flex-col  gap-3">

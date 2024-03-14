@@ -1,16 +1,17 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import Item from "./item";
-import { getUserRole } from "@/utils/funtionApi";
+import { getListUserPermission } from "@/utils/funtionApi";
 import { useAuth } from "@clerk/nextjs";
+import TextInput from "@/app/_component/textInput";
 
 const Skeleton = () => {
   return (
     <>
-      {[...Array(3)].map((_,index) => (
+      {[...Array(3)].map((_, index) => (
         <tr key={index}>
-          {[...Array(5)].map((_,i) => (
+          {[...Array(5)].map((_, i) => (
             <td key={i}>
               <>
                 <div className="skeleton h-4 w-full"></div>
@@ -23,49 +24,63 @@ const Skeleton = () => {
   );
 };
 
-const Content = ({ roleData, userRole }) => {
+const Content = ({ permission, listPermissionFunction }) => {
   const { getToken } = useAuth();
+  const [users, setUsers] = useState(null);
+  const [query, setQuery] = useState("");
 
   const data = useQuery({
-    queryKey: ["user_role"],
+    queryKey: ["user_permission"],
     queryFn: async () =>
-      await getUserRole(
+      await getListUserPermission(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         })
       ),
-    initialData: () => ({ data: userRole }),
   });
 
-  console.log(data.data);
+  useEffect(() => {
+    if (data.data) {
+      setUsers(data.data.data.result);
+    }
+  }, [data.data]);
 
   return (
-    <>
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Tên</th>
-              <th>ID clerk</th>
-              <th>Quyền</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.isFetching || data.isLoading ? (
-              <Skeleton />
-            ) : (
-              data?.data?.data.result.map((item, index) => (
-                <Fragment key={item.id}>
-                  <Item data={item} roleData={roleData} index={index} />
+    <div className="flex flex-col gap-2">
+      {users ? (
+        users.length ? (
+          <>
+            <TextInput
+              value={query}
+              action={setQuery}
+              label={"Tìm kiếm"}
+              className={"!w-[30%] self-end"}
+            />
+            {users
+              .filter(
+                (item) =>
+                  item.email.includes(query) ||
+                  item.first_name.includes(query) ||
+                  item.last_name.includes(query)
+              )
+              .map((item) => (
+                <Fragment key={item.email}>
+                  <Item
+                    listPermissionFunction={listPermissionFunction}
+                    permission={permission}
+                    data={item}
+                    isRefetching={data.isRefetching}
+                  />
                 </Fragment>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </>
+              ))}
+          </>
+        ) : (
+          <></>
+        )
+      ) : (
+        <></>
+      )}
+    </div>
   );
 };
 

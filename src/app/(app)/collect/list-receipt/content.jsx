@@ -49,7 +49,7 @@ moment.updateLocale("vi", {
 });
 
 export const listContext = createContext();
-const Content = ({ listSearch, preReceipt }) => {
+const Content = ({ listSearch, preReceipt, permission }) => {
   const [selected, setSelected] = useState({});
   const [selectedConditionFilter, setSelectedConditionFilter] = useState({
     first: null,
@@ -541,7 +541,7 @@ const Content = ({ listSearch, preReceipt }) => {
               </button>
             </div>
           </div>
-          <SubContent condition={condition} />
+          <SubContent condition={condition} permission={permission} />
         </div>
       </listContext.Provider>
     </>

@@ -147,15 +147,9 @@ const Search = ({ queryObject }) => {
 };
 
 const Content = (props) => {
-  const { getToken } = useAuth();
   const countStudent = useQuery({
     queryKey: ["count_student"],
-    queryFn: async () =>
-      getCountStudent(
-        await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-        })
-      ),
+    queryFn: async () => getCountStudent(),
     initialData: () => ({
       data: props.countStudent,
     }),
@@ -168,34 +162,40 @@ const Content = (props) => {
     code: "",
   });
 
-  if (countStudent.error)
-    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+  // if (countStudent.error)
+  //   throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <>
       <div className="flex flex-col gap-[30px]">
         <div className="flex justify-start gap-2">
-          {countStudent.isFetching && countStudent.isLoading ? (
-            <div>loading...</div>
+          {props.permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+            countStudent.isFetching && countStudent.isLoading ? (
+              <div>loading...</div>
+            ) : (
+              <>
+                <button
+                  className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+                  onClick={() =>
+                    document.getElementById("modal_add").showModal()
+                  }
+                >
+                  <GoPersonAdd size={20} />
+                  Thêm mới
+                </button>
+                <button
+                  className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+                  onClick={() =>
+                    document.getElementById("modal_add_excel").showModal()
+                  }
+                >
+                  <CiImport size={20} />
+                  Nhập Excel
+                </button>
+              </>
+            )
           ) : (
-            <>
-              <button
-                className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-                onClick={() => document.getElementById("modal_add").showModal()}
-              >
-                <GoPersonAdd size={20} />
-                Thêm mới
-              </button>
-              <button
-                className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-                onClick={() =>
-                  document.getElementById("modal_add_excel").showModal()
-                }
-              >
-                <CiImport size={20} />
-                Nhập Excel
-              </button>
-            </>
+            <></>
           )}
         </div>
         {countStudent.data && (

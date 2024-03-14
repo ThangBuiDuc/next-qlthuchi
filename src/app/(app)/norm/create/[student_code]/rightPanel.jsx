@@ -28,7 +28,7 @@ const Skeleton = () => {
 };
 
 const RightPanel = () => {
-  const { selectPresent, student } = useContext(listContext);
+  const { selectPresent, student, permission } = useContext(listContext);
   const { getToken } = useAuth();
   const where = {
     batch_id: {
@@ -49,14 +49,20 @@ const RightPanel = () => {
     queryFn: async () =>
       getRevenueNorms(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),
   });
 
   return (
-    <div className="flex flex-col w-[60%] pl-3">
+    <div
+      className={`flex flex-col ${
+        permission !== process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT
+          ? "w-[100%]"
+          : "w-[60%]"
+      } pl-3`}
+    >
       <h6 className="text-center">Định mức thu đã lập</h6>
       <div className="overflow-x-auto">
         <table className="table table-pin-rows">

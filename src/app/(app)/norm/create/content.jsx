@@ -31,7 +31,13 @@ const options = [
   },
 ];
 
-const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
+const Content = ({
+  listSearch,
+  present,
+  listRevenue,
+  calculationUnit,
+  permission,
+}) => {
   const [selected, setSelected] = useState();
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -72,7 +78,13 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
     <>
       {/* <ToastContainer /> */}
       <listContext.Provider
-        value={{ listSearch, listRevenue, calculationUnit, selectPresent }}
+        value={{
+          listSearch,
+          listRevenue,
+          calculationUnit,
+          selectPresent,
+          permission,
+        }}
       >
         <div className="flex flex-col gap-[15px] h-full">
           <div className="flex gap-1 items-center w-full justify-center">
@@ -104,24 +116,30 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
                     value={selected}
                     onChange={setSelected}
                     className="text-black w-52"
+                    classNames={{
+                      menu: () => "!z-[11]",
+                    }}
                   />
                 </div>
-                <div className="flex">
-                  {mutating ? (
-                    <span className="loading loading-spinner loading-sm bg-primary"></span>
-                  ) : (
-                    <button
-                      className="btn w-f tooltip tooltip-left"
-                      data-tip="Lập định mức thu BHYT"
-                      onClick={() => {
-                        setMutating(true);
-                        mutation.mutate();
-                      }}
-                    >
-                      BHYT
-                    </button>
-                  )}
-                </div>
+                {permission ===
+                  process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+                  <div className="flex">
+                    {mutating ? (
+                      <span className="loading loading-spinner loading-sm bg-primary"></span>
+                    ) : (
+                      <button
+                        className="btn w-f tooltip tooltip-left"
+                        data-tip="Lập định mức thu BHYT"
+                        onClick={() => {
+                          setMutating(true);
+                          mutation.mutate();
+                        }}
+                      >
+                        BHYT
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <Main firstSelected={selected} />
             </>

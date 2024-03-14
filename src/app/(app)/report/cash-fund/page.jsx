@@ -1,10 +1,8 @@
-import { getRevenueGroup } from "@/utils/funtionApi";
-import Content from "./content";
-import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
+import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/report/total-receipt";
+  const pathName = "/report/cash-fund";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -33,12 +31,7 @@ const Page = async () => {
       </div>
     );
   }
-  const apiGetRevenueGroup = await getRevenueGroup();
-
-  if (apiGetRevenueGroup.status !== 200) {
-    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
-  }
-  return <Content revenueGroup={apiGetRevenueGroup.data.result} />;
+  return <div>Page</div>;
 };
 
 export default Page;

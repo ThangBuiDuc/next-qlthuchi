@@ -1,6 +1,6 @@
 "use client";
 import TextInput from "@/app/_component/textInput";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 
 import DatePicker from "react-datepicker";
 import Select from "react-select";
@@ -124,6 +124,7 @@ function reducer(state, action) {
 }
 
 const Add = ({ catalogStudent, countStudent, present }) => {
+  const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const [infor, dispatchInfor] = useReducer(reducer, {
@@ -168,6 +169,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
   const mutation = useMutation({
     mutationFn: ({ token, arg }) => createStudent(token, arg),
     onSuccess: () => {
+      setMutating(false);
       document.getElementById("modal_add").close();
       queryClient.invalidateQueries(["count_student"]);
       dispatchInfor({
@@ -206,6 +208,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
       });
     },
     onError: () => {
+      setMutating(false);
       document.getElementById("modal_add").close();
       toast.error("Tạo mới học sinh không thành công!", {
         position: "top-center",
@@ -219,6 +222,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 
   const handleOnSubmit = useCallback(
     async (e) => {
+      setMutating(true);
       e.preventDefault();
       let arg = {
         code: infor.code,
@@ -238,7 +242,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
         },
       };
       let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
       mutation.mutate({ token, arg });
@@ -467,9 +471,13 @@ const Add = ({ catalogStudent, countStudent, present }) => {
               id={"add_address"}
             />
           </div>
-          <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
-            Thêm mới
-          </button>
+          {mutating ? (
+            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+          ) : (
+            <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
+              Thêm mới
+            </button>
+          )}
         </form>
       </div>
     </dialog>
