@@ -492,6 +492,22 @@ export const getHistoryReceipt = async (token, where, where1, pageParam) => {
   return { ...res, nextPage: ++pageParam };
 };
 
+
+//Lấy danh sách mã giảm giá của một khoản thu
+export const getExpectedRevenueDiscount = async (token, expected_revenue_id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_EXPECTED_REVENUE_DISCOUNT,
+    method: "post",
+    data: { expected_revenue_id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
@@ -585,21 +601,6 @@ export const updateStudent = async (token, data) => {
   });
 };
 
-//Cập nhật giảm giá cho dự kiến thu
-export const updateExpectedRevenueDiscount = async (token, id, discount) => {
-  return await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_EXPECTED_REVENUE_DISCOUNT,
-    method: "patch",
-    data: {
-      id: id,
-      discount: discount,
-    },
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-};
 
 //Chỉnh sửa giảm giá
 export const updateDiscount = async (id, token, changes) => {
@@ -812,6 +813,27 @@ export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
     method: "POST",
     data: {
       objects: objects,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+
+//Thêm / sửa mã giảm giá cho khoản thu
+export const createExpectedRevenueDiscount = async (token, id, discount, objects) => {
+  const res = await axios({
+    url: process.env
+      .NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
+    method: "POST",
+    data: {
+      objects: objects,
+      id: id,
+      discount: discount
     },
     headers: {
       "content-type": "Application/json",

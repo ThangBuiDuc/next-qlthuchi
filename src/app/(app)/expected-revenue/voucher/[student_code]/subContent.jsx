@@ -1,5 +1,4 @@
 "use client";
-import Select from "react-select";
 import {
   useContext,
   useEffect,
@@ -8,12 +7,12 @@ import {
   useLayoutEffect,
   useCallback,
 } from "react";
-import CurrencyInput from "react-currency-input-field";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
   getExpectedRevenue,
-  updateExpectedRevenueDiscount,
+  createExpectedRevenueDiscount,
+  getExpectedRevenueDiscount,
 } from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,7 +22,6 @@ import { TbReload } from "react-icons/tb";
 import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TbPencilDiscount } from "react-icons/tb";
-import item from "@/app/(app)/system/roles/item";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -57,12 +55,32 @@ const Item = ({
   discountsData,
 }) => {
   const [checked, setChecked] = useState(false);
+  const [checkedDiscount, setCheckedDiscount] = useState();
   console.log("discount data : ", discountsData);
   console.log("data: ", data);
 
-  const [mutating, setMutating] = useState(false);
 
-  const { getToken } = useAuth();
+  //====== Danh sách các mã giảm giá đã lưu của một khoản thu ================================================
+  const expectedRevenueDiscount = useQuery({
+    queryKey: ["get_expected_revenue", data.id],
+    queryFn: async () =>
+    getExpectedRevenueDiscount(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+        }),
+        data.id
+      ),
+  });
+
+  useLayoutEffect(() => {
+    if (expectedRevenueDiscount.data) {
+      setCheckedDiscount(expectedRevenueDiscount.data?.data?.result);
+    }
+  }, [expectedRevenueDiscount.data]);
+
+  console.log("mã giảm giá đã lưu: ",checkedDiscount);
+
+
 
   //===========================================================================================================
   const getBiggestRatioInCheckedList = (data) => {
@@ -81,30 +99,111 @@ const Item = ({
 
   //================================= bảng giảm giá theo nhập học =============================================
   const [a, setA] = useState(data.prescribed_money);
-  const [checkboxA, setCheckboxA] = useState(null);
-  const handleCheckboxAChange = (item, index) => {
-    setCheckboxA((prev) => (prev === index ? null : index));
-    if (data && item) {
-      setA(
-        checkboxA === index
-          ? data.prescribed_money
-          : data.prescribed_money * (1 - item.ratio)
-      );
-    }
+  const [discountAData, setDiscountAData] = useState([]);
+  // useEffect(() => {
+  //   // Filter and map the discounts data
+  //   const filteredAData = discountsData
+  //     ?.filter((item) => item.discount_type.id == 4)
+  //     .map((item) => ({ 
+  //       ...item, 
+  //       isChecked: false 
+  //     }));
+  //   setDiscountAData(filteredAData);
+  // }, [discountsData]);
+
+  useEffect(() => {
+    // Filter and map the discounts data
+    const filteredAData = discountsData
+      ?.filter((item) => item.discount_type.id === 4)
+      .map((item) => {
+        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        if (checkedItem) {
+          // If item is found in checkedDiscount, set isChecked to true
+          return {
+            ...item,
+            isChecked: true
+          };
+        } else {
+          // If item is not found in checkedDiscount, set isChecked to false
+          return {
+            ...item,
+            isChecked: false
+          };
+        }
+      });
+    setDiscountAData(filteredAData);
+  }, [discountsData, checkedDiscount]);
+  // console.log("discountAData:", discountAData);
+
+  const toggleItemA = (index) => {
+    setDiscountAData(
+      discountAData.map((item, i) => {
+        if (i == index) {
+          return {
+            ...item,
+            isChecked: !item.isChecked,
+          };
+        } else {
+          return {
+            ...item,
+            isChecked: false,
+          };
+        }
+      })
+    );
   };
-  // console.log("a:",a);
+
+  useEffect(() => {
+    const checkedItemA = discountAData.filter((item) => item.isChecked);
+    if (checkedItemA.length === 0) {
+      setA(data.prescribed_money);
+    } else {
+      // Assuming you meant to iterate over checked items
+      const discountedValue = checkedItemA.reduce((acc, item) => {
+        return acc * (1 - item.ratio);
+      }, data.prescribed_money);
+      setA(discountedValue);
+    }
+  }, [discountAData, data.prescribed_money]);
+
+  // console.log("a:", a);
 
   //================================= bảng ưu đãi (b)=============================================
   const [b, setB] = useState(0);
   const [discountBData, setDiscountBData] = useState([]);
+  // useEffect(() => {
+  //   // Filter and map the discounts data
+  //   const filteredData = discountsData
+  //     ?.filter((item) => item.discount_type.id === 1)
+  //     .map((item) => ({ ...item, isChecked: false }));
+  //   setDiscountBData(filteredData);
+  // }, [discountsData]);
+  // console.log(discountBData);
+
+
   useEffect(() => {
     // Filter and map the discounts data
-    const filteredData = discountsData
+    const filteredBData = discountsData
       ?.filter((item) => item.discount_type.id === 1)
-      .map((item) => ({ ...item, isChecked: false }));
-    setDiscountBData(filteredData);
-  }, [discountsData]);
-  // console.log(discountBData);
+      .map((item) => {
+        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        if (checkedItem) {
+          // If item is found in checkedDiscount, set isChecked to true
+          return {
+            ...item,
+            isChecked: true
+          };
+        } else {
+          // If item is not found in checkedDiscount, set isChecked to false
+          return {
+            ...item,
+            isChecked: false
+          };
+        }
+      });
+    setDiscountBData(filteredBData);
+  }, [discountsData, checkedDiscount]);
+
   const [checkedAllb, setCheckedAllb] = useState(false);
 
   const selectAllb = () => {
@@ -150,13 +249,38 @@ const Item = ({
   //================================= bảng đối tượng chính sách (c)=============================================
   const [c, setC] = useState(0);
   const [discountCData, setDiscountCData] = useState([]);
+  // useEffect(() => {
+  //   // Filter and map the discounts data
+  //   const filteredCData = discountsData
+  //     ?.filter((item) => item.discount_type.id === 2)
+  //     .map((item) => ({ ...item, isChecked: false }));
+  //   setDiscountCData(filteredCData);
+  // }, [discountsData]);
+
+
   useEffect(() => {
     // Filter and map the discounts data
     const filteredCData = discountsData
       ?.filter((item) => item.discount_type.id === 2)
-      .map((item) => ({ ...item, isChecked: false }));
+      .map((item) => {
+        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        if (checkedItem) {
+          // If item is found in checkedDiscount, set isChecked to true
+          return {
+            ...item,
+            isChecked: true
+          };
+        } else {
+          // If item is not found in checkedDiscount, set isChecked to false
+          return {
+            ...item,
+            isChecked: false
+          };
+        }
+      });
     setDiscountCData(filteredCData);
-  }, [discountsData]);
+  }, [discountsData, checkedDiscount]);
+
   // console.log(discountCData);
   const [checkedAllc, setCheckedAllc] = useState(false);
 
@@ -203,14 +327,39 @@ const Item = ({
   //================================= bảng trừ giảm đối tượng đóng học phí cả năm (d)=============================================
   const [d, setD] = useState(0);
   const [discountDData, setDiscountDData] = useState([]);
+  // useEffect(() => {
+  //   // Filter and map the discounts data
+  //   const filteredDData = discountsData
+  //     ?.filter((item) => item.discount_type.id === 3)
+  //     .map((item) => ({ ...item, isChecked: false }));
+  //   setDiscountDData(filteredDData);
+  // }, [discountsData]);
+  // console.log(discountDData);
+
+
   useEffect(() => {
     // Filter and map the discounts data
     const filteredDData = discountsData
       ?.filter((item) => item.discount_type.id === 3)
-      .map((item) => ({ ...item, isChecked: false }));
+      .map((item) => {
+        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        if (checkedItem) {
+          // If item is found in checkedDiscount, set isChecked to true
+          return {
+            ...item,
+            isChecked: true
+          };
+        } else {
+          // If item is not found in checkedDiscount, set isChecked to false
+          return {
+            ...item,
+            isChecked: false
+          };
+        }
+      });
     setDiscountDData(filteredDData);
-  }, [discountsData]);
-  // console.log(discountDData);
+  }, [discountsData, checkedDiscount]);
+
   const [checkedAlld, setCheckedAlld] = useState(false);
 
   const selectAlld = () => {
@@ -256,8 +405,66 @@ const Item = ({
   //===================================== Số tiền giảm giá ===================================================
   const [discount, setDiscount] = useState(0);
   useEffect(() => {
-    setDiscount(data.prescribed_money - (a - b - c - d));
+    setDiscount(parseInt((data.prescribed_money - (a - b - c - d)).toFixed(0)));
   }, [a, b, c, d]);
+
+  //===================================== Format dữ liệu API ==================================================
+  const [formattedDiscounts, setFormattedDiscounts] = useState();
+  useEffect(() => {
+    const mergedDiscounts = [
+      ...discountAData,
+      ...discountBData,
+      ...discountCData,
+      ...discountDData,
+    ];
+    setFormattedDiscounts(
+      mergedDiscounts.map((item) => ({
+        expected_revenue_id: data.id,
+        discount_id: item.id,
+        status: item.isChecked,
+      }))
+    );
+  }, [discountAData, discountBData, discountCData, discountDData]);
+
+  console.log("dữ liệu api:", formattedDiscounts);
+
+  //==================================== API update mã giảm giá cho khoản thu ==================================
+  const queryClient = useQueryClient();
+  const { getToken } = useAuth();
+
+  const mutation = useMutation({
+    mutationFn: ({ token, id, discount, objects }) =>
+      createExpectedRevenueDiscount(token, id, discount, objects),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["get_expected_revenue"]);
+      toast.success("Cập nhật mã giảm giá cho khoản thu thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+    onError: () => {
+      toast.error("Cập nhật mã giảm giá cho khoản thu không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
+
+  const handleOnSubmit = useCallback(async () => {
+    let objects = formattedDiscounts;
+    let id = data.id;
+    let token = await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+    });
+
+    mutation.mutate({ token, id, discount, objects });
+  }, [formattedDiscounts, discount]);
 
   return (
     <>
@@ -334,28 +541,24 @@ const Item = ({
                           </tr>
                         </thead>
                         <tbody>
-                          {discountsData
-                            .filter((item) => item.discount_type.id == 4)
-                            .map((item, index) => (
-                              <tr key={index}>
-                                <td>
-                                  <label key={index}>
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox"
-                                      checked={checkboxA === index}
-                                      onChange={() =>
-                                        handleCheckboxAChange(item, index)
-                                      }
-                                    />
-                                  </label>
-                                </td>
-                                <td>{index + 1}. </td>
-                                <td>{item.code}</td>
-                                <td>{item.description}</td>
-                                <td>{item.ratio * 100}</td>
-                              </tr>
-                            ))}
+                          {discountAData?.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <label key={index}>
+                                  <input
+                                    type="checkbox"
+                                    className="checkbox"
+                                    checked={item.isChecked}
+                                    onChange={() => toggleItemA(index)}
+                                  />
+                                </label>
+                              </td>
+                              <td>{index + 1}. </td>
+                              <td>{item.code}</td>
+                              <td>{item.description}</td>
+                              <td>{item.ratio * 100}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -501,9 +704,15 @@ const Item = ({
                   )}
                   <button
                     className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-                    // onClick={()=>}
+                    onClick={() => {
+                      handleOnSubmit();
+                    }}
                   >
-                    Lưu
+                    {mutation.isLoading ? (
+                      <span className="loading loading-spinner loading-sm bg-primary"></span>
+                    ) : (
+                      "Lưu"
+                    )}
                   </button>
                 </div>
               </motion.div>
