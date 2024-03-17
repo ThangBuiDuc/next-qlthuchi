@@ -819,7 +819,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
               <Skeleton />
             ) : data?.length === 0 ? (
               <tr key={data.id}>
-                <td colSpan={11} className="text-center">
+                <td colSpan={10} className="text-center">
                   Không có kết quả!
                 </td>
               </tr>
