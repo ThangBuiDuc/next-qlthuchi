@@ -115,7 +115,7 @@ const ListRefund = ({
     mutationFn: async (objects) =>
       createBillRefund(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects
       ),
@@ -175,8 +175,6 @@ const ListRefund = ({
     setMutating(true);
     mutation.mutate(objects);
   }, [billRefund, data]);
-
-  console.log(data);
 
   return isFetching && isLoading ? (
     <span className="loading loading-spinner loading-lg self-center"></span>

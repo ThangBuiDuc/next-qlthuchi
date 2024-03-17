@@ -110,8 +110,16 @@ const SecondPrintComponent = ({ data, secondPrintRef }) => {
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={secondPrintRef}>
         <style type="text/css" media="print">
-          {"@page { size: A4 landscape; margin: 10px;}"}
+          {"@page { size: A4; size: landscape; margin: 10px;}"}
         </style>
+        <div className="flex flex-col">
+          {/* <p className="text-[12px]">TRƯỜNG TH&THCS HỮU NGHỊ QUỐC TẾ</p> */}
+          <p className="text-[24px] font-semibold text-center">
+            BẢNG KÊ BIÊN LAI THU TIỀN
+          </p>
+          <p className="text-[14px]">Hình thức thu: Tiền mặt</p>
+          <div className="mt-[4px]"></div>
+        </div>
       </div>
     </div>
   );
@@ -314,6 +322,9 @@ const ListReceipt = ({
           </tbody>
         </table>
       </div>
+      {/* <button onClick={() => handleSecondPrint()} className="btn w-fit">
+        In
+      </button> */}
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
         billReceipt.payer.trim() &&
         billReceipt.location.trim() &&

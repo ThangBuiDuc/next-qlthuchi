@@ -193,7 +193,6 @@ const Add = ({ school_year }) => {
               <div className="flex gap-1 justify-center">
                 <input
                   type="checkbox"
-                  defaultChecked
                   className="checkbox checkbox-success"
                   checked={batch1.is_active}
                   onChange={() => {
@@ -247,7 +246,6 @@ const Add = ({ school_year }) => {
               <div className="flex gap-1 justify-center">
                 <input
                   type="checkbox"
-                  defaultChecked
                   className="checkbox checkbox-success"
                   checked={batch2.is_active}
                   onChange={() => {

@@ -25,6 +25,9 @@ import { TbReload } from "react-icons/tb";
 // import { Scrollbars } from "react-custom-scrollbars-2";
 import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../../times.ttf" });
 
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
@@ -300,7 +303,7 @@ const Modal = ({ data, modalRef }) => {
         <div className="hidden">
           <div
             ref={ref}
-            className="flex flex-col relative justify-center items-center gap-1 mb-5"
+            className={`flex flex-col relative justify-center items-center gap-1 mb-5 ${times.className}`}
           >
             <h5 className="text-center text-[16px]">
               {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||

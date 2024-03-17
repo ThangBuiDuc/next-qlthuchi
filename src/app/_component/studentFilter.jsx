@@ -126,13 +126,13 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
       </div>
 
       <div className={`w-full flex flex-col gap-1 col-span-2`}>
-        <p className="text-xs">Mã học sinh:</p>
+        <p className="text-xs">Thông tin tìm kiếm:</p>
         <input
           autoComplete="off"
           type={"text"}
           id={`query`}
           className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-          placeholder="Mã học sinh"
+          placeholder="Thông tin tìm kiếm"
           value={selected.query}
           onChange={(e) => {
             setSelected((pre) => ({ ...pre, query: e.target.value }));
@@ -140,13 +140,13 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
         />
       </div>
       <div
-        className="tooltip items-center flex cursor-pointer w-fit justify-center self-center"
+        className="tooltip  flex cursor-pointer  w-fit h-full items-end"
         data-tip="Tải lại danh sách tìm kiếm"
         onClick={() =>
           queryClient.invalidateQueries({ queryKey: ["search", selected] })
         }
       >
-        <TbReload size={30} />
+        <TbReload size={45} />
       </div>
     </div>
   );

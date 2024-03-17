@@ -17,6 +17,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../times.ttf" });
 
 function findIndexInArray(arrayOfArrays, targetObject) {
   for (let i = 0; i < arrayOfArrays.length; i++) {
@@ -202,7 +205,7 @@ const ModalPrint = ({ data }) => {
         <div className="hidden">
           <div
             ref={ref}
-            className="flex flex-col relative justify-center items-center gap-1 mb-5"
+            className={`flex flex-col relative justify-center items-center gap-1 mb-5 ${times.className}`}
           >
             <style type="text/css" media="print">
               {"@page {size: 8.5in 11in;size: landscape; margin: 10px;}"}
