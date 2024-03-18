@@ -17,49 +17,6 @@ export const getRole = async (token) => {
   return res;
 };
 
-//Lấy permission
-export const getPermission = async (token, path) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
-    method: "post",
-    data: {
-      _eq: path,
-    },
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
-//Lấy danh sách quan hệ gia đình
-export const getFamilyRalationship = async () => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_FAMILY_RELATIONSHIP,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-    },
-  });
-
-  return res;
-};
-
-//Lấy danh sách trạng thái học tập
-export const getStudyStatus = async () => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_STUDY_STATUS,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-    },
-  });
-
-  return res;
-};
-
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
@@ -92,6 +49,50 @@ export const getRolesList = async (token) => {
 export const getUserRole = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy permission
+export const getPermission = async (token, path) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
+    method: "post",
+    data: {
+      _eq: path,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh mục permission
+export const getListPermissionFunction = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_LIST_PERMISSION_FUNCTION,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách quyền cho các chức năng của người dùng
+export const getListUserPermission = async (token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_LIST_USER_PERMISSION,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -203,6 +204,33 @@ export const getCashFund = async (token) => {
 //   return res;
 // };
 
+
+//Lấy danh sách quan hệ gia đình
+export const getFamilyRalationship = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_FAMILY_RELATIONSHIP,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách trạng thái học tập
+export const getStudyStatus = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_STUDY_STATUS,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
 //INSERT-----------------------------------------------------
 
 // Tạo mới người dùng
@@ -287,7 +315,7 @@ export const getSchoolYear = async (where) => {
     },
   });
 
-  return res;
+  return res; 
 };
 
 //Lấy thông tin nhóm khoản thu
@@ -618,6 +646,21 @@ export const updateDiscount = async (id, token, changes) => {
   });
 };
 
+//Chỉnh sửa kì
+export const updateBatch = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_BATCH,
+    method: "patch",
+    data: {
+      updates,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 
 //Chỉnh sửa thông tin người dùng
 export const updateUser = async (id, token, changes) => {
@@ -823,6 +866,22 @@ export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
   return res;
 };
 
+//Tạo mới năm học
+export const createSchoolYear = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_SCHOOL_YEAR,
+    method: "put",
+    data: {
+      objects,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
 
 //Thêm / sửa mã giảm giá cho khoản thu
 export const createExpectedRevenueDiscount = async (token, id, discount, objects) => {
