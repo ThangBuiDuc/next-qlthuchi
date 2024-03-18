@@ -63,6 +63,23 @@ const Item = ({ data, listPermissionFunction, permission, isRefetching }) => {
   }, [selectArray]);
 
   return (
+<<<<<<< HEAD
+    <tr>
+      <td><p>{data.id}</p></td>
+      <td><p>{data.first_name} {data.last_name}</p></td>
+      <th><p>{data.clerk_user_id}</p></th>
+      <td>{data.user_roles[0]? <p>{data.user_roles[0]?.role.description}</p> : <p>Chưa được phân quyền</p> }</td>
+      <td>
+      <label
+        htmlFor={`modal_fix_${data.id}`}
+        className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+      >
+        <GoGear size={25} />
+      </label>
+      </td>
+      <td><><Edit data={data} roleData={roleData}/></></td> 
+    </tr>
+=======
     <>
       <div className="collapse collapse-arrow border border-bordercl">
         <input type="radio" name="my-accordion-2" />
@@ -158,6 +175,7 @@ const Item = ({ data, listPermissionFunction, permission, isRefetching }) => {
         </div>
       </div>
     </>
+>>>>>>> origin/thangbd
   );
 };
 

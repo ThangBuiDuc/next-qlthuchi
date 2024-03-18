@@ -1,6 +1,6 @@
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
-import { getPermission } from "@/utils/funtionApi";
+import { getPermission, getFamilyRalationship } from "@/utils/funtionApi";
 
 const Page = async () => {
   const pathName = "/catalog/relationship";
@@ -33,8 +33,14 @@ const Page = async () => {
       </div>
     );
   }
+
+  const relationshipData = await getFamilyRalationship()
+  if (relationshipData.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+
   return (
-    <Content permission={permission.data.result[0]?.permission.id.toString()} />
+    <Content permission={permission.data.result[0]?.permission.id.toString()} relationshipData={relationshipData.data}/>
   );
 };
 
