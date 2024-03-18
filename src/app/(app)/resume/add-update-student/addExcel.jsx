@@ -35,15 +35,16 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
     });
 
     sheet.addRow([
-      "Mã bộ giáo dục học sinh",
-      "Lớp học",
-      "Họ đệm",
-      "Tên",
-      "Ngày sinh",
-      "Mã Giới tính",
-      "Ngày nhập học",
-      "Mã Trạng thái",
-      "Địa chỉ",
+      "MaBoGiaoDuc",
+      "Lop",
+      "MaLop",
+      "HoDem",
+      "Ten",
+      "NgaySinh",
+      "MaGioiTinh",
+      "NgayNhapHoc",
+      "MaTrangThai",
+      "DiaChi",
     ]);
 
     const sheet1 = workbook.addWorksheet("Danh muc lop hoc", {
@@ -89,32 +90,33 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
         workbook.xlsx.load(buffer).then((wb) => {
           const wooksheet = wb.worksheets[0];
           wooksheet.eachRow((row, index) => {
-            setInfor((pre) => [
-              ...pre,
-              {
-                code: createId(
-                  countStudent.result.find(
-                    (el) =>
-                      el.school_level_code ===
-                      catalogStudent.classes[0].school_level_code
-                  ).count,
-                  catalogStudent.classes[0].school_level_code
-                ),
-                bgd_code: row[1],
-                gender: null,
-                class: {
-                  ...catalogStudent.classes[0],
-                  value: catalogStudent.classes[0].name,
-                  label: catalogStudent.classes[0].name,
-                },
-                status: null,
-                firtsName: "",
-                lastName: "",
-                joinDate: null,
-                dob: null,
-                address: "",
-              },
-            ]);
+            console.log(row);
+            // setInfor((pre) => [
+            //   ...pre,
+            //   {
+            //     code: createId(
+            //       countStudent.result.find(
+            //         (el) =>
+            //           el.school_level_code ===
+            //           catalogStudent.classes[0].school_level_code
+            //       ).count,
+            //       catalogStudent.classes[0].school_level_code
+            //     ),
+            //     bgd_code: row[1],
+            //     gender: null,
+            //     class: {
+            //       ...catalogStudent.classes[0],
+            //       value: catalogStudent.classes[0].name,
+            //       label: catalogStudent.classes[0].name,
+            //     },
+            //     status: null,
+            //     firtsName: "",
+            //     lastName: "",
+            //     joinDate: null,
+            //     dob: null,
+            //     address: "",
+            //   },
+            // ]);
           });
         });
       };
@@ -198,6 +200,7 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
             accept=".xlsx,.xls"
             type="file"
             className="file-input file-input-bordered w-full max-w-xs"
+            value={file}
             onChange={(e) => setFile(e.target.files[0])}
           />
         </form>

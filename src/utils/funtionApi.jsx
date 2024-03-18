@@ -3,19 +3,19 @@ import axios from "axios";
 // ##### Hệ Thống, Danh mục ######
 
 //GET---------------------------------------------------------------------
-//Lấy role
-export const getRole = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
+// //Lấy role
+// export const getRole = async (token) => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE,
+//     method: "get",
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
 
-  return res;
-};
+//   return res;
+// };
 
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
@@ -31,33 +31,33 @@ export const getUsers = async (token) => {
   return res;
 };
 
-//Lấy danh sách roles
-export const getRolesList = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
+// //Lấy danh sách roles
+// export const getRolesList = async (token) => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
+//     method: "get",
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
 
-  return res;
-};
+//   return res;
+// };
 
-//Lấy danh sách người dùng + quyền
-export const getUserRole = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
+// //Lấy danh sách người dùng + quyền
+// export const getUserRole = async (token) => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
+//     method: "get",
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
 
-  return res;
-};
+//   return res;
+// };
 
 //Lấy permission
 export const getPermission = async (token, path) => {
@@ -178,7 +178,7 @@ export const getDiscountType = async () => {
   return res;
 };
 
-//Lấy danh sách loại giảm giá
+//Lấy thông tin quỹ tiền mặt
 export const getCashFund = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
