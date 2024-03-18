@@ -3,54 +3,11 @@ import axios from "axios";
 // ##### Hệ Thống, Danh mục ######
 
 //GET---------------------------------------------------------------------
-//Lấy role
-export const getRole = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
 
 //Lấy danh sách người dùng
 export const getUsers = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_USERS,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
-//Lấy danh sách roles
-export const getRolesList = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
-    url: process.env.NEXT_PUBLIC_HASURA_GET_ROLE_LIST,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  return res;
-};
-
-//Lấy danh sách người dùng + quyền
-export const getUserRole = async (token) => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
-    url: process.env.NEXT_PUBLIC_HASURA_GET_USER_ROLE,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -95,11 +52,7 @@ export const getListPermissionFunction = async () => {
 export const getListUserPermission = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_LIST_USER_PERMISSION,
-    url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
-    method: "post",
-    data: {
-      _eq: path,
-    },
+    method: "get",
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -209,7 +162,6 @@ export const getCashFund = async (token) => {
 //   });
 //   return res;
 // };
-
 
 //Lấy danh sách quan hệ gia đình
 export const getFamilyRalationship = async () => {
