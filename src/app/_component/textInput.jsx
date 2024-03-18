@@ -11,6 +11,7 @@ const TextInput = ({
   disable,
   id,
   parentIndex,
+  placeholder,
 }) => {
   return (
     // <div className={` ${className ? className : ""} w-full relative `}>
@@ -62,7 +63,7 @@ const TextInput = ({
         className={`${
           disable ? "!bg-bordercl cursor-not-allowed" : ""
         } block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-        placeholder=""
+        placeholder={placeholder ? placeholder : ""}
         value={value}
         onChange={(e) => {
           if (typeof action === "function") {

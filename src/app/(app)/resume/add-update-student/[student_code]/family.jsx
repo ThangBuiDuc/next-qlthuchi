@@ -67,7 +67,7 @@ const UpdateModal = ({ student_code, data, catalogStudent }) => {
       },
     };
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
     mutation.mutate({ token, dataRaw });
   };
@@ -182,7 +182,14 @@ const UpdateModal = ({ student_code, data, catalogStudent }) => {
   );
 };
 
-const Family = ({ student_code, data, stt, catalogStudent, isRefetching }) => {
+const Family = ({
+  student_code,
+  data,
+  stt,
+  catalogStudent,
+  isRefetching,
+  permission,
+}) => {
   return (
     <tr key={stt} className="hover">
       <td>{stt}</td>
@@ -192,32 +199,36 @@ const Family = ({ student_code, data, stt, catalogStudent, isRefetching }) => {
       <td>{data.parent.address}</td>
       <>
         <td>
-          <div className="flex gap-2">
-            {isRefetching ? (
-              <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
-            ) : (
-              <>
-                <label>
-                  <div
-                    className="tooltip  cursor-pointer"
-                    data-tip="Sửa"
-                    onClick={() =>
-                      document
-                        .getElementById(`update_modal_${data.id}`)
-                        .showModal()
-                    }
-                  >
-                    <FaRegEdit size={30} />
-                  </div>
-                </label>
-                <UpdateModal
-                  data={data}
-                  catalogStudent={catalogStudent}
-                  student_code={student_code}
-                />
-              </>
-            )}
-          </div>
+          {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+            <div className="flex gap-2">
+              {isRefetching ? (
+                <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+              ) : (
+                <>
+                  <label>
+                    <div
+                      className="tooltip  cursor-pointer"
+                      data-tip="Sửa"
+                      onClick={() =>
+                        document
+                          .getElementById(`update_modal_${data.id}`)
+                          .showModal()
+                      }
+                    >
+                      <FaRegEdit size={30} />
+                    </div>
+                  </label>
+                  <UpdateModal
+                    data={data}
+                    catalogStudent={catalogStudent}
+                    student_code={student_code}
+                  />
+                </>
+              )}
+            </div>
+          ) : (
+            <></>
+          )}
         </td>
       </>
     </tr>

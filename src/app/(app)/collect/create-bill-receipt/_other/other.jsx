@@ -94,7 +94,7 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
 };
 
 const Other = ({ selected }) => {
-  const { preBill, selectPresent } = useContext(listContext);
+  const { preBill, selectPresent, permission } = useContext(listContext);
   const [billReceipt, setBillReceipt] = useState({
     payer: "",
     location: "",
@@ -116,7 +116,7 @@ const Other = ({ selected }) => {
     mutationFn: async (objects) =>
       createBillReceipt(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects
       ),
@@ -246,21 +246,25 @@ const Other = ({ selected }) => {
           />
         </div>
       </div>
-      {billReceipt.payer.trim() &&
-      billReceipt.location.trim() &&
-      billReceipt.bill_name.trim() &&
-      billReceipt.nowMoney ? (
-        mutating ? (
-          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        billReceipt.payer.trim() &&
+        billReceipt.location.trim() &&
+        billReceipt.bill_name.trim() &&
+        billReceipt.nowMoney ? (
+          mutating ? (
+            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+          ) : (
+            <>
+              <button
+                className="btn w-fit self-center"
+                onClick={() => handleOnClick()}
+              >
+                Hoàn thành
+              </button>
+            </>
+          )
         ) : (
-          <>
-            <button
-              className="btn w-fit self-center"
-              onClick={() => handleOnClick()}
-            >
-              Hoàn thành
-            </button>
-          </>
+          <></>
         )
       ) : (
         <></>

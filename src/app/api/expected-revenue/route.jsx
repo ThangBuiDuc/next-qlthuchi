@@ -18,7 +18,7 @@ export async function PUT(req) {
   // console.log(userId);
   // console.log(
   //   await getToken({
-  //     template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+  //     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
   //   })
   // );
   try {
@@ -87,7 +87,7 @@ export async function PUT(req) {
         headers: {
           "content-type": "Application/json",
           authorization: `Bearer ${await getToken({
-            template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+            template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
           })}`,
         },
       });
@@ -164,7 +164,7 @@ export async function PUT(req) {
         headers: {
           "content-type": "Application/json",
           authorization: `Bearer ${await getToken({
-            template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+            template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
           })}`,
         },
       });
@@ -241,7 +241,7 @@ export async function PUT(req) {
         headers: {
           "content-type": "Application/json",
           authorization: `Bearer ${await getToken({
-            template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+            template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
           })}`,
         },
       });
@@ -308,7 +308,7 @@ export async function PUT(req) {
 
       const res = await createExpectedRevenue(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects.reduce((total, curr) => [...total, ...curr], [])
       );

@@ -7,7 +7,7 @@ import { createContext } from "react";
 
 export const listContext = createContext();
 
-const Content = ({ present, student }) => {
+const Content = ({ present, student, permission }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -16,7 +16,7 @@ const Content = ({ present, student }) => {
   return (
     <>
       {/* <ToastContainer /> */}
-      <listContext.Provider value={{ selectPresent, student }}>
+      <listContext.Provider value={{ selectPresent, student, permission }}>
         <div className="flex flex-col  gap-[15px]">
           <div className="flex flex-col gap-[10px]">
             <div className="flex gap-1 justify-center items-center w-full">
@@ -34,7 +34,11 @@ const Content = ({ present, student }) => {
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
           </div>
-          <SubContent student={student} selectPresent={selectPresent} />
+          <SubContent
+            student={student}
+            selectPresent={selectPresent}
+            permission={permission}
+          />
         </div>
       </listContext.Provider>
     </>

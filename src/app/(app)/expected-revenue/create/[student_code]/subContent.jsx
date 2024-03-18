@@ -32,10 +32,10 @@ const Skeleton = () => {
   );
 };
 
-const SubContent = ({ selectPresent, student }) => {
+const SubContent = ({ selectPresent, student, permission }) => {
   const [mutating, setMutating] = useState(false);
   const [data, setData] = useState();
-  //   const { selectPresent, student } = useContext(listContext);
+  // const { selectPresent, student } = useContext(listContext);
   const { getToken } = useAuth();
   const where = {
     batch_id: {
@@ -56,7 +56,7 @@ const SubContent = ({ selectPresent, student }) => {
     queryFn: async () =>
       getRevenueNorms(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),
@@ -158,40 +158,42 @@ const SubContent = ({ selectPresent, student }) => {
         </table>
       </div>
       {/* </Scrollbars> */}
-      <div className="flex justify-center gap-2">
-        {mutating ? (
-          <span className="loading loading-spinner loading-sm bg-primary"></span>
-        ) : (
-          <>
-            {data?.data.result.length &&
-            !revenueNorms.isLoading &&
-            !revenueNorms.isFetching ? (
-              <>
-                <button
-                  className="btn w-fit"
-                  onClick={() => {
-                    setMutating(true);
-                    mutation.mutate();
-                  }}
-                >
-                  Lập dự kiến thu
-                </button>
-                <div
-                  className="tooltip flex items-center justify-center"
-                  data-tip="Dự kiến thu trùng lặp sẽ lấy dự kiến thu thêm vào mới nhất!"
-                >
-                  <IoIosInformationCircleOutline
-                    size={20}
-                    className="text-red-500"
-                  />
-                </div>
-              </>
-            ) : (
-              <></>
-            )}
-          </>
-        )}
-      </div>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+        <div className="flex justify-center gap-2">
+          {mutating ? (
+            <span className="loading loading-spinner loading-sm bg-primary"></span>
+          ) : (
+            <>
+              {data?.data.result.length &&
+              !revenueNorms.isLoading &&
+              !revenueNorms.isFetching ? (
+                <>
+                  <button
+                    className="btn w-fit"
+                    onClick={() => {
+                      setMutating(true);
+                      mutation.mutate();
+                    }}
+                  >
+                    Lập dự kiến thu
+                  </button>
+                  <div
+                    className="tooltip flex items-center justify-center"
+                    data-tip="Dự kiến thu trùng lặp sẽ lấy dự kiến thu thêm vào mới nhất!"
+                  >
+                    <IoIosInformationCircleOutline
+                      size={20}
+                      className="text-red-500"
+                    />
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

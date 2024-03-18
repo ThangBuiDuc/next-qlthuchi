@@ -47,7 +47,7 @@ const UpdateModal = ({ data, student_code }) => {
       let time = moment().format();
       return updateRevenueNorm(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
 
         {
@@ -345,7 +345,7 @@ const DeleteModal = ({ data, student_code }) => {
       let time = moment().format();
       return deleteRevenueNorm(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         {
           end_at: time,
@@ -445,6 +445,7 @@ const DeleteModal = ({ data, student_code }) => {
 };
 
 const Item = ({ data, isRefetching, student_code }) => {
+  const { permission } = useContext(listContext);
   return (
     <tr className="hover">
       <td>{data.revenue.code}</td>
@@ -464,32 +465,40 @@ const Item = ({ data, isRefetching, student_code }) => {
       </td>
       <td>{numberWithCommas(data.unit_price) + "đ"}</td>
       <td>{numberWithCommas(data.unit_price * data.amount)}đ</td>
-      <th>
-        {isRefetching ? (
-          <span className="loading loading-spinner loading-md"></span>
-        ) : (
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        <>
+          {" "}
+          <th>
+            {isRefetching ? (
+              <span className="loading loading-spinner loading-md"></span>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <label htmlFor={`modal_update_${data.id}`}>
+                    <div className="tooltip  cursor-pointer" data-tip="Sửa">
+                      <FaRegEdit size={30} />
+                    </div>
+                  </label>
+
+                  <label htmlFor={`modal_delete_${data.id}`}>
+                    <div className="tooltip  cursor-pointer" data-tip="Xoá">
+                      <IoTrashBinOutline size={30} />
+                    </div>
+                  </label>
+                </div>
+              </>
+            )}
+          </th>
           <>
-            <div className="flex gap-2">
-              <label htmlFor={`modal_update_${data.id}`}>
-                <div className="tooltip  cursor-pointer" data-tip="Sửa">
-                  <FaRegEdit size={30} />
-                </div>
-              </label>
-
-              <label htmlFor={`modal_delete_${data.id}`}>
-                <div className="tooltip  cursor-pointer" data-tip="Xoá">
-                  <IoTrashBinOutline size={30} />
-                </div>
-              </label>
-            </div>
+            {/* UPDATE MODAL */}
+            <UpdateModal data={data} student_code={student_code} />
+            {/* DELETE MODAL */}
+            <DeleteModal data={data} student_code={student_code} />
           </>
-        )}
-      </th>
-      {/* UPDATE MODAL */}
-      <UpdateModal data={data} student_code={student_code} />
-
-      {/* DELETE MODAL */}
-      <DeleteModal data={data} student_code={student_code} />
+        </>
+      ) : (
+        <></>
+      )}
     </tr>
   );
 };
@@ -516,7 +525,7 @@ const SubContent = ({ student, selectPresent }) => {
     queryFn: async () =>
       getRevenueNorms(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),

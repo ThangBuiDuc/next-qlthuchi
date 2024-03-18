@@ -13,6 +13,7 @@ const Content = ({
   listRevenue,
   calculationUnit,
   student,
+  permission,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -29,6 +30,7 @@ const Content = ({
           calculationUnit,
           selectPresent,
           student,
+          permission,
         }}
       >
         <div className="flex flex-col gap-[15px] h-full">
@@ -45,7 +47,9 @@ const Content = ({
             <h6>Mã học sinh: {student.code}</h6>
           </div>
           <div className="flex w-full divide-x divide-black h-full">
-            <LeftPanel />
+            {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+              <LeftPanel selected={selected} />
+            )}
             <RightPanel />
           </div>
         </div>

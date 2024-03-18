@@ -14,6 +14,10 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
 
+  console.log(school_level_code);
+  console.log(norm);
+  console.log(listRevenue);
+
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
@@ -252,6 +256,8 @@ const LeftPanel = ({ selected }) => {
   const { getToken } = useAuth();
   const { user } = useUser();
 
+  console.log(selected);
+
   useEffect(() => {
     if (selected)
       setNorm({
@@ -335,7 +341,7 @@ const LeftPanel = ({ selected }) => {
     };
 
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ token, objects, log });
@@ -350,7 +356,7 @@ const LeftPanel = ({ selected }) => {
               <Item
                 norm={norm}
                 setNorm={setNorm}
-                school_level_code={selected.code}
+                school_level_code={selected.school_level_code}
               />
             </>
           )}

@@ -41,8 +41,6 @@ const Content = ({ revenueGroup }) => {
       meilisearchReportReceiptGet(await meilisearchGetToken()),
   });
 
-  console.log(data?.data?.results);
-
   const handleExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("TH da thu nhieu hs", {

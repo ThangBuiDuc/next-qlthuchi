@@ -9,6 +9,7 @@ const Content = ({
   present,
   listRevenue,
   calculationUnit,
+  permission,
   // preReceipt,
 }) => {
   const selectPresent = useMemo(
@@ -24,6 +25,7 @@ const Content = ({
           listRevenue,
           calculationUnit,
           selectPresent,
+          permission,
         }}
       >
         <div className="flex flex-col  gap-[15px]">
@@ -43,7 +45,11 @@ const Content = ({
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
           </div>
-          <SubContent student={student} selectPresent={selectPresent} />
+          <SubContent
+            student={student}
+            selectPresent={selectPresent}
+            permission={permission}
+          />
         </div>
       </listContext.Provider>
     </>

@@ -171,7 +171,7 @@ const Parent = ({ student_code, studentRaw, catalogStudent }) => {
                 className="btn w-fit self-center"
                 onClick={() => handleOnclick()}
               >
-                Cập nhật
+                Thêm
               </button>
             )
           ) : (
@@ -183,12 +183,18 @@ const Parent = ({ student_code, studentRaw, catalogStudent }) => {
   );
 };
 
-const Content = ({ student_code, initialStudent, present, catalogStudent }) => {
+const Content = ({
+  student_code,
+  initialStudent,
+  // present,
+  catalogStudent,
+  permission,
+}) => {
   const { getToken } = useAuth();
-  const selectPresent = useMemo(
-    () => present.result[0].batchs.find((item) => item.is_active === true),
-    []
-  );
+  // const selectPresent = useMemo(
+  //   () => present.result[0].batchs.find((item) => item.is_active === true),
+  //   []
+  // );
   const [studentRaw, setStudentRaw] = useState();
 
   //   console.log(selectPresent);
@@ -197,7 +203,7 @@ const Content = ({ student_code, initialStudent, present, catalogStudent }) => {
     queryFn: async () =>
       getStudent(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         {
           code: { _eq: student_code },
@@ -215,22 +221,27 @@ const Content = ({ student_code, initialStudent, present, catalogStudent }) => {
   return (
     <>
       <div className="flex flex-col gap-[30px]">
-        <button
-          className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-          onClick={() =>
-            document.getElementById("modal_add_parent").showModal()
-          }
-        >
-          <GoPersonAdd size={20} />
-          Thêm phụ huynh
-        </button>
-        <Parent
-          studentRaw={studentRaw}
-          catalogStudent={catalogStudent}
-          student_code={student_code}
-        />
+        {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+          <>
+            <button
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+              onClick={() =>
+                document.getElementById("modal_add_parent").showModal()
+              }
+            >
+              <GoPersonAdd size={20} />
+              Thêm phụ huynh
+            </button>
+            <Parent
+              studentRaw={studentRaw}
+              catalogStudent={catalogStudent}
+              student_code={student_code}
+            />
+          </>
+        )}
         {studentRaw && (
           <Student
+            permission={permission}
             catalogStudent={catalogStudent}
             isRefetching={student.isRefetching}
             studentRaw={studentRaw}
@@ -263,6 +274,7 @@ const Content = ({ student_code, initialStudent, present, catalogStudent }) => {
                         data={item}
                         stt={++index}
                         catalogStudent={catalogStudent}
+                        permission={permission}
                       />
                     </Fragment>
                   ))}

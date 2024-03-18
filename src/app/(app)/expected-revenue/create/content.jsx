@@ -26,7 +26,7 @@ const options = [
   },
 ];
 
-const Content = ({ listSearch, present }) => {
+const Content = ({ listSearch, present, permission }) => {
   const [selected, setSelected] = useState();
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -36,7 +36,7 @@ const Content = ({ listSearch, present }) => {
   return (
     <>
       {/* <ToastContainer /> */}
-      <listContext.Provider value={{ listSearch, selectPresent }}>
+      <listContext.Provider value={{ listSearch, selectPresent, permission }}>
         <div className="flex flex-col h-full gap-[15px]">
           <div className="flex gap-1 items-center w-full justify-center">
             <h5>Học kỳ: </h5>

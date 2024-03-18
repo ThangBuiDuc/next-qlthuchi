@@ -1,7 +1,7 @@
 "use client";
 import {
-  meilisearchRefundGet,
-  updateReceipt,
+  // meilisearchRefundGet,
+  // updateReceipt,
   meilisearchGetToken,
   createBillRefund,
   meilisearchReportRefundOneGet,
@@ -84,7 +84,7 @@ const ListRefund = ({
   selected,
 }) => {
   const queryClient = useQueryClient();
-  const { selectPresent, preBill } = useContext(listContext);
+  const { selectPresent, preBill, permission } = useContext(listContext);
   const { getToken } = useAuth();
   const { user } = useUser();
 
@@ -115,7 +115,7 @@ const ListRefund = ({
     mutationFn: async (objects) =>
       createBillRefund(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         objects
       ),
@@ -176,8 +176,6 @@ const ListRefund = ({
     mutation.mutate(objects);
   }, [billRefund, data]);
 
-  console.log(data);
-
   return isFetching && isLoading ? (
     <span className="loading loading-spinner loading-lg self-center"></span>
   ) : (
@@ -228,20 +226,24 @@ const ListRefund = ({
           </tbody>
         </table>
       </div>
-      {billRefund.receiver.trim() &&
-      billRefund.location.trim() &&
-      billRefund.bill_name.trim() &&
-      billRefund.nowMoney &&
-      data.results.length ? (
-        mutating || isFetching ? (
-          <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        billRefund.receiver.trim() &&
+        billRefund.location.trim() &&
+        billRefund.bill_name.trim() &&
+        billRefund.nowMoney &&
+        data.results.length ? (
+          mutating || isFetching ? (
+            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+          ) : (
+            <button
+              className="btn w-fit self-center"
+              onClick={() => handleOnClick()}
+            >
+              Hoàn thành
+            </button>
+          )
         ) : (
-          <button
-            className="btn w-fit self-center"
-            onClick={() => handleOnClick()}
-          >
-            Hoàn thành
-          </button>
+          <></>
         )
       ) : (
         <></>

@@ -239,6 +239,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
 const LeftPanel = ({ selected }) => {
   const queryClient = useQueryClient();
   const { selectPresent } = useContext(listContext);
+
   const [norm, setNorm] = useState({
     group: null,
     type: null,
@@ -335,7 +336,7 @@ const LeftPanel = ({ selected }) => {
     };
 
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ token, objects, log });

@@ -9,6 +9,7 @@ const Content = ({
   present,
   listRevenue,
   calculationUnit,
+  permission,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -18,7 +19,13 @@ const Content = ({
     <>
       {/* <ToastContainer /> */}
       <listContext.Provider
-        value={{ listSearch, listRevenue, calculationUnit, selectPresent }}
+        value={{
+          listSearch,
+          listRevenue,
+          calculationUnit,
+          selectPresent,
+          permission,
+        }}
       >
         <div className="flex flex-col  gap-[15px]">
           <div className="flex flex-col gap-[10px]">

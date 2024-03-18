@@ -5,7 +5,7 @@ import SubContent from "./subContent";
 import { useQuery } from "@tanstack/react-query";
 import { getPreReceipt } from "@/utils/funtionApi";
 
-const Content = ({ student, present, InitialPreReceipt }) => {
+const Content = ({ student, present, InitialPreReceipt, permission }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -27,6 +27,7 @@ const Content = ({ student, present, InitialPreReceipt }) => {
           preReceipt: preReceipt.data,
           preReceiptIsRefetch: preReceipt.isRefetching,
           student,
+          permission,
         }}
       >
         <div className="flex flex-col  gap-[15px]">

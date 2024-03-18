@@ -26,7 +26,13 @@ const options = [
   },
 ];
 
-const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
+const Content = ({
+  listSearch,
+  present,
+  listRevenue,
+  calculationUnit,
+  permission,
+}) => {
   const [selected, setSelected] = useState();
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -36,7 +42,13 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
     <>
       {/* <ToastContainer /> */}
       <listContext.Provider
-        value={{ listSearch, listRevenue, calculationUnit, selectPresent }}
+        value={{
+          listSearch,
+          listRevenue,
+          calculationUnit,
+          selectPresent,
+          permission,
+        }}
       >
         <div className="flex flex-col p-[20px] gap-[15px]">
           <div className="flex gap-1 items-center w-full justify-center">

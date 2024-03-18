@@ -128,7 +128,7 @@ const AddContent1 = ({ student, currentRef, existRevenue }) => {
     };
 
     const token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ token, objects });
@@ -474,7 +474,7 @@ const AddContent2 = ({ student, currentRef }) => {
     };
 
     const token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ token, objects });
@@ -828,7 +828,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
   );
 };
 
-const SubContent = ({ student, selectPresent }) => {
+const SubContent = ({ student, selectPresent, permission }) => {
   const addContent1 = useRef();
   const addContent2 = useRef();
   const { user } = useUser();
@@ -868,7 +868,7 @@ const SubContent = ({ student, selectPresent }) => {
         }));
       return updateExpectedRevenue(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         updates
       );
@@ -902,7 +902,7 @@ const SubContent = ({ student, selectPresent }) => {
     queryFn: async () =>
       getExpectedRevenue(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),
@@ -935,82 +935,86 @@ const SubContent = ({ student, selectPresent }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      {expectedRevenue.isFetching && expectedRevenue.isLoading ? (
-        <div className="skeleton h-8 w-24"></div>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        expectedRevenue.isFetching && expectedRevenue.isLoading ? (
+          <div className="skeleton h-8 w-24"></div>
+        ) : (
+          <>
+            <div className="dropdown dropdown-hover w-fit">
+              <div tabIndex={0} role="button" className="btn w-fit m-1">
+                Bổ sung
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[20] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addContent1.current.showModal();
+                  }}
+                >
+                  <a>Khoản đã có</a>
+                </li>
+                <li
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addContent2.current.showModal();
+                  }}
+                >
+                  <a>Khác</a>
+                </li>
+              </ul>
+            </div>
+            <dialog
+              ref={addContent1}
+              id={`add_content1_${student.code}`}
+              className="modal"
+            >
+              <div
+                className="modal-box !max-h-none !max-w-2xl"
+                style={{ overflowY: "unset" }}
+              >
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <AddContent1
+                  student={student}
+                  currentRef={addContent1}
+                  existRevenue={expectedRevenue.data?.data?.result
+                    .filter((item) => item.expected_revenues.length > 0)
+                    .map((item) =>
+                      item.expected_revenues.map((el) => el.revenue.id)
+                    )
+                    .reduce((total, curr) => [...total, ...curr], [])}
+                />
+              </div>
+            </dialog>
+            <dialog
+              ref={addContent2}
+              id={`add_content2_${student.code}`}
+              className="modal"
+            >
+              <div
+                className="modal-box !max-h-none !max-w-2xl"
+                style={{ overflowY: "unset" }}
+              >
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <AddContent2 student={student} currentRef={addContent2} />
+              </div>
+            </dialog>
+          </>
+        )
       ) : (
-        <>
-          <div className="dropdown dropdown-hover w-fit">
-            <div tabIndex={0} role="button" className="btn w-fit m-1">
-              Bổ sung
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[20] menu p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              <li
-                onClick={(e) => {
-                  e.preventDefault();
-                  addContent1.current.showModal();
-                }}
-              >
-                <a>Khoản đã có</a>
-              </li>
-              <li
-                onClick={(e) => {
-                  e.preventDefault();
-                  addContent2.current.showModal();
-                }}
-              >
-                <a>Khác</a>
-              </li>
-            </ul>
-          </div>
-          <dialog
-            ref={addContent1}
-            id={`add_content1_${student.code}`}
-            className="modal"
-          >
-            <div
-              className="modal-box !max-h-none !max-w-2xl"
-              style={{ overflowY: "unset" }}
-            >
-              <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                  ✕
-                </button>
-              </form>
-              <AddContent1
-                student={student}
-                currentRef={addContent1}
-                existRevenue={expectedRevenue.data?.data?.result
-                  .filter((item) => item.expected_revenues.length > 0)
-                  .map((item) =>
-                    item.expected_revenues.map((el) => el.revenue.id)
-                  )
-                  .reduce((total, curr) => [...total, ...curr], [])}
-              />
-            </div>
-          </dialog>
-          <dialog
-            ref={addContent2}
-            id={`add_content2_${student.code}`}
-            className="modal"
-          >
-            <div
-              className="modal-box !max-h-none !max-w-2xl"
-              style={{ overflowY: "unset" }}
-            >
-              <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                  ✕
-                </button>
-              </form>
-              <AddContent2 student={student} currentRef={addContent2} />
-            </div>
-          </dialog>
-        </>
+        <></>
       )}
       {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
       <div className="overflow-x-auto">
@@ -1137,7 +1141,8 @@ const SubContent = ({ student, selectPresent }) => {
         </table>
       </div>
       {/* </Scrollbars> */}
-      {Array.isArray(data) &&
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+        Array.isArray(data) &&
         !(
           JSON.stringify(expectedRevenue.data.data.result) ===
           JSON.stringify(data)
@@ -1157,7 +1162,10 @@ const SubContent = ({ student, selectPresent }) => {
           >
             Điều chỉnh
           </button>
-        ))}
+        ))
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

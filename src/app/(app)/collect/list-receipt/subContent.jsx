@@ -17,6 +17,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../times.ttf" });
 
 function findIndexInArray(arrayOfArrays, targetObject) {
   for (let i = 0; i < arrayOfArrays.length; i++) {
@@ -202,7 +205,7 @@ const ModalPrint = ({ data }) => {
         <div className="hidden">
           <div
             ref={ref}
-            className="flex flex-col relative justify-center items-center gap-1 mb-5"
+            className={`flex flex-col relative justify-center items-center gap-1 mb-5 ${times.className}`}
           >
             <style type="text/css" media="print">
               {"@page {size: 8.5in 11in;size: landscape; margin: 10px;}"}
@@ -355,7 +358,7 @@ const CancelModal = ({ receipt_code, cancelRef, pageIndex, refetch }) => {
       };
       return updateReceipt(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         updates
       );
@@ -417,7 +420,7 @@ const CancelModal = ({ receipt_code, cancelRef, pageIndex, refetch }) => {
   );
 };
 
-const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
+const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
   const printRef = useRef();
   const cancelRef = useRef();
   return (
@@ -441,68 +444,70 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch }) => {
         </>
       ) : (
         <td>
-          <>
-            <div className="flex gap-3">
-              <div
-                className="tooltip items-center flex cursor-pointer w-fit"
-                data-tip="In lại biên lai"
-                onClick={() => printRef.current.showModal()}
-              >
-                <IoMdPrint size={25} />
+          {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+            <>
+              <div className="flex gap-3">
+                <div
+                  className="tooltip items-center flex cursor-pointer w-fit"
+                  data-tip="In lại biên lai"
+                  onClick={() => printRef.current.showModal()}
+                >
+                  <IoMdPrint size={25} />
+                </div>
+                <div
+                  className="tooltip items-center flex cursor-pointer w-fit"
+                  data-tip="Huỷ biên lai"
+                  onClick={() => cancelRef.current.showModal()}
+                >
+                  <IoTrashBinOutline size={25} />
+                </div>
               </div>
-              <div
-                className="tooltip items-center flex cursor-pointer w-fit"
-                data-tip="Huỷ biên lai"
-                onClick={() => cancelRef.current.showModal()}
-              >
-                <IoTrashBinOutline size={25} />
-              </div>
-            </div>
 
-            {/* MODAL REPRINT */}
-            <dialog ref={printRef} className="modal">
-              <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
-                // style={{ overflowY: "unset" }}
-              >
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <ModalPrint data={data} />
-              </div>
-            </dialog>
+              {/* MODAL REPRINT */}
+              <dialog ref={printRef} className="modal">
+                <div
+                  className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
+                  // style={{ overflowY: "unset" }}
+                >
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                      ✕
+                    </button>
+                  </form>
+                  <ModalPrint data={data} />
+                </div>
+              </dialog>
 
-            {/* MODAL CANCEL */}
-            <dialog ref={cancelRef} className="modal">
-              <div
-                className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
-                // style={{ overflowY: "unset" }}
-              >
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <CancelModal
-                  receipt_code={data.code}
-                  cancelRef={cancelRef}
-                  pageIndex={pageIndex}
-                  refetch={refetch}
-                />
-              </div>
-            </dialog>
-          </>
+              {/* MODAL CANCEL */}
+              <dialog ref={cancelRef} className="modal">
+                <div
+                  className="modal-box h-fit !max-h-[500px] overflow-y-auto !max-w-2xl"
+                  // style={{ overflowY: "unset" }}
+                >
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                      ✕
+                    </button>
+                  </form>
+                  <CancelModal
+                    receipt_code={data.code}
+                    cancelRef={cancelRef}
+                    pageIndex={pageIndex}
+                    refetch={refetch}
+                  />
+                </div>
+              </dialog>
+            </>
+          )}
         </td>
       )}
     </tr>
   );
 };
 
-const SubContent = ({ condition }) => {
+const SubContent = ({ condition, permission }) => {
   const {
     data,
     error,
@@ -569,6 +574,7 @@ const SubContent = ({ condition }) => {
                     pageIndex={findIndexInArray(data.pages, item)}
                     isRefetching={isRefetching}
                     refetch={refetch}
+                    permission={permission}
                   />
                 ))
               )
