@@ -1,7 +1,24 @@
 import "./globals.css";
-import { Montserrat } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { viVN } from "@clerk/localizations";
+import ReactQueryProvider from "./ReactQueryProvider";
+import localFont from "next/font/local";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const montserrat = localFont({
+  src: [
+    {
+      path: "./Montserrat-VariableFont_wght.ttf",
+      style: "normal",
+    },
+    {
+      path: "./Montserrat-Italic-VariableFont_wght.ttf",
+      style: "italic",
+    },
+  ],
+});
+// import { Montserrat } from "next/font/google";
+
+// const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Create Next App",
@@ -10,8 +27,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi">
-      <body className={montserrat.className}>{children}</body>
-    </html>
+    <ClerkProvider localization={viVN}>
+      <html lang="vi">
+        <body className={`${montserrat.className} bg-white`}>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

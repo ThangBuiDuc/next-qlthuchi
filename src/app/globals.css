@@ -1,30 +1,30 @@
 @tailwind base;
-h2 {
-  @apply text-[20px] md:text-[24px] font-semibold  text-black;
-}
-
-h3 {
-  @apply text-[16px] md:text-[18.72px] font-semibold  text-black;
-}
 
 a {
   @apply text-black;
 }
 
 h1 {
-  @apply text-4xl;
+  @apply text-[48px];
   @apply font-bold  text-black;
 }
+h2 {
+  @apply text-[36px] font-semibold  text-black;
+}
+
+h3 {
+  @apply text-[30px] font-semibold  text-black;
+}
 h4 {
-  @apply text-xl;
+  @apply text-[24px];
   @apply font-semibold  text-black;
 }
 h5 {
-  @apply text-lg;
+  @apply text-[20px];
   @apply font-semibold  text-black;
 }
 h6 {
-  @apply text-sm;
+  @apply text-[16px];
   @apply font-semibold  text-black;
 }
 
@@ -33,3 +33,23 @@ p {
 }
 @tailwind components;
 @tailwind utilities;
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.highlight {
+  background-color: yellow;
+}
