@@ -11,6 +11,7 @@ const Content = ({
   calculationUnit,
   // preReceipt,
   discounts,
+  permission,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -48,6 +49,7 @@ const Content = ({
             student={student}
             selectPresent={selectPresent}
             discounts={discounts}
+            permission={permission}
           />
         </div>
       </listContext.Provider>

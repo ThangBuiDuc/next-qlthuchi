@@ -1,9 +1,9 @@
 "use client";
 import {
-  useContext,
+  // useContext,
   useEffect,
   useState,
-  useRef,
+  // useRef,
   useLayoutEffect,
   useCallback,
 } from "react";
@@ -14,12 +14,15 @@ import {
   createExpectedRevenueDiscount,
   getExpectedRevenueDiscount,
 } from "@/utils/funtionApi";
-import { useAuth, useUser } from "@clerk/nextjs";
+import {
+  useAuth,
+  // useUser
+} from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
-import moment from "moment";
+// import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
-import { memo } from "react";
+// import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TbPencilDiscount } from "react-icons/tb";
 
@@ -53,18 +56,18 @@ const Item = ({
   i,
   group_id,
   discountsData,
+  permission,
 }) => {
   const [checked, setChecked] = useState(false);
   const [checkedDiscount, setCheckedDiscount] = useState();
-  console.log("discount data : ", discountsData);
-  console.log("data: ", data);
-
+  // console.log("discount data : ", discountsData);
+  // console.log("data: ", data);
 
   //====== Danh sách các mã giảm giá đã lưu của một khoản thu ================================================
   const expectedRevenueDiscount = useQuery({
     queryKey: ["get_expected_revenue", data.id],
     queryFn: async () =>
-    getExpectedRevenueDiscount(
+      getExpectedRevenueDiscount(
         await getToken({
           template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
@@ -78,9 +81,7 @@ const Item = ({
     }
   }, [expectedRevenueDiscount.data]);
 
-  console.log("mã giảm giá đã lưu: ",checkedDiscount);
-
-
+  // console.log("mã giảm giá đã lưu: ", checkedDiscount);
 
   //===========================================================================================================
   const getBiggestRatioInCheckedList = (data) => {
@@ -104,9 +105,9 @@ const Item = ({
   //   // Filter and map the discounts data
   //   const filteredAData = discountsData
   //     ?.filter((item) => item.discount_type.id == 4)
-  //     .map((item) => ({ 
-  //       ...item, 
-  //       isChecked: false 
+  //     .map((item) => ({
+  //       ...item,
+  //       isChecked: false
   //     }));
   //   setDiscountAData(filteredAData);
   // }, [discountsData]);
@@ -116,18 +117,20 @@ const Item = ({
     const filteredAData = discountsData
       ?.filter((item) => item.discount_type.id === 4)
       .map((item) => {
-        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        const checkedItem = checkedDiscount?.find(
+          (el) => el.discount_id === item.id && el.status == true
+        );
         if (checkedItem) {
           // If item is found in checkedDiscount, set isChecked to true
           return {
             ...item,
-            isChecked: true
+            isChecked: true,
           };
         } else {
           // If item is not found in checkedDiscount, set isChecked to false
           return {
             ...item,
-            isChecked: false
+            isChecked: false,
           };
         }
       });
@@ -180,24 +183,25 @@ const Item = ({
   // }, [discountsData]);
   // console.log(discountBData);
 
-
   useEffect(() => {
     // Filter and map the discounts data
     const filteredBData = discountsData
       ?.filter((item) => item.discount_type.id === 1)
       .map((item) => {
-        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        const checkedItem = checkedDiscount?.find(
+          (el) => el.discount_id === item.id && el.status == true
+        );
         if (checkedItem) {
           // If item is found in checkedDiscount, set isChecked to true
           return {
             ...item,
-            isChecked: true
+            isChecked: true,
           };
         } else {
           // If item is not found in checkedDiscount, set isChecked to false
           return {
             ...item,
-            isChecked: false
+            isChecked: false,
           };
         }
       });
@@ -257,24 +261,25 @@ const Item = ({
   //   setDiscountCData(filteredCData);
   // }, [discountsData]);
 
-
   useEffect(() => {
     // Filter and map the discounts data
     const filteredCData = discountsData
       ?.filter((item) => item.discount_type.id === 2)
       .map((item) => {
-        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        const checkedItem = checkedDiscount?.find(
+          (el) => el.discount_id === item.id && el.status == true
+        );
         if (checkedItem) {
           // If item is found in checkedDiscount, set isChecked to true
           return {
             ...item,
-            isChecked: true
+            isChecked: true,
           };
         } else {
           // If item is not found in checkedDiscount, set isChecked to false
           return {
             ...item,
-            isChecked: false
+            isChecked: false,
           };
         }
       });
@@ -336,24 +341,25 @@ const Item = ({
   // }, [discountsData]);
   // console.log(discountDData);
 
-
   useEffect(() => {
     // Filter and map the discounts data
     const filteredDData = discountsData
       ?.filter((item) => item.discount_type.id === 3)
       .map((item) => {
-        const checkedItem = checkedDiscount?.find((el) => el.discount_id === item.id && el.status == true);
+        const checkedItem = checkedDiscount?.find(
+          (el) => el.discount_id === item.id && el.status == true
+        );
         if (checkedItem) {
           // If item is found in checkedDiscount, set isChecked to true
           return {
             ...item,
-            isChecked: true
+            isChecked: true,
           };
         } else {
           // If item is not found in checkedDiscount, set isChecked to false
           return {
             ...item,
-            isChecked: false
+            isChecked: false,
           };
         }
       });
@@ -426,7 +432,7 @@ const Item = ({
     );
   }, [discountAData, discountBData, discountCData, discountDData]);
 
-  console.log("dữ liệu api:", formattedDiscounts);
+  // console.log("dữ liệu api:", formattedDiscounts);
 
   //==================================== API update mã giảm giá cho khoản thu ==================================
   const queryClient = useQueryClient();
@@ -702,18 +708,21 @@ const Item = ({
                   {discount == 0 ? null : (
                     <h6>Số tiền giảm giá: {numberWithCommas(discount)} ₫</h6>
                   )}
-                  <button
-                    className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-                    onClick={() => {
-                      handleOnSubmit();
-                    }}
-                  >
-                    {mutation.isLoading ? (
-                      <span className="loading loading-spinner loading-sm bg-primary"></span>
-                    ) : (
-                      "Lưu"
-                    )}
-                  </button>
+                  {permission ===
+                    process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+                    <button
+                      className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+                      onClick={() => {
+                        handleOnSubmit();
+                      }}
+                    >
+                      {mutation.isLoading ? (
+                        <span className="loading loading-spinner loading-sm bg-primary"></span>
+                      ) : (
+                        "Lưu"
+                      )}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -724,10 +733,10 @@ const Item = ({
   );
 };
 
-const SubContent = ({ student, selectPresent, discounts }) => {
+const SubContent = ({ student, selectPresent, discounts, permission }) => {
   // console.log("discouts", discounts);
-  const { user } = useUser();
-  const [mutating, setMutating] = useState(false);
+  // const { user } = useUser();
+  // const [mutating, setMutating] = useState(false);
   const [data, setData] = useState();
 
   const { getToken } = useAuth();
@@ -834,22 +843,23 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                   item.scope.some((el) => el === student.school_level_code)
                 )
                 .map((item, index) => {
-                  if (item.expected_revenues.length === 0) {
-                    return (
-                      <tr className="hover" key={item.id}>
-                        <td>{index + 1}</td>
-                        <td>{item.name}</td>
-                        <td>{item.revenue_type.name}</td>
-                        <td className="text-center text-red-300" colSpan={8}>
-                          Chưa có dự kiến thu
-                        </td>
-                      </tr>
-                    );
-                  }
+                  // if (item.expected_revenues.length === 0) {
+                  //   return (
+                  //     <tr className="hover" key={item.id}>
+                  //       <td>{index + 1}</td>
+                  //       <td>{item.name}</td>
+                  //       <td>{item.revenue_type.name}</td>
+                  //       <td className="text-center text-red-300" colSpan={8}>
+                  //         Chưa có dự kiến thu
+                  //       </td>
+                  //     </tr>
+                  //   );
+                  // }
                   if (item.expected_revenues.length === 1) {
                     // console.log("item:", item);
                     return (
                       <Item
+                        permission={permission}
                         key={item.id}
                         setData={setData}
                         group_id={item.id}
@@ -882,6 +892,7 @@ const SubContent = ({ student, selectPresent, discounts }) => {
                           // console.log("el", el)
                           return (
                             <Item
+                              permission={permission}
                               group_id={item.id}
                               key={el.id}
                               setData={setData}

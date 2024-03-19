@@ -167,7 +167,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
       });
   }, [countStudent]);
   const mutation = useMutation({
-    mutationFn: ({ token, arg }) => createStudent(token, arg),
+    mutationFn: ({ token, objects }) => createStudent(token, objects),
     onSuccess: () => {
       setMutating(false);
       document.getElementById("modal_add").close();
@@ -224,7 +224,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
     async (e) => {
       setMutating(true);
       e.preventDefault();
-      let arg = {
+      let objects = {
         code: infor.code,
         bgd_code: infor.bgd_code,
         first_name: infor.firtsName,
@@ -245,7 +245,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
         template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
-      mutation.mutate({ token, arg });
+      mutation.mutate({ token, objects });
     },
     [infor]
   );
