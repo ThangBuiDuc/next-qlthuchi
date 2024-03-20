@@ -120,9 +120,9 @@ const Edit = ({ data, provinces, districts }) => {
     : null
   );
 
-  useEffect(() => {
-    province && setDistrict(null);
-  }, [province]);
+  // useEffect(() => {
+  //   province && setDistrict(null);
+  // }, [province]);
 
   // danh sách các xã
   const [wards, setWards] = useState();

@@ -14,9 +14,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
-
 function reducer(state, action) {
   switch (action.type) {
     case "change_code": {
@@ -29,13 +26,13 @@ function reducer(state, action) {
       return {
         ...state,
         description: action.payload.value,
-      }
+      };
     }
     case "change_ratio": {
       return {
         ...state,
         ratio: action.payload.value,
-      }
+      };
     }
     case "reset": {
       return action.payload.value;
@@ -43,14 +40,11 @@ function reducer(state, action) {
   }
 }
 
-
-
 const Add = ({ discountTypeData, revenueGroupData }) => {
-
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-  const [discountType,setDiscountType] = useState();
-  const [revenueGroup,setRevenueGroup] = useState();
+  const [discountType, setDiscountType] = useState();
+  const [revenueGroup, setRevenueGroup] = useState();
   const [infor, dispatchInfor] = useReducer(reducer, {
     code: "",
     description: "",
@@ -58,16 +52,16 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
   });
 
   const mutation = useMutation({
-    mutationFn: ({token, arg}) => insertDiscount(token, arg),
-    onSuccess:  () => {
+    mutationFn: ({ token, arg }) => insertDiscount(token, arg),
+    onSuccess: () => {
       queryClient.invalidateQueries(["get_discount"]);
       dispatchInfor({
         type: "reset",
         payload: {
           value: {
-            code:"",
-            description:"",
-            ratio:""
+            code: "",
+            description: "",
+            ratio: "",
           },
         },
       });
@@ -92,26 +86,23 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
         theme: "light",
       });
     },
-  })
-
+  });
 
   const handleOnSubmit = useCallback(async () => {
-      let arg = {
-        code: infor.code,
-        description: infor.description,
-        ratio: infor.ratio / 100,
-        discount_type_id: discountType?.value,
-        revenue_group_id: revenueGroup?.value
-      }
-      let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
-      });
+    let arg = {
+      code: infor.code,
+      description: infor.description,
+      ratio: infor.ratio / 100,
+      discount_type_id: discountType?.value,
+      revenue_group_id: revenueGroup?.value,
+    };
+    let token = await getToken({
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+    });
 
-      mutation.mutate({ token, arg });
-      console.log(arg)
-    
+    mutation.mutate({ token, arg });
+    console.log(arg);
   }, [infor, discountType, revenueGroup]);
-
 
   return (
     <>
@@ -166,12 +157,13 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 className={"w-[70%]"}
               />
               <TextInput
-                label={"Tỉ lệ giảm"}
+                label={"Tỉ lệ giảm (%) (VD: 20)"}
                 value={infor.ratio}
                 dispatch={dispatchInfor}
                 action={"change_ratio"}
                 id={"add_description"}
                 className={"w-[70%]"}
+                type={"number"}
               />
               <Select
                 placeholder="Nhóm áp dụng"
@@ -190,19 +182,27 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 onChange={setRevenueGroup}
               />
             </div>
-            <button
-              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
-              onClick={(e) => {
-                e.preventDefault();
-                handleOnSubmit();
-              }}
-            >
-              {mutation.isLoading ? (
-                <span className="loading loading-spinner loading-sm bg-primary"></span>
-              ) : (
-                "Thêm mới"
-              )}
-            </button>
+            {infor.code &&
+            infor.description &&
+            infor.ratio &&
+            discountType?.value &&
+            revenueGroup?.value ? (
+              <button
+                className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOnSubmit();
+                }}
+              >
+                {mutation.isLoading ? (
+                  <span className="loading loading-spinner loading-sm bg-primary"></span>
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+            ) : (
+              <></>
+            )}
           </form>
         </div>
       </div>

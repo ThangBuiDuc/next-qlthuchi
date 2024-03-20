@@ -56,8 +56,13 @@ function Item({ data, index, discountTypeData, revenueGroupData }) {
   );
 }
 
-const Content = ({ discountsData, discountTypeData, revenueGroupData }) => {
-  console.log(discountsData);
+const Content = ({
+  discountsData,
+  discountTypeData,
+  revenueGroupData,
+  permission,
+}) => {
+  // console.log(discountsData);
 
   const data = useQuery({
     queryKey: ["get_discount"],
@@ -67,17 +72,32 @@ const Content = ({ discountsData, discountTypeData, revenueGroupData }) => {
 
   return (
     <div className="flex flex-col gap-[30px]">
-      <label
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+        <>
+          <label
+            htmlFor={`modal_add`}
+            className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+          >
+            <GoPersonAdd size={20} />
+            Thêm mới
+          </label>
+          <Add
+            discountTypeData={discountTypeData}
+            revenueGroupData={revenueGroupData}
+          />
+        </>
+      )}
+      {/* <label
         htmlFor={`modal_add`}
         className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
       >
         <GoPersonAdd size={20} />
         Thêm mới
-      </label>
-      <Add
+      </label> */}
+      {/* <Add
         discountTypeData={discountTypeData}
         revenueGroupData={revenueGroupData}
-      />
+      /> */}
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           <thead>
