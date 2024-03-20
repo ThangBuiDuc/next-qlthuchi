@@ -183,7 +183,7 @@ const ListReceipt = ({
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
-    onAfterPrint: () => handleSecondPrint(),
+    // onAfterPrint: () => handleSecondPrint(),
   });
 
   const { data, isFetching, isLoading, isRefetching } = useQuery({
