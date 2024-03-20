@@ -77,16 +77,29 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
         modalCheckbox.checked = false;
       }
     },
-    onError: () => {
-      toast.error("Tạo mã giảm giá không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
+    onError: (err) => {
+      console.log(err);
+      if (err.response?.data?.code === "constraint-violation") {
+        toast.error("Mã giảm giá không được trùng lặp, vui lòng tạo lại!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "light",
+        });
+      } else {
+        toast.error("Tạo mã giảm giá không thành công!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "light",
+        });
+      }
     },
   });
+
+  // console.log("lỗi:",mutation.error?.response?.data?.error)
 
   const handleOnSubmit = useCallback(async () => {
     let arg = {
@@ -141,7 +154,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 onChange={setDiscountType}
               />
               <TextInput
-                label={"Mã giảm giá"}
+                label={"Mã giảm giá (Không được trùng lặp)"}
                 value={infor.code}
                 dispatch={dispatchInfor}
                 action={"change_code"}
