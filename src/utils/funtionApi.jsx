@@ -189,6 +189,19 @@ export const getStudyStatus = async () => {
   return res;
 };
 
+//Lấy danh sách giới tính
+export const getGender = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_GENDER,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
 //INSERT-----------------------------------------------------
 
 // Tạo mới người dùng

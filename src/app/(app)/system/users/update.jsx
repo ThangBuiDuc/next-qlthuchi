@@ -11,21 +11,19 @@ import { useAuth } from "@clerk/nextjs";
 import { updateUser } from "@/utils/funtionApi";
 import { getWards } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
+import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
-
-const gender = [
-  {
-    value: 1,
-    label: "Nam",
-  },
-  {
-    value: 2,
-    label: "Nữ",
-  },
-];
+// const gender = [
+//   {
+//     value: 1,
+//     label: "Nam",
+//   },
+//   {
+//     value: 2,
+//     label: "Nữ",
+//   },
+// ];
 
 function reducer(state, action) {
   switch (action.type) {
@@ -77,47 +75,48 @@ function reducer(state, action) {
   }
 }
 
-const Edit = ({ data, provinces, districts }) => {
+const Edit = ({ data, provinces, districts, gender }) => {
+
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-  // console.log(data)
+
   const [infor, dispatchInfor] = useReducer(reducer, {
     firtsName: data.first_name,
     lastName: data.last_name,
     address: data.address,
     phoneNumber: data.phone_number,
     email: data.email,
-    gender: null,
+    gender: data.gender?.id,
     dob: new Date(data.date_of_birth),
   });
 
   const [province, setProvince] = useState(
-    data.province 
+    data.province
       ? {
-        value: data.province?.code,
-        label: data.province?.name
-      }
+          value: data.province?.code,
+          label: data.province?.name,
+        }
       : null
   );
   // console.log(province);
 
   const [district, setDistrict] = useState(
-    data.district 
+    data.district
       ? {
-        value: data.district?.code,
-        label: data.district?.name
-      }
+          value: data.district?.code,
+          label: data.district?.name,
+        }
       : null
   );
   // console.log(district);
 
   const [ward, setWard] = useState(
-    data.ward 
-    ? {
-      value: data.ward?.code,
-      label: data.ward?.name
-    }
-    : null
+    data.ward
+      ? {
+          value: data.ward?.code,
+          label: data.ward?.name,
+        }
+      : null
   );
 
   // useEffect(() => {
@@ -134,9 +133,8 @@ const Edit = ({ data, provinces, districts }) => {
     if (district) callApi();
   }, [district]);
 
-
   const mutation = useMutation({
-    mutationFn: ({id, token, changes }) => updateUser(id, token, changes),
+    mutationFn: ({ id, token, changes }) => updateUser(id, token, changes),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["get_user"],
@@ -169,31 +167,22 @@ const Edit = ({ data, provinces, districts }) => {
     let changes = {
       first_name: infor.firtsName,
       last_name: infor.lastName,
-      date_of_birth: infor.dob,
+      date_of_birth: moment(infor.dob).format("YYYY-MM-DD"),
       address: infor.address,
       ward_code: ward?.value,
       district_code: district?.value,
       province_code: province?.value,
       phone_number: infor.phoneNumber,
-      gender_id: infor.gender.value,
+      gender_id: infor.gender?.value,
       email: infor.email,
     };
 
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
-    mutation.mutate({id, token, changes });
+    mutation.mutate({ id, token, changes });
   }, [infor, district, province, ward, wards]);
-
-  // console.log( province
-  //   ? districts.result
-  //       .filter((item) => item.province_code === province.value)
-  //       .map((item) => ({
-  //         value: item.code,
-  //         label: item.name,
-  //       }))
-  //   : null)
 
   return (
     <>
@@ -215,10 +204,10 @@ const Edit = ({ data, provinces, districts }) => {
           </label>
           <form
             // onSubmit={handleOnSubmit}
-            className="flex flex-col gap-[20px] mt-[20px]"
+            className="flex flex-col gap-[20px] mt-[20px] "
             style={{ overflowY: "unset" }}
           >
-            <p>Cập nhật thông tin cho người dùng</p>
+            <p className="self-center">Cập nhật thông tin cho người dùng</p>
             <div className="grid grid-cols-3 gap-[20px]">
               <TextInput
                 label={"Họ đệm"}
@@ -236,25 +225,31 @@ const Edit = ({ data, provinces, districts }) => {
                 id={"add_last_name"}
                 className={"w-[30%]"}
               />
-              <Select
-                placeholder="Giới tính"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={gender}
-                value={infor.gender}
-                onChange={(e) =>
-                  dispatchInfor({
-                    type: "change_gender",
-                    payload: { value: e },
-                  })
-                }
-              />
-              <div className="relative w-full">
+
+              <div className={`  w-full flex flex-col gap-1 `}>
+                <p className="text-xs">Giới tính:</p>
+                <Select
+                  placeholder="Giới tính"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={gender}
+                  value={infor.gender}
+                  onChange={(e) =>
+                    dispatchInfor({
+                      type: "change_gender",
+                      payload: { value: e },
+                    })
+                  }
+                />
+              </div>
+
+              <div className={`  w-full flex flex-col gap-1 `}>
+                <p className="text-xs">Ngày sinh:</p>
                 <DatePicker
                   autoComplete="off"
                   popperClassName="!z-[11]"
@@ -275,13 +270,8 @@ const Edit = ({ data, provinces, districts }) => {
                     })
                   }
                 />
-                <label
-                  htmlFor={"add_change_dob"}
-                  className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-                >
-                  Ngày sinh
-                </label>
               </div>
+
               <TextInput
                 label={"Số điện thoại"}
                 value={infor.phoneNumber}
@@ -306,67 +296,87 @@ const Edit = ({ data, provinces, districts }) => {
                 id={"add_address"}
               />
 
-              <Select
-                placeholder="Tỉnh / Thành phố"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={provinces.result.map((item) => ({
-                  value: item.code,
-                  label: item.name,
-                }))}
-                value={province}
-                onChange={setProvince}
-              />
+              <div className={`  w-full flex flex-col gap-1 `}>
+                <p className="text-xs">Tỉnh / Thành phố:</p>
+                <Select
+                  placeholder="Tỉnh / Thành phố"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={provinces.result.map((item) => ({
+                    value: item.code,
+                    label: item.name,
+                  }))}
+                  value={province}
+                  onChange={(e) => {
+                    if (e.value !== province?.value) {
+                      setProvince(e);
+                      setDistrict(null);
+                      setWard(null);
+                    }
+                  }}
+                />
+              </div>
 
-              <Select
-                isDisabled={province ? false : true}
-                placeholder="Quận / Huyện"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={
-                  province
-                    ? districts.result
-                        .filter((item) => item.province_code === province.value)
-                        .map((item) => ({
-                          value: item.code,
-                          label: item.name,
-                        }))
-                    : null
-                }
-                value={district}
-                onChange={setDistrict}
-              />
+              <div className={`  w-full flex flex-col gap-1 `}>
+                <p className="text-xs">Quận / Huyện:</p>
+                <Select
+                  isDisabled={province ? false : true}
+                  placeholder="Quận / Huyện"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={
+                    province
+                      ? districts.result
+                          .filter(
+                            (item) => item.province_code === province.value
+                          )
+                          .map((item) => ({
+                            value: item.code,
+                            label: item.name,
+                          }))
+                      : null
+                  }
+                  value={district}
+                  onChange={(e) => {
+                    if (e.value !== district?.value) {
+                      setDistrict(e);
+                      setWard(null);
+                    }
+                  }}
+                />
+              </div>
 
-              <Select
-                isDisabled={district ? false : true}
-                placeholder="Phường / Xã"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={wards?.result.map((item) => ({
-                  value: item.code,
-                  label: item.name,
-                }))}
-                value={ward}
-                onChange={setWard}
-                noOptionsMessage={() => 'Đang tải ...'}
-              />
-
-
+              <div className={`  w-full flex flex-col gap-1 `}>
+                <p className="text-xs">Phường / Xã:</p>
+                <Select
+                  isDisabled={district ? false : true}
+                  placeholder="Phường / Xã"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={wards?.result.map((item) => ({
+                    value: item.code,
+                    label: item.name,
+                  }))}
+                  value={ward}
+                  onChange={setWard}
+                  noOptionsMessage={() => "Đang tải ..."}
+                />
+              </div>
             </div>
             <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center mt-[30px]"
@@ -380,7 +390,7 @@ const Edit = ({ data, provinces, districts }) => {
               ) : (
                 "Cập nhật"
               )}
-            </button> 
+            </button>
           </form>
         </div>
       </div>
@@ -388,11 +398,8 @@ const Edit = ({ data, provinces, districts }) => {
   );
 };
 
-
-
-
-const Update = ({ data, provinces, districts }) => {
-  console.log(data);
+const Update = ({ data, provinces, districts, permission, gender}) => {
+  // console.log(data);
   return (
     <tr>
       <td>{data.id}</td>
@@ -409,15 +416,23 @@ const Update = ({ data, provinces, districts }) => {
       <td>{data.province?.name}</td>
       <td>{data.email}</td>
       <td>{data.phone_number}</td>
-      <td>
-        <label
-          htmlFor={`modal_fix_${data.id}`}
-          className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-        >
-          <GoGear size={25} />
-        </label>
-      </td>
-      <td><><Edit data={data} provinces={provinces} districts={districts} /></></td>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+        <>
+          <td>
+            <label
+              htmlFor={`modal_fix_${data.id}`}
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+            >
+              <GoGear size={25} />
+            </label>
+          </td>
+          <td>
+            <>
+              <Edit data={data} provinces={provinces} districts={districts} gender={gender}/>
+            </>
+          </td>
+        </>
+      )}
     </tr>
   );
 };

@@ -16,16 +16,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const gender = [
-  {
-    value: 1,
-    label: "Nam",
-  },
-  {
-    value: 2,
-    label: "Nữ",
-  },
-];
+// const gender = [
+//   {
+//     value: 1,
+//     label: "Nam",
+//   },
+//   {
+//     value: 2,
+//     label: "Nữ",
+//   },
+// ];
 
 function reducer(state, action) {
   switch (action.type) {
@@ -89,7 +89,7 @@ function reducer(state, action) {
   }
 }
 
-const Add = ({ provinces, districts }) => {
+const Add = ({ provinces, districts, gender }) => {
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();

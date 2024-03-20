@@ -4,6 +4,7 @@ import {
   getDistricts,
   getUsers,
   getPermission,
+  getGender,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -46,6 +47,8 @@ const Page = async () => {
 
   const apiGetDistricts = await getDistricts();
 
+  const apiGetGender = await getGender();
+
   const apiGetUsers = await getUsers(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
@@ -55,7 +58,8 @@ const Page = async () => {
   if (
     apiGetProvinces.status !== 200 ||
     apiGetDistricts.status !== 200 ||
-    apiGetUsers.status !== 200
+    apiGetUsers.status !== 200  ||
+    apiGetGender.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -63,6 +67,7 @@ const Page = async () => {
     <Content
       provinces={apiGetProvinces.data}
       districts={apiGetDistricts.data}
+      gender={apiGetGender.data.result}
       usersData={apiGetUsers.data}
       permission={permission.data.result[0]?.permission.id.toString()}
     />
