@@ -26,7 +26,7 @@ const Skeleton = () => {
   );
 };
 
-function Item({ data, index, discountTypeData, revenueGroupData }) {
+function Item({ data, index, discountTypeData, revenueGroupData, permission }) {
   return (
     <tr className="hover" key={index}>
       <td>{index + 1}</td>
@@ -35,23 +35,27 @@ function Item({ data, index, discountTypeData, revenueGroupData }) {
       <td>{data.description}</td>
       <td>{data.ratio * 100} %</td>
       <td>{data.revenue_group.name}</td>
-      <td>
-        <label
-          htmlFor={`modal_fix_${data.id}`}
-          className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-        >
-          <GoGear size={20} />
-        </label>
-      </td>
-      <td>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
         <>
-          <Edit
-            data={data}
-            discountTypeData={discountTypeData}
-            revenueGroupData={revenueGroupData}
-          />
+          <td>
+            <label
+              htmlFor={`modal_fix_${data.id}`}
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+            >
+              <GoGear size={20} />
+            </label>
+          </td>
+          <td>
+            <>
+              <Edit
+                data={data}
+                discountTypeData={discountTypeData}
+                revenueGroupData={revenueGroupData}
+              />
+            </>
+          </td>
         </>
-      </td>
+      )}
     </tr>
   );
 }
@@ -124,6 +128,7 @@ const Content = ({
                     index={index}
                     discountTypeData={discountTypeData}
                     revenueGroupData={revenueGroupData}
+                    permission={permission}
                   />
                 </Fragment>
               ))
