@@ -243,6 +243,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_first_name"}
                 id={"add_first_name"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
               <TextInput
                 label={"Tên"}
@@ -251,6 +252,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_last_name"}
                 id={"add_last_name"}
                 className={"w-[30%]"}
+                isRequire={true}
               />
               <Select
                 placeholder="Giới tính"
@@ -277,6 +279,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_userName"}
                 id={"add_userName"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
               <TextInput
                 label={"Mật khẩu"}
@@ -286,6 +289,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_password"}
                 id={"add_password"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
 
               <div className="relative w-full">
@@ -323,6 +327,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_phoneNumber"}
                 id={"add_phoneNumber"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
 
               <TextInput
@@ -331,6 +336,7 @@ const Add = ({ provinces, districts }) => {
                 dispatch={dispatchInfor}
                 action={"change_email"}
                 id={"add_email"}
+                isRequire={true}
               />
               <TextInput
                 label={"Địa chỉ"}
@@ -399,7 +405,29 @@ const Add = ({ provinces, districts }) => {
                 onChange={setWard}
               />
             </div>
-            <button
+            {infor.firtsName &&
+            infor.lastName &&
+            infor.userName &&
+            infor.password &&
+            infor.email &&
+            infor.phoneNumber ? (
+              <button
+                className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOnSubmit();
+                }}
+              >
+                {mutating ? (
+                  <span className="loading loading-spinner loading-sm bg-primary"></span>
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+            ) : (
+              <></>
+            )}
+            {/* <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
               onClick={(e) => {
                 e.preventDefault();
@@ -411,7 +439,7 @@ const Add = ({ provinces, districts }) => {
               ) : (
                 "Thêm mới"
               )}
-            </button>
+            </button> */}
           </form>
         </div>
       </div>
@@ -420,5 +448,3 @@ const Add = ({ provinces, districts }) => {
 };
 
 export default Add;
-
-

@@ -5,19 +5,19 @@ const nextConfig = {
 
     return config;
   },
-  // async redirects() {
-  //   return [
-  //     // {
-  //     //   source: "/",
-  //     //   destination: "/gateway",
-  //     //   permanent: true,
-  //     // },
-  //     // {
-  //     //   source: '/app/[code]',
-  //     //   destination: '/app/[code]/'
-  //     // }
-  //   ];
-  // },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/home",
+        permanent: true,
+      },
+      // {
+      //   source: '/app/[code]',
+      //   destination: '/app/[code]/'
+      // }
+    ];
+  },
 };
 
 module.exports = nextConfig;

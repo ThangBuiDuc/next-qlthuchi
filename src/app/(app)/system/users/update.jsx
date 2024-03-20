@@ -80,7 +80,7 @@ function reducer(state, action) {
 const Edit = ({ data, provinces, districts }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-  console.log(data)
+  // console.log(data)
   const [infor, dispatchInfor] = useReducer(reducer, {
     firtsName: data.first_name,
     lastName: data.last_name,
@@ -185,6 +185,15 @@ const Edit = ({ data, provinces, districts }) => {
 
     mutation.mutate({id, token, changes });
   }, [infor, district, province, ward, wards]);
+
+  // console.log( province
+  //   ? districts.result
+  //       .filter((item) => item.province_code === province.value)
+  //       .map((item) => ({
+  //         value: item.code,
+  //         label: item.name,
+  //       }))
+  //   : null)
 
   return (
     <>
