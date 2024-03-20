@@ -761,7 +761,7 @@ const SubContent = ({ student, selectPresent, discounts, permission }) => {
     queryFn: async () =>
       getExpectedRevenue(
         await getToken({
-          template: process.env.NEXT_PUBLIC_TEMPLATE_ACCOUNTANT,
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
         }),
         where
       ),

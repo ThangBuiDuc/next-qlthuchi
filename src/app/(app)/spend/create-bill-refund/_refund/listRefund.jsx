@@ -11,7 +11,11 @@ import { listContext } from "../content";
 import moment from "moment";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
-import { useEffect, useContext, useCallback } from "react";
+import { useEffect, useContext, useCallback, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../../times.ttf" });
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
     "0000" +
@@ -31,6 +35,74 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+const PrintComponent = ({ printRef, billRefund, preBill }) => {
+  return (
+    <div className="hidden">
+      <div className={`flex flex-col ${times.className}`} ref={printRef}>
+        <style type="text/css" media="print">
+          {"@page { size: A5 landscape; margin: 10px;}"}
+        </style>
+        <p className="text-[13px]">
+          TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
+        </p>
+        <p className="text-[13px]">
+          Địa chỉ Số 50, đường Quán Nam, phường Kênh Dương, quận Lê Chân, thành
+          phố Hải Phòng
+        </p>
+        <p className="uppercase font-semibold text-[27px] text-center">
+          phiếu chi
+        </p>
+        <p className=" text-[18px] text-center">
+          Ngày {moment().date()} Tháng {moment().month() + 1} Năm{" "}
+          {moment().year()}
+        </p>
+        <p className=" text-[18px] text-end">
+          Số: {`PT${createCode(preBill.count_bill[0].bill_refund)}`}
+        </p>
+        <p className=" text-[18px]">
+          Họ tên người nộp tiền: {billRefund.receiver}
+        </p>
+        <p className=" text-[18px]">Địa chỉ: {billRefund.location}</p>
+        <p className=" text-[18px]">Lý do chi: {billRefund.bill_name}</p>
+        <p className=" text-[18px]">
+          Số tiền:{" "}
+          {billRefund.nowMoney ? numberWithCommas(billRefund.nowMoney) : ""}{" "}
+          đồng
+        </p>
+        <p className=" text-[18px]">
+          Bằng chữ:{" "}
+          {billRefund.nowMoney
+            ? getText(billRefund.nowMoney).charAt(0).toUpperCase() +
+              getText(billRefund.nowMoney).slice(1) +
+              " đồng"
+            : ""}{" "}
+        </p>
+        <p className=" text-[18px]">Kèm theo: {billRefund.description}</p>
+        <p className=" text-[18px] text-end">
+          Ngày {moment().date()} Tháng {moment().month() + 1} Năm{" "}
+          {moment().year()}
+        </p>
+        <p className="flex justify-around text-[18px] font-semibold">
+          <span>Thủ trưởng</span>
+          <span>Kế toán trưởng</span>
+          <span>Người nộp tiền</span>
+          <span>Người lập phiếu</span>
+          <span>Thủ quỹ</span>
+        </p>
+        <p className=" text-[18px] mt-[120px]">
+          {`Đã nhận đủ số tiền (viết bằng chữ): 
+        ${
+          billRefund.nowMoney
+            ? getText(billRefund.nowMoney).charAt(0).toUpperCase() +
+              getText(billRefund.nowMoney).slice(1) +
+              " đồng"
+            : ""
+        }`}
+        </p>
+      </div>
+    </div>
+  );
+};
 // function sumDuplicated(arr) {
 //   return arr.reduce((acc, curr) => {
 //     const objInAcc = acc.find(
@@ -87,6 +159,12 @@ const ListRefund = ({
   const { selectPresent, preBill, permission } = useContext(listContext);
   const { getToken } = useAuth();
   const { user } = useUser();
+  const printRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    // onAfterPrint: () => handleSecondPrint(),
+  });
 
   const { data, isFetching, isLoading, isRefetching } = useQuery({
     queryKey: [`searchRefund`, condition],
@@ -120,6 +198,7 @@ const ListRefund = ({
         objects
       ),
     onSuccess: () => {
+      handlePrint();
       setMutating(false);
       setBillRefund({
         receiver: "",
@@ -248,6 +327,11 @@ const ListRefund = ({
       ) : (
         <></>
       )}
+      <PrintComponent
+        printRef={printRef}
+        billRefund={billRefund}
+        preBill={preBill}
+      />
     </>
   );
 };

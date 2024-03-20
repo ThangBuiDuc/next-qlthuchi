@@ -17,6 +17,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import { createStudent } from "@/utils/funtionApi";
 import { useAuth } from "@clerk/nextjs";
 
+function areAllTrue(obj, excludeKey) {
+  for (let key in obj) {
+    if (key !== excludeKey && !obj[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function createId(lastCount, code) {
   return `${code}${moment().year().toString().slice(-2)}${(
     "0000" +
@@ -474,9 +483,11 @@ const Add = ({ catalogStudent, countStudent, present }) => {
           {mutating ? (
             <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
           ) : (
-            <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
-              Thêm mới
-            </button>
+            areAllTrue(infor, "bgd_code") && (
+              <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
+                Thêm mới
+              </button>
+            )
           )}
         </form>
       </div>
