@@ -44,7 +44,7 @@ export default function Index({ setIsOpen, isOpen }) {
               exit={{ opacity: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Link className="flex gap-[10px]" href='/home'>
+              <Link className="flex gap-[10px]" href="/home">
                 <Image
                   src="/logo2.png"
                   alt=""

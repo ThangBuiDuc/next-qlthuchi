@@ -71,19 +71,23 @@ const Add = () => {
                 isRequire={true}
               />
             </div>
-            <button
-              className="btn w-fit self-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-              onClick={(e) => {
-                e.preventDefault();
-                handleOnSubmit();
-              }}
-            >
-              {mutation.isLoading ? (
-                <span className="loading loading-spinner loading-sm bg-primary"></span>
-              ) : (
-                "Thêm mới"
-              )}
-            </button>
+            {relation ? (
+              <button
+                className="btn w-fit self-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOnSubmit();
+                }}
+              >
+                {mutation.isLoading ? (
+                  <span className="loading loading-spinner loading-sm bg-primary"></span>
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+            ) : (
+              <></>
+            )}
           </form>
         </div>
       </div>

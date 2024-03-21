@@ -16,16 +16,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const gender = [
-  {
-    value: 1,
-    label: "Nam",
-  },
-  {
-    value: 2,
-    label: "Nữ",
-  },
-];
+// const gender = [
+//   {
+//     value: 1,
+//     label: "Nam",
+//   },
+//   {
+//     value: 2,
+//     label: "Nữ",
+//   },
+// ];
 
 function reducer(state, action) {
   switch (action.type) {
@@ -89,7 +89,7 @@ function reducer(state, action) {
   }
 }
 
-const Add = ({ provinces, districts }) => {
+const Add = ({ provinces, districts, gender }) => {
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -243,6 +243,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_first_name"}
                 id={"add_first_name"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
               <TextInput
                 label={"Tên"}
@@ -251,6 +252,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_last_name"}
                 id={"add_last_name"}
                 className={"w-[30%]"}
+                isRequire={true}
               />
               <div className={`  w-full flex flex-col gap-1 `}>
                 <p className="text-xs">Giới tính:</p>
@@ -281,6 +283,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_userName"}
                 id={"add_userName"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
               <TextInput
                 label={"Mật khẩu"}
@@ -290,6 +293,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_password"}
                 id={"add_password"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
 
               <div className={`  w-full flex flex-col gap-1 `}>
@@ -323,6 +327,7 @@ const Add = ({ provinces, districts }) => {
                 action={"change_phoneNumber"}
                 id={"add_phoneNumber"}
                 className={"w-[70%]"}
+                isRequire={true}
               />
 
               <TextInput
@@ -331,6 +336,7 @@ const Add = ({ provinces, districts }) => {
                 dispatch={dispatchInfor}
                 action={"change_email"}
                 id={"add_email"}
+                isRequire={true}
               />
               <TextInput
                 label={"Địa chỉ"}
@@ -410,7 +416,29 @@ const Add = ({ provinces, districts }) => {
                 />
               </div>
             </div>
-            <button
+            {infor.firtsName &&
+            infor.lastName &&
+            infor.userName &&
+            infor.password &&
+            infor.email &&
+            infor.phoneNumber ? (
+              <button
+                className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOnSubmit();
+                }}
+              >
+                {mutating ? (
+                  <span className="loading loading-spinner loading-sm bg-primary"></span>
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+            ) : (
+              <></>
+            )}
+            {/* <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
               onClick={(e) => {
                 e.preventDefault();
@@ -422,7 +450,7 @@ const Add = ({ provinces, districts }) => {
               ) : (
                 "Thêm mới"
               )}
-            </button>
+            </button> */}
           </form>
         </div>
       </div>

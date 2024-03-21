@@ -27,7 +27,7 @@ const Skeleton = () => {
   );
 };
 
-const Content = ({ provinces, districts, usersData, permission }) => {
+const Content = ({ provinces, districts, usersData, permission, gender }) => {
   // const [isOpen, setIsOpen] = useState(false);
 
   const { getToken } = useAuth();
@@ -54,7 +54,7 @@ const Content = ({ provinces, districts, usersData, permission }) => {
             <GoPersonAdd size={20} />
             Thêm mới
           </label>
-          <Add provinces={provinces} districts={districts} />
+          <Add provinces={provinces} districts={districts} gender={gender}/>
         </>
       )}
 
@@ -95,7 +95,7 @@ const Content = ({ provinces, districts, usersData, permission }) => {
               <p>Không có kết quả!</p>
             ) : data ? (
               data?.data?.data.result.map((item) => (
-                <Update key={item.id} data={item} provinces={provinces} districts={districts}/>
+                <Update key={item.id} data={item} provinces={provinces} districts={districts} permission={permission} gender={gender}/>
               ))
             ) : (
               <></>
