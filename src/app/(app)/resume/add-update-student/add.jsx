@@ -273,7 +273,10 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 
   return (
     <dialog id="modal_add" className="modal !z-[20]">
-      <div className="modal-box w-11/12 max-w-5xl bg-white ">
+      <div
+        style={{ overflowY: "unset" }}
+        className="modal-box w-11/12 max-w-5xl bg-white "
+      >
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
