@@ -11,18 +11,19 @@ import { useAuth } from "@clerk/nextjs";
 import { updateUser } from "@/utils/funtionApi";
 import { getWards } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
+import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 
-const gender = [
-  {
-    value: 1,
-    label: "Nam",
-  },
-  {
-    value: 2,
-    label: "Nữ",
-  },
-];
+// const gender = [
+//   {
+//     value: 1,
+//     label: "Nam",
+//   },
+//   {
+//     value: 2,
+//     label: "Nữ",
+//   },
+// ];
 
 function reducer(state, action) {
   switch (action.type) {
@@ -74,7 +75,7 @@ function reducer(state, action) {
   }
 }
 
-const Edit = ({ data, provinces, districts }) => {
+const Edit = ({ data, provinces, districts, gender }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
 
@@ -84,7 +85,7 @@ const Edit = ({ data, provinces, districts }) => {
     address: data.address,
     phoneNumber: data.phone_number,
     email: data.email,
-    gender: null,
+    gender: data.gender?.id,
     dob: new Date(data.date_of_birth),
   });
 
@@ -165,18 +166,18 @@ const Edit = ({ data, provinces, districts }) => {
     let changes = {
       first_name: infor.firtsName,
       last_name: infor.lastName,
-      date_of_birth: infor.dob,
+      date_of_birth: moment(infor.dob).format("YYYY-MM-DD"),
       address: infor.address,
       ward_code: ward?.value,
       district_code: district?.value,
       province_code: province?.value,
       phone_number: infor.phoneNumber,
-      gender_id: infor.gender.value,
+      gender_id: infor.gender?.value,
       email: infor.email,
     };
 
     let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
     mutation.mutate({ id, token, changes });
@@ -202,10 +203,10 @@ const Edit = ({ data, provinces, districts }) => {
           </label>
           <form
             // onSubmit={handleOnSubmit}
-            className="flex flex-col gap-[20px] mt-[20px]"
+            className="flex flex-col gap-[20px] mt-[20px] "
             style={{ overflowY: "unset" }}
           >
-            <p>Cập nhật thông tin cho người dùng</p>
+            <p className="self-center">Cập nhật thông tin cho người dùng</p>
             <div className="grid grid-cols-3 gap-[20px]">
               <TextInput
                 label={"Họ đệm"}
@@ -396,8 +397,8 @@ const Edit = ({ data, provinces, districts }) => {
   );
 };
 
-const Update = ({ data, provinces, districts }) => {
-  console.log(data);
+const Update = ({ data, provinces, districts, permission, gender }) => {
+  // console.log(data);
   return (
     <tr>
       <td>{data.id}</td>
@@ -414,19 +415,28 @@ const Update = ({ data, provinces, districts }) => {
       <td>{data.province?.name}</td>
       <td>{data.email}</td>
       <td>{data.phone_number}</td>
-      <td>
-        <label
-          htmlFor={`modal_fix_${data.id}`}
-          className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
-        >
-          <GoGear size={25} />
-        </label>
-      </td>
-      <td>
+      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
         <>
-          <Edit data={data} provinces={provinces} districts={districts} />
+          <td>
+            <label
+              htmlFor={`modal_fix_${data.id}`}
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+            >
+              <GoGear size={25} />
+            </label>
+          </td>
+          <td>
+            <>
+              <Edit
+                data={data}
+                provinces={provinces}
+                districts={districts}
+                gender={gender}
+              />
+            </>
+          </td>
         </>
-      </td>
+      )}
     </tr>
   );
 };

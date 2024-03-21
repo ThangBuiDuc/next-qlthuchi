@@ -153,7 +153,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
                 onChange={setDiscountType}
               />
               <TextInput
-                label={"Mã giảm giá"}
+                label={"Mã giảm giá (Không được trùng lặp)"}
                 value={infor.code}
                 dispatch={dispatchInfor}
                 action={"change_code"}
@@ -169,7 +169,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
                 className={"w-fit"}
               />
               <TextInput
-                label={"Tỉ lệ giảm"}
+                label={"Tỉ lệ giảm (%) (VD: 20)"}
                 value={infor.ratio}
                 dispatch={dispatchInfor}
                 action={"change_ratio"}
