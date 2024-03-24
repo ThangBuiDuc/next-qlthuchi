@@ -56,6 +56,7 @@ const Filter = (props) => {
     formality,
     conditionFilter,
     bill,
+    refund,
   } = props;
 
   // console.log(listSearch);
@@ -64,7 +65,7 @@ const Filter = (props) => {
     <>
       <div className="grid grid-cols-2 gap-2 auto-rows-auto">
         <div className="flex flex-col gap-1">
-          <p className="text-xs">Hình thức thu:</p>
+          <p className="text-xs">Hình thức {refund ? "chi" : "thu"}:</p>
           <Select
             className="text-black text-sm"
             classNames={{
@@ -95,7 +96,7 @@ const Filter = (props) => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-xs">Người thu:</p>
+          <p className="text-xs">Người {refund ? "chi" : "thu"}:</p>
           <Select
             className="text-black text-sm"
             classNames={{

@@ -171,6 +171,7 @@ const Content = ({ listSearch, permission }) => {
             setCondition={setCondition}
             conditionFilter={conditionFilter}
             bill
+            refund
           ></Filter>
           <SubContent condition={condition} permission={permission} />
         </div>

@@ -271,6 +271,7 @@ const Refund = ({ selected }) => {
           setCondition={setCondition}
           conditionFilter={conditionFilter}
           formality={2}
+          refund
         ></Filter>
         <ListRefund
           condition={condition}
