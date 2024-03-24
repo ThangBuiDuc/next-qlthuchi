@@ -48,7 +48,7 @@ const Content = ({
           </div>
           <div className="flex w-full divide-x divide-black h-full">
             {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
-              <LeftPanel selected={selected} />
+              <LeftPanel />
             )}
             <RightPanel />
           </div>
