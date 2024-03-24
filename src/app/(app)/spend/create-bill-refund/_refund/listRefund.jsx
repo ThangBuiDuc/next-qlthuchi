@@ -268,8 +268,8 @@ const ListRefund = ({
               <th>Mã biên lai</th>
               <th>Mã học sinh</th>
               <th>Họ và tên học sinh</th>
-              <th>Số tiền thu</th>
-              <th>Ngày thu</th>
+              <th>Số tiền chi</th>
+              <th>Ngày chi</th>
               <th>Đã huỷ</th>
               <th>
                 <>

@@ -220,7 +220,7 @@ const Other = ({ selected }) => {
           />
         </div>
         <div className="flex gap-2 items-center">
-          <p>Lý do nộp:</p>
+          <p>Lý do chi:</p>
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
