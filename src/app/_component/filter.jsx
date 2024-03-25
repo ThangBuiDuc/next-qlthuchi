@@ -74,7 +74,7 @@ const Filter = (props) => {
               valueContainer: () => "!p-[0_8px]",
               menu: () => "!z-[11]",
             }}
-            placeholder="Hình thức thu"
+            placeholder={`Hình thức ${refund ? "chi" : "thu"}`}
             isMulti
             isDisabled={!bill && formality === 2}
             options={
@@ -105,7 +105,7 @@ const Filter = (props) => {
               valueContainer: () => "!p-[0_8px]",
               menu: () => "!z-[11]",
             }}
-            placeholder="Người thu"
+            placeholder={`Người ${refund ? "chi" : "thu"}`}
             isMulti
             options={listSearch.users.map((item) => ({
               ...item,
