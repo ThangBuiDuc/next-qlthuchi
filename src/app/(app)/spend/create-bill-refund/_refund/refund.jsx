@@ -75,12 +75,16 @@ const Refund = ({ selected }) => {
   const [condition, setCondition] = useState([]);
 
   useEffect(() => {
+    // const formality = `${
+    //   selectedFilter.formality?.length
+    //     ? `formality_id IN [${selectedFilter?.formality
+    //         ?.map((item) => item.value)
+    //         .toString()}]`
+    //     : ""
+    // }`;
+
     const formality = `${
-      selectedFilter.formality?.length
-        ? `formality_id IN [${selectedFilter?.formality
-            ?.map((item) => item.value)
-            .toString()}]`
-        : ""
+      selectedFilter.formality?.length ? `formality_id IS NULL` : ""
     }`;
 
     const users = `${

@@ -14,6 +14,7 @@ import { TbReload } from "react-icons/tb";
 import { useEffect, useContext, useCallback, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
+import { getText } from "number-to-text-vietnamese";
 
 const times = localFont({ src: "../../../../times.ttf" });
 function createCode(lastCount) {
@@ -130,7 +131,7 @@ const RowTable = ({ data }) => {
   return (
     <tr className="hover">
       <td>{data.id}</td>
-      <td>{data.student.code}</td>
+      {/* <td>{data.student.code}</td> */}
       <td>{`${data.student.first_name} ${data.student.last_name}`}</td>
       <td>
         {numberWithCommas(
@@ -266,7 +267,7 @@ const ListRefund = ({
             <tr>
               {/* <th></th> */}
               <th>Mã biên lai</th>
-              <th>Mã học sinh</th>
+              {/* <th>Mã học sinh</th> */}
               <th>Họ và tên học sinh</th>
               <th>Số tiền chi</th>
               <th>Ngày chi</th>
