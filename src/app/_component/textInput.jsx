@@ -12,6 +12,7 @@ const TextInput = ({
   id,
   parentIndex,
   placeholder,
+  autoComplete,
 }) => {
   return (
     // <div className={` ${className ? className : ""} w-full relative `}>
@@ -57,7 +58,7 @@ const TextInput = ({
       <p className="text-xs">{label}:</p>
       <input
         disabled={disable}
-        autoComplete="off"
+        autoComplete={autoComplete}
         type={type ? type : "text"}
         id={id}
         className={`${

@@ -234,6 +234,7 @@ const Add = ({ provinces, districts, gender }) => {
             // onSubmit={handleOnSubmit}
             className="flex flex-col gap-[20px] mt-[20px]"
             style={{ overflowY: "unset" }}
+            autoComplete="off"
           >
             <div className="grid grid-cols-3 gap-[20px]">
               <TextInput
@@ -280,6 +281,7 @@ const Add = ({ provinces, districts, gender }) => {
                 id={"add_userName"}
                 className={"w-[70%]"}
                 isRequire={true}
+                autoComplete={"off"}
               />
               <TextInput
                 label={"Mật khẩu"}
@@ -290,6 +292,7 @@ const Add = ({ provinces, districts, gender }) => {
                 id={"add_password"}
                 className={"w-[70%]"}
                 isRequire={true}
+                autoComplete={"new-password"}
               />
 
               <div className="relative w-full">
