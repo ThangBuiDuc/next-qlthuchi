@@ -133,9 +133,12 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
           id={`query`}
           className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
           placeholder="Thông tin tìm kiếm"
-          value={selected.query}
+          value={selected?.query?.replace(/"/g, "")}
           onChange={(e) => {
-            setSelected((pre) => ({ ...pre, query: e.target.value }));
+            setSelected((pre) => ({
+              ...pre,
+              query: `"${e.target.value.replace(/"/g, "")}"`,
+            }));
           }}
         />
       </div>

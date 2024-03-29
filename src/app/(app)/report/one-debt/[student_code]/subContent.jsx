@@ -7,14 +7,248 @@ import { useQuery } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment";
+import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
+import { useRef } from "react";
+import { getText } from "number-to-text-vietnamese";
+
+const times = localFont({ src: "../../../../times.ttf" });
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+const ExportNotice = ({ data, student, school_year }) => {
+  // console.log(student, selectPresent, data);
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
+  // console.log(data.data.results.sub);
+
+  return (
+    <>
+      <button className="btn w-fit" onClick={() => handlePrint()}>
+        Xuất giấy báo
+      </button>
+      {/* PRINT DIV */}
+      <div className="hidden">
+        <div
+          ref={printRef}
+          className={`flex flex-col relative justify-center items-center  mb-5 ${times.className}`}
+        >
+          <style type="text/css" media="print">
+            {"@page {size: landscape; margin: 10px;}"}
+          </style>
+          <div className="grid grid-cols-3">
+            <p className="text-[8px]">
+              TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
+            </p>
+            <p className="uppercase font-semibold text-[20px] text-center">
+              giấy báo công nợ
+            </p>
+          </div>
+          <p className="text-[12px] text-center">
+            Học kỳ{" "}
+            {
+              school_year.result
+                .find((item) => item.is_active)
+                .batchs.find((item) => item.is_active).batch
+            }{" "}
+            năm học{" "}
+            {school_year.result.find((item) => item.is_active).school_year}
+          </p>
+          <p className="text-[12px] text-center">
+            Tại ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+            {moment().year()}
+          </p>
+          <div className="grid grid-cols-2 p-5 w-full gap-1">
+            <p className="text-[12px] text-center">
+              Mã học sinh: {student.code}
+            </p>
+            <p className="text-[12px] text-center">
+              Họ và tên học sinh: {student.first_name} {student.last_name}
+            </p>
+            <p className="text-[12px] text-center">Lớp: {student.class_code}</p>
+            <p className="text-[12px] text-center">
+              Ngày sinh: {student.date_of_birth.split("-").reverse().join("/")}
+            </p>
+            <div className="w-full flex flex-col col-span-2">
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black font-semibold">
+                  TT
+                </p>
+                <p className="text-[12px] text-center w-[60%] border-l border-r border-t border-black font-semibold">
+                  Nội dung
+                </p>
+                <p className="text-[12px] text-center w-[30%] border-r border-t border-black font-semibold">
+                  Số tiền (đồng)
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  1
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black  pl-1">
+                  Công nợ đầu kỳ
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.previous_batch_money !== null
+                        ? total + curr.previous_batch_money
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  2
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black  pl-1">
+                  Ưu đãi, miễn giảm
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.discount !== null ? total + curr.discount : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  3
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black  pl-1">
+                  Số phải nộp kỳ này
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.actual_amount_collected !== null
+                        ? total + curr.actual_amount_collected
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  4
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black  pl-1">
+                  Số đã điều chỉnh
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.amount_edited !== null
+                        ? total + curr.amount_edited
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  5
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black pl-1">
+                  Số đã hoàn trả
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.amount_of_spend !== null
+                        ? total + curr.amount_of_spend
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className="w-full flex">
+                <p className="text-[12px] text-center w-[10%] border-t border-l border-black ">
+                  6
+                </p>
+                <p className="text-[12px] w-[60%] border-l border-r border-t border-black  pl-1">
+                  Số đã nộp trong kỳ
+                </p>
+                <p className="text-[12px] text-end w-[30%] border-r border-t border-black font-semibold pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.amount_collected !== null
+                        ? total + curr.amount_collected
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+              <div className=" grid grid-cols-[10%_60%_30%] ">
+                <div className="flex items-center justify-center col-span-1 row-span-2 border-t border-l border-b border-black ">
+                  <p className="text-[12px] text-center font-semibold">7</p>
+                </div>
+                <p className="text-[12px]  border-r border-t border-l border-black font-semibold pl-1">
+                  Công nợ còn phải nộp
+                </p>
+                <p className="text-[12px] text-end  border-r border-t  border-black font-semibold pr-1">
+                  {data.data.results[0].sub.reduce(
+                    (total, curr) =>
+                      curr.next_batch_money !== null
+                        ? total + curr.next_batch_money
+                        : total,
+                    0
+                  )}{" "}
+                  đ
+                </p>
+                <p className="text-[12px] text-start col-span-2 border border-black italic pl-1">
+                  Bằng chữ:{" "}
+                  {getText(
+                    data.data.results[0].sub.reduce(
+                      (total, curr) =>
+                        curr.next_batch_money !== null
+                          ? total + curr.next_batch_money
+                          : total,
+                      0
+                    )
+                  )
+                    .charAt(0)
+                    .toUpperCase() +
+                    getText(
+                      data.data.results[0].sub.reduce(
+                        (total, curr) =>
+                          curr.next_batch_money !== null
+                            ? total + curr.next_batch_money
+                            : total,
+                        0
+                      )
+                    ).slice(1)}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 mt-4">
+                <p className="text-[12px]   text-center font-semibold">
+                  Kế toán
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 const SubContent = ({ present, student_code, student, school_year }) => {
-  console.log(school_year);
-  console.log(student);
+  // console.log(school_year);
+  // console.log(student);
   const data = useQuery({
     queryKey: ["report_debt_one", student_code, present],
     queryFn: async () =>
@@ -382,9 +616,16 @@ const SubContent = ({ present, student_code, student, school_year }) => {
     <div className="flex flex-col gap-5 justify-center">
       {data.data?.results?.length ? (
         <>
-          <button className="self-end btn w-fit" onClick={() => handleExcel()}>
-            Xuất Excel
-          </button>
+          <div className="flex justify-end gap-1">
+            <ExportNotice
+              data={data}
+              school_year={school_year}
+              student={student}
+            />
+            <button className=" btn w-fit" onClick={() => handleExcel()}>
+              Xuất Excel
+            </button>
+          </div>
           <div className="overflow-x-auto">
             <table className="table table-xs">
               <thead>
