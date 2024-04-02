@@ -89,7 +89,8 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
     },
   });
 
-  const handleOnSubmit = useCallback(async () => {
+  const handleOnSubmit = useCallback(async (e) => {
+    e.preventDefault();
     let id = data.id;
     let changes = {
       code: infor.code,
@@ -130,7 +131,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
             ✕
           </label>
           <form
-            // onSubmit={handleOnSubmit}
+            onSubmit={handleOnSubmit}
             className="flex flex-col gap-[20px] mb-[10px]"
             style={{ overflowY: "unset" }}
           >
@@ -159,6 +160,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
                 action={"change_code"}
                 id={"add_code"}
                 className={"w-[70%]"}
+                required
               />
               <TextInput
                 label={"Mô tả"}
@@ -167,6 +169,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
                 action={"change_description"}
                 id={"add_description"}
                 className={"w-fit"}
+                required
               />
               <TextInput
                 label={"Tỉ lệ giảm (%) (VD: 20)"}
@@ -175,6 +178,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
                 action={"change_ratio"}
                 id={"add_description"}
                 className={"w-[70%]"}
+                required
               />
               <Select
                 placeholder="Nhóm áp dụng"
@@ -195,10 +199,10 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
             </div>
             <button
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center mt-[30px]"
-              onClick={(e) => {
-                e.preventDefault();
-                handleOnSubmit();
-              }}
+              // onClick={(e) => {
+              //   e.preventDefault();
+              //   handleOnSubmit();
+              // }}
             >
               {mutation.isLoading ? (
                 <span className="loading loading-spinner loading-sm bg-primary"></span>

@@ -101,7 +101,8 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
 
   // console.log("lỗi:",mutation.error?.response?.data?.error)
 
-  const handleOnSubmit = useCallback(async () => {
+  const handleOnSubmit = useCallback(async (e) => {
+    e.preventDefault();
     let arg = {
       code: infor.code,
       description: infor.description,
@@ -132,7 +133,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
             ✕
           </label>
           <form
-            // onSubmit={handleOnSubmit}
+            onSubmit={handleOnSubmit}
             className="flex flex-col gap-[20px] mt-[20px]"
             style={{ overflowY: "unset" }}
           >
@@ -160,6 +161,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 action={"change_code"}
                 id={"add_code"}
                 className={"w-[70%]"}
+                required
               />
               <TextInput
                 label={"Mô tả"}
@@ -168,6 +170,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 action={"change_description"}
                 id={"add_description"}
                 className={"w-[70%]"}
+                required
               />
               <TextInput
                 label={"Tỉ lệ giảm (%) (VD: 20)"}
@@ -177,6 +180,7 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
                 id={"add_description"}
                 className={"w-[70%]"}
                 type={"number"}
+                required
               />
               <Select
                 placeholder="Nhóm áp dụng"
@@ -202,10 +206,11 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
             revenueGroup?.value ? (
               <button
                 className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleOnSubmit();
-                }}
+                // onClick={(e) => {
+                //   e.preventDefault();
+                //   handleOnSubmit();
+                // }}
+                type="submit"
               >
                 {mutation.isLoading ? (
                   <span className="loading loading-spinner loading-sm bg-primary"></span>
