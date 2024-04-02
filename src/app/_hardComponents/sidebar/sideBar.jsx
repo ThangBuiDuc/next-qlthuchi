@@ -23,7 +23,7 @@ const SideBar = ({ isOpen, pathName, code }) => {
     >
       {/* <div className=" "> */}
       <Link
-        href={`/app/${code}`}
+        href={`/home`}
         className="flex items-center justify-center h-[10%] gap-[10px]"
       >
         {/* <div className="flex "> */}

@@ -102,6 +102,7 @@ export const sideBarData = [
       { title: "Lập dự kiến thu", path: "/expected-revenue/create" },
       { title: "Giảm giá", path: "/expected-revenue/voucher" },
       { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
+      { title: "Vé ăn", path: "/expected-revenue/ticket" },
     ],
   },
 
