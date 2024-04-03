@@ -75,12 +75,16 @@ const Refund = ({ selected }) => {
   const [condition, setCondition] = useState([]);
 
   useEffect(() => {
+    // const formality = `${
+    //   selectedFilter.formality?.length
+    //     ? `formality_id IN [${selectedFilter?.formality
+    //         ?.map((item) => item.value)
+    //         .toString()}]`
+    //     : ""
+    // }`;
+
     const formality = `${
-      selectedFilter.formality?.length
-        ? `formality_id IN [${selectedFilter?.formality
-            ?.map((item) => item.value)
-            .toString()}]`
-        : ""
+      selectedFilter.formality?.length ? `formality_id IS NULL` : ""
     }`;
 
     const users = `${
@@ -226,7 +230,7 @@ const Refund = ({ selected }) => {
           />
         </div>
         <div className="flex gap-2 items-center">
-          <p>Lý do nộp:</p>
+          <p>Lý do chi:</p>
           <input
             type="text"
             className="input input-bordered min-w-[300px]"
@@ -271,6 +275,7 @@ const Refund = ({ selected }) => {
           setCondition={setCondition}
           conditionFilter={conditionFilter}
           formality={2}
+          refund
         ></Filter>
         <ListRefund
           condition={condition}

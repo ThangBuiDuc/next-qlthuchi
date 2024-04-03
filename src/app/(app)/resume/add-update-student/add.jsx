@@ -17,6 +17,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import { createStudent } from "@/utils/funtionApi";
 import { useAuth } from "@clerk/nextjs";
 
+function areAllTrue(obj, excludeKey) {
+  for (let key in obj) {
+    if (key !== excludeKey && !obj[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function createId(lastCount, code) {
   return `${code}${moment().year().toString().slice(-2)}${(
     "0000" +
@@ -167,7 +176,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
       });
   }, [countStudent]);
   const mutation = useMutation({
-    mutationFn: ({ token, arg }) => createStudent(token, arg),
+    mutationFn: ({ token, objects }) => createStudent(token, objects),
     onSuccess: () => {
       setMutating(false);
       document.getElementById("modal_add").close();
@@ -224,7 +233,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
     async (e) => {
       setMutating(true);
       e.preventDefault();
-      let arg = {
+      let objects = {
         code: infor.code,
         bgd_code: infor.bgd_code,
         first_name: infor.firtsName,
@@ -245,7 +254,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
         template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
-      mutation.mutate({ token, arg });
+      mutation.mutate({ token, objects });
     },
     [infor]
   );
@@ -264,7 +273,10 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 
   return (
     <dialog id="modal_add" className="modal !z-[20]">
-      <div className="modal-box w-11/12 max-w-5xl bg-white ">
+      <div
+        style={{ overflowY: "unset" }}
+        className="modal-box w-11/12 max-w-5xl bg-white "
+      >
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -474,9 +486,11 @@ const Add = ({ catalogStudent, countStudent, present }) => {
           {mutating ? (
             <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
           ) : (
-            <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
-              Thêm mới
-            </button>
+            areAllTrue(infor, "bgd_code") && (
+              <button className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center">
+                Thêm mới
+              </button>
+            )
           )}
         </form>
       </div>

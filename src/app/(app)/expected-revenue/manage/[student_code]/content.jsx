@@ -49,6 +49,7 @@ const Content = ({
             student={student}
             selectPresent={selectPresent}
             permission={permission}
+            school_year={present.result[0].school_year}
           />
         </div>
       </listContext.Provider>

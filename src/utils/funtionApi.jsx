@@ -248,7 +248,7 @@ export const insertRelationship = async (token, name) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREAT_FAMILY_RELATIONSHIP,
     method: "post",
-    data: {name},
+    data: { name },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -261,7 +261,7 @@ export const insertStudyStatus = async (token, name) => {
   return await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREAT_STUDY_STATUS,
     method: "post",
-    data: {name},
+    data: { name },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -286,7 +286,7 @@ export const getSchoolYear = async (where) => {
     },
   });
 
-  return res; 
+  return res;
 };
 
 //Lấy thông tin nhóm khoản thu
@@ -489,9 +489,11 @@ export const getHistoryReceipt = async (token, where, where1, pageParam) => {
   return { ...res, nextPage: ++pageParam };
 };
 
-
 //Lấy danh sách mã giảm giá của một khoản thu
-export const getExpectedRevenueDiscount = async (token, expected_revenue_id) => {
+export const getExpectedRevenueDiscount = async (
+  token,
+  expected_revenue_id
+) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_EXPECTED_REVENUE_DISCOUNT,
     method: "post",
@@ -851,15 +853,19 @@ export const createSchoolYear = async (token, objects) => {
 };
 
 //Thêm / sửa mã giảm giá cho khoản thu
-export const createExpectedRevenueDiscount = async (token, id, discount, objects) => {
+export const createExpectedRevenueDiscount = async (
+  token,
+  id,
+  discount,
+  objects
+) => {
   const res = await axios({
-    url: process.env
-      .NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
+    url: process.env.NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
     method: "POST",
     data: {
       objects: objects,
       id: id,
-      discount: discount
+      discount: discount,
     },
     headers: {
       "content-type": "Application/json",

@@ -175,7 +175,8 @@ const Content = ({ revenueGroup, student_code, student }) => {
           </div>
         </>
       ) : (
-        <span className="loading loading-spinner loading-sm bg-primary self-end"></span>
+        // <span className="loading loading-spinner loading-sm bg-primary self-end"></span>
+        <h6 className="text-center">Hiện tại chưa có dữ liệu!!</h6>
       )}
     </div>
   );

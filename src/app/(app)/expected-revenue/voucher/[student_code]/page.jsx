@@ -71,6 +71,7 @@ const Page = async ({ params }) => {
       listRevenue={apiListRevenue.data}
       calculationUnit={apiCalculationUnit.data}
       discounts={apiGetDiscounts.data.result}
+      permission={permission.data.result[0]?.permission.id.toString()}
     />
   );
 };

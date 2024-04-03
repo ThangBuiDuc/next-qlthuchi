@@ -76,7 +76,6 @@ function reducer(state, action) {
 }
 
 const Edit = ({ data, provinces, districts, gender }) => {
-
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
 
@@ -398,7 +397,7 @@ const Edit = ({ data, provinces, districts, gender }) => {
   );
 };
 
-const Update = ({ data, provinces, districts, permission, gender}) => {
+const Update = ({ data, provinces, districts, permission, gender }) => {
   // console.log(data);
   return (
     <tr>
@@ -428,7 +427,12 @@ const Update = ({ data, provinces, districts, permission, gender}) => {
           </td>
           <td>
             <>
-              <Edit data={data} provinces={provinces} districts={districts} gender={gender}/>
+              <Edit
+                data={data}
+                provinces={provinces}
+                districts={districts}
+                gender={gender}
+              />
             </>
           </td>
         </>

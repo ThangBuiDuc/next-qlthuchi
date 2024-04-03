@@ -107,6 +107,7 @@ const UpdateModal = ({ data, student_code }) => {
     onSuccess: () => {
       // document.getElementById(`modal_delete_${data.id}`).checked = false;
       updateRef.current.checked = false;
+      setUpdateDescription("");
       setMutating(false);
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", student_code],
@@ -311,7 +312,7 @@ const UpdateModal = ({ data, student_code }) => {
             ></textarea>
           </label>
 
-          {mutating ? (
+          {updateDescription && mutating ? (
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <button
@@ -374,6 +375,7 @@ const DeleteModal = ({ data, student_code }) => {
     onSuccess: () => {
       // document.getElementById(`modal_delete_${data.id}`).checked = false;
       deleteRef.current.checked = false;
+      setDeleteDescription("");
       setMutating(false);
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", student_code],
@@ -425,7 +427,7 @@ const DeleteModal = ({ data, student_code }) => {
               onChange={(e) => setDeleteDescription(e.target.value)}
             ></textarea>
           </label>
-          {mutating ? (
+          {deleteDescription && mutating ? (
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <button

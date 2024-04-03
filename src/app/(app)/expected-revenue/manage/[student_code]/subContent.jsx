@@ -23,6 +23,17 @@ import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
+
+const times = localFont({ src: "../../../../times.ttf" });
+
+function splitArrayIntoTwo(arr) {
+  const splitPoint = Math.floor(arr.length / 2);
+  const part1 = arr.slice(0, splitPoint);
+  const part2 = arr.slice(splitPoint);
+  return [part1, part2];
+}
 
 const getDiffArray = (a, b) => {
   return b.reduce(
@@ -783,7 +794,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
           data.previous_batch_money +
             data.actual_amount_collected +
             data.amount_edited -
-            data.amount_collected
+            data.amount_collected +
+            data.amount_spend
         )}{" "}
         ₫
       </td>
@@ -828,7 +840,169 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
   );
 };
 
-const SubContent = ({ student, selectPresent, permission }) => {
+const ExportNotice = ({ student, selectPresent, data, school_year }) => {
+  // console.log(student, selectPresent, data);
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+  // console.log(data);
+  const previous_batch_money = data
+    ?.filter((item) => item.expected_revenues.length)
+    .reduce(
+      (total, curr) =>
+        total +
+        curr.expected_revenues.reduce((t, c) => t + c.previous_batch_money, 0),
+      0
+    );
+
+  const actual_amount_collected = data
+    ?.filter((item) => item.expected_revenues.length)
+    .reduce(
+      (total, curr) =>
+        total +
+        curr.expected_revenues.reduce(
+          (t, c) => t + c.actual_amount_collected,
+          0
+        ),
+      0
+    );
+
+  const amount_collected = data
+    ?.filter((item) => item.expected_revenues.length)
+    .reduce(
+      (total, curr) =>
+        total +
+        curr.expected_revenues.reduce((t, c) => t + c.amount_collected, 0),
+      0
+    );
+
+  const next_batch_money = data
+    ?.filter((item) => item.expected_revenues.length)
+    .reduce(
+      (total, curr) =>
+        total +
+        curr.expected_revenues.reduce((t, c) => t + c.next_batch_money, 0),
+      0
+    );
+
+  // console.log(data);
+
+  const [firstPart, secondPart] = splitArrayIntoTwo(
+    data.sort((a, b) => a.position - b.position)
+  );
+
+  // console.log(previous_batch_money);
+
+  return (
+    <>
+      <button className="btn w-fit" onClick={() => handlePrint()}>
+        Xuất giấy báo
+      </button>
+      {/* PRINT DIV */}
+      <div className="hidden">
+        <div
+          ref={printRef}
+          className={`flex flex-col relative justify-center items-center  mb-5 ${times.className}`}
+        >
+          <style type="text/css" media="print">
+            {"@page {size: landscape; margin: 10px;}"}
+          </style>
+          <div className="grid grid-cols-3">
+            <p className="text-[8px]">
+              TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
+            </p>
+            <p className="uppercase font-semibold text-[20px] text-center">
+              giấy báo đóng tiền
+            </p>
+          </div>
+          <p className="text-[12px] text-center">
+            Học kỳ {selectPresent.batch} năm học {school_year}
+          </p>
+          <div className="grid grid-cols-2 border-l border-r border-t w-full border-black p-1">
+            <p className="text-[12px] font-semibold">
+              Họ và tên học sinh: {student.first_name} {student.last_name}
+            </p>
+            <p className="text-[12px] font-semibold">
+              Ngày sinh: {student.date_of_birth.split("-").reverse().join("/")}
+            </p>
+            <p className="text-[12px] font-semibold">
+              Mã học sinh: {student.code}
+            </p>
+            <p className="text-[12px] font-semibold">
+              Lớp: {student.class_code}
+            </p>
+          </div>
+          <div className="p-1 w-full border-l border-r border-t border-black">
+            <p className="text-[12px] font-semibold">
+              I. Công nợ đầu kỳ: {previous_batch_money} đồng
+            </p>
+          </div>
+          <div className="p-1 w-full border-l border-r border-t border-black">
+            <p className="text-[12px] font-semibold">
+              II. Số phải nộp kỳ này: {actual_amount_collected} đồng, chi tiết
+            </p>
+          </div>
+          <div className="grid grid-cols-2 w-full border-b border-black">
+            <div className="flex flex-col border-l border-r border-black">
+              {firstPart.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between p-1 border-dotted border-t "
+                >
+                  <p className="text-[12px]">
+                    {item.position}. {item.name}
+                  </p>
+                  <p className="text-[12px]">
+                    {item.expected_revenues.reduce(
+                      (total, curr) => total + curr.actual_amount_collected,
+                      0
+                    )}{" "}
+                    đ
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col  border-r border-black">
+              {secondPart.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between p-1 border-dotted border-t"
+                >
+                  <p className="text-[12px]">
+                    {item.position}. {item.name}
+                  </p>
+                  <p className="text-[12px]">
+                    {item.expected_revenues.reduce(
+                      (total, curr) => total + curr.actual_amount_collected,
+                      0
+                    )}{" "}
+                    đ
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-1 w-full border-l border-r border-black">
+            <p className="text-[12px] font-semibold">
+              III. Số đã nộp trong kỳ: {amount_collected} đồng
+            </p>
+          </div>
+          <div className="p-1 w-full border border-black">
+            <p className="text-[12px] font-semibold">
+              IV. Công nợ còn phải nộp: {next_batch_money} đồng
+            </p>
+          </div>
+          <div className="grid grid-cols-2 w-full">
+            <p className="text-[12px] font-semibold text-center">Người lập</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const SubContent = ({ student, selectPresent, permission, school_year }) => {
   const addContent1 = useRef();
   const addContent2 = useRef();
   const { user } = useUser();
@@ -914,6 +1088,8 @@ const SubContent = ({ student, selectPresent, permission }) => {
     }
   }, [expectedRevenue.data]);
 
+  // console.log(data);
+
   // if (expectedRevenue.isFetching && expectedRevenue.isLoading) {
   //   return (
   //     <div className="w-full flex flex-col justify-center items-center">
@@ -940,31 +1116,41 @@ const SubContent = ({ student, selectPresent, permission }) => {
           <div className="skeleton h-8 w-24"></div>
         ) : (
           <>
-            <div className="dropdown dropdown-hover w-fit">
-              <div tabIndex={0} role="button" className="btn w-fit m-1">
-                Bổ sung
+            <div className="flex justify-between">
+              <div className="dropdown dropdown-hover w-fit">
+                <div tabIndex={0} role="button" className="btn w-fit m-1">
+                  Bổ sung
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[20] menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
+                  <li
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addContent1.current.showModal();
+                    }}
+                  >
+                    <a>Khoản đã có</a>
+                  </li>
+                  <li
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addContent2.current.showModal();
+                    }}
+                  >
+                    <a>Khác</a>
+                  </li>
+                </ul>
               </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content z-[20] menu p-2 shadow bg-base-100 rounded-box w-52"
-              >
-                <li
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addContent1.current.showModal();
-                  }}
-                >
-                  <a>Khoản đã có</a>
-                </li>
-                <li
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addContent2.current.showModal();
-                  }}
-                >
-                  <a>Khác</a>
-                </li>
-              </ul>
+              {data && (
+                <ExportNotice
+                  student={student}
+                  selectPresent={selectPresent}
+                  data={data}
+                  school_year={school_year}
+                />
+              )}
             </div>
             <dialog
               ref={addContent1}
@@ -1070,7 +1256,7 @@ const SubContent = ({ student, selectPresent, permission }) => {
                 .map((item, index) => {
                   if (item.expected_revenues.length === 0) {
                     return (
-                      <tr key={index} className="hover">
+                      <tr key={item.id} className="hover">
                         <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.revenue_type.name}</td>
@@ -1110,7 +1296,7 @@ const SubContent = ({ student, selectPresent, permission }) => {
                           return (
                             <Item
                               group_id={item.id}
-                              key={el.id}
+                              key={`${item.id}${el.id}${i}`}
                               setData={setData}
                               index={index}
                               i={i}

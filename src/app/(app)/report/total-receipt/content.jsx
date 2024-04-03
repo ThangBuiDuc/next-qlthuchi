@@ -76,7 +76,8 @@ const Content = ({ revenueGroup }) => {
     // );
 
     data.data.results.forEach((item, index) => {
-      const receipts = item.refunds((el) =>
+      console.log(item);
+      const receipts = item.receipts.map((el) =>
         el.amount_spend === null ? { ...el, amount_spend: 0 } : el
       );
       sheet.addRow([
