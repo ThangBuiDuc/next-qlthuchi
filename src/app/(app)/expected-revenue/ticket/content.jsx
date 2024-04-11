@@ -5,21 +5,33 @@ import Select from "react-select";
 import Class from "./_class/class";
 import Student from "./_student/student";
 import { createContext } from "react";
+import Expected from "./_expected_revenue/expected";
 
 export const listContext = createContext();
 
 const options = [
   {
     value: 1,
-    label: "Lớp học",
+    label: "Lập dự kiến",
   },
   {
     value: 2,
-    label: "Học sinh",
+    label: "Nhập vé ăn",
   },
 ];
 
-const Content = ({ listSearch, present }) => {
+// const options = [
+//   {
+//     value: 1,
+//     label: "Lớp học",
+//   },
+//   {
+//     value: 2,
+//     label: "Học sinh",
+//   },
+// ];
+
+const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
   const [selected, setSelected] = useState(null);
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -27,7 +39,9 @@ const Content = ({ listSearch, present }) => {
   );
 
   return (
-    <listContext.Provider value={{ listSearch, selectPresent }}>
+    <listContext.Provider
+      value={{ listSearch, selectPresent, listRevenue, calculationUnit }}
+    >
       <div className="flex flex-col p-[20px] gap-[15px]">
         <div className="flex gap-1 items-center w-full justify-center">
           <h5>Học kỳ: </h5>
@@ -36,7 +50,7 @@ const Content = ({ listSearch, present }) => {
         </div>
         {/* <Student /> */}
         <div className="flex gap-1 items-center w-full">
-          <h6>Nhập vé ăn theo: </h6>
+          <h6>Hình thức: </h6>
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
             placeholder="Vui lòng chọn!"
@@ -49,7 +63,13 @@ const Content = ({ listSearch, present }) => {
             }}
           />
         </div>
-        {selected?.value === 1 && <Class />}
+        {selected?.value === 1 && (
+          <Expected
+            listRevenue={listRevenue}
+            listSearch={listSearch}
+            present={present}
+          />
+        )}
         {selected?.value === 2 && <Student />}
       </div>
     </listContext.Provider>

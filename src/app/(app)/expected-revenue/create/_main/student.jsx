@@ -7,7 +7,7 @@ import {
 } from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listContext } from "../content";
-import { useQueryClient } from "@tanstack/react-query";
+// import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { CiCircleMore } from "react-icons/ci";
 
@@ -141,7 +141,7 @@ const Search = ({ queryObject }) => {
 };
 
 const Student = () => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const { listSearch } = useContext(listContext);
   const [selected, setSelected] = useState({
     school: null,

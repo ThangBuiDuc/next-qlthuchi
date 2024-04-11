@@ -2,13 +2,12 @@ import {
   getListSearch,
   getSchoolYear,
   getPermission,
-  getListRevenue,
-  getCalculationUnit,
+  meilisearchStudentGet,
 } from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 
-const Page = async () => {
+const Page = async ({ params }) => {
   const pathName = "/expected-revenue/ticket";
 
   const { getToken } = auth();
@@ -39,28 +38,24 @@ const Page = async () => {
       </div>
     );
   }
-  const apiListRevenue = await getListRevenue();
 
-  const apiListSearch = await getListSearch();
+  //   const apiListSearch = await getListSearch();
 
   const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCalculationUnit = await getCalculationUnit();
+  const student = await meilisearchStudentGet(params.student_code);
 
-  if (
-    apiListSearch.status !== 200 ||
-    present.status !== 200 ||
-    apiListRevenue.status !== 200 ||
-    apiCalculationUnit.status !== 200
-  )
+  //   if (apiListSearch.status !== 200 || present.status !== 200)
+  //     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  if (present.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
-      listSearch={apiListSearch.data}
+      //   listSearch={apiListSearch.data}
       present={present.data}
-      listRevenue={apiListRevenue.data}
-      calculationUnit={apiCalculationUnit.data}
+      student={student}
     />
   );
 };

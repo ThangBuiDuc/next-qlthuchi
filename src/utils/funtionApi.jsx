@@ -507,6 +507,21 @@ export const getExpectedRevenueDiscount = async (
   return res;
 };
 
+//Lấy thông tin vé ăn của học sinh
+export const getTicketStudent = async (token, student_code) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_TICKET_STUDENT,
+    method: "post",
+    data: { student_code },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
@@ -816,6 +831,35 @@ export const createExpectedRevenue = async (token, objects) => {
 
   return res;
 };
+
+//Tạo dự kiến thu vé ăn router handler
+export const createTicketExpectedRevenueRouter = async (data) => {
+  const res = await axios({
+    url: "/api/ticket",
+    method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Tạo dự kiến thu vé ăn
+// export const createTicketExpectedRevenue = async (token, objects, updates) => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_CREATE_TICKET_EXPECTED_REVENUE,
+//     method: "PUT",
+//     data: {
+//       objects,
+//       updates,
+//     },
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
+
+//   return res;
+// };
 
 //Tạo dự kiến thu bổ sung
 export const createExpectedRevenueWithOutRevenue = async (token, objects) => {

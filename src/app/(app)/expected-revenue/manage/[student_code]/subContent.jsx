@@ -203,6 +203,7 @@ const AddContent1 = ({ student, currentRef, existRevenue }) => {
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === student.school_level_code)
                 )
+                .filter((item) => item.id !== 12)
                 .filter((item) => item.revenues.length > 0)
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({

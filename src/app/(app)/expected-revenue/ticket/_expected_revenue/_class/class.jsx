@@ -1,22 +1,21 @@
-import Select from "react-select";
 import { listContext } from "../../content";
+import Select from "react-select";
 import { useCallback, useContext, useEffect, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { createRevenueNorm } from "@/utils/funtionApi";
-import { useAuth, useUser } from "@clerk/nextjs";
+// import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { createTicketExpectedRevenueRouter } from "@/utils/funtionApi";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit } = useContext(listContext);
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
-
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="grid grid-cols-2 auto-rows-auto gap-2">
@@ -25,6 +24,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
             placeholder="Loại khoản thu"
+            isDisabled
             options={listRevenue.revenue_types
               .sort((a, b) => a.id - b.id)
               .map((item) => ({
@@ -65,7 +65,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === school_level_code)
                 )
-                .filter((item) => item.id !== 12)
+                .filter((item) => item.id === 12)
                 .filter((item) => item.revenues.length > 0)
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({
@@ -141,10 +141,12 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               <Select
                 noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
                 placeholder="Đơn vị tính"
-                options={calculationUnit.calculation_units.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
+                options={calculationUnit.calculation_units
+                  .filter((item) => item.id === 1)
+                  .map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
                 value={norm.calculation_unit}
                 onChange={(e) =>
                   setNorm((pre) => ({ ...pre, calculation_unit: e }))
@@ -236,12 +238,15 @@ const Item = ({ norm, setNorm, school_level_code }) => {
   );
 };
 
-const LeftPanel = ({ selected }) => {
-  const queryClient = useQueryClient();
-  const { selectPresent } = useContext(listContext);
+const Content = ({ selected }) => {
+  const { selectPresent, listRevenue } = useContext(listContext);
+
   const [norm, setNorm] = useState({
     group: null,
-    type: null,
+    type: {
+      value: listRevenue.revenue_types.find((item) => item.id === 2).id,
+      label: listRevenue.revenue_types.find((item) => item.id === 2).name,
+    },
     revenue: null,
     calculation_unit: null,
     price: 100000,
@@ -249,16 +254,15 @@ const LeftPanel = ({ selected }) => {
     total: 100000,
   });
   const [mutating, setMutating] = useState(false);
-  const { getToken } = useAuth();
-  const { user } = useUser();
-
-  console.log(selected);
 
   useEffect(() => {
     if (selected)
       setNorm({
         group: null,
-        type: null,
+        type: {
+          value: listRevenue.revenue_types.find((item) => item.id === 2).id,
+          label: listRevenue.revenue_types.find((item) => item.id === 2).name,
+        },
         revenue: null,
         calculation_unit: null,
         price: 100000,
@@ -268,13 +272,29 @@ const LeftPanel = ({ selected }) => {
   }, [selected]);
 
   const mutation = useMutation({
-    mutationFn: ({ token, objects, log }) =>
-      createRevenueNorm(token, objects, [log]),
+    mutationFn: ({ norm, time, selectPresent }) =>
+      createTicketExpectedRevenueRouter({
+        type: "CLASS",
+        data: [selected.name],
+        norm,
+        batch_id: selectPresent.id,
+        time,
+        revenue: listRevenue.revenue_types
+          .find((item) => item.id === norm.type.value)
+          .revenue_groups.find((item) => item.id === norm.group.value)
+          .revenues.filter(
+            (item) =>
+              item.position >=
+                parseInt(selectPresent.start_day.split("-")[1]) &&
+              item.position <= parseInt(selectPresent.end_day.split("-")[1])
+          )
+          .filter((item) => item.position >= norm.revenue.position),
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["get_revenue_norms", selected],
-      });
-      toast.success("Tạo mới định mức thu cho cấp học thành công!", {
+      // queryClient.invalidateQueries({
+      //   queryKey: ["get_revenue_norms", selected],
+      // });
+      toast.success("Tạo mới dự kiến thu vé ăn cho lớp học thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -283,7 +303,10 @@ const LeftPanel = ({ selected }) => {
       });
       setNorm({
         group: null,
-        type: null,
+        type: {
+          value: listRevenue.revenue_types.find((item) => item.id === 2).id,
+          label: listRevenue.revenue_types.find((item) => item.id === 2).name,
+        },
         revenue: null,
         calculation_unit: null,
         price: 100000,
@@ -293,7 +316,7 @@ const LeftPanel = ({ selected }) => {
       setMutating(false);
     },
     onError: () => {
-      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+      toast.error("Tạo mới dự kiến thu vé ăn cho lớp học không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -307,44 +330,12 @@ const LeftPanel = ({ selected }) => {
   const handleOnclick = useCallback(async () => {
     setMutating(true);
     let time = moment().format();
-    let objects = {
-      revenue_code: norm.revenue.code,
-      revenue_group_id: norm.group.value,
-      batch_id: selectPresent.id,
-      calculation_unit_id: norm.calculation_unit.value,
-      class_level_code: selected.code,
-      amount: norm.quantity,
-      unit_price: norm.price,
-      created_by: user.id,
-      start_at: time,
-    };
 
-    let log = {
-      clerk_user_id: user.id,
-      type: "create",
-      table: "revenue_norms",
-      data: {
-        revenue_code: norm.revenue.code,
-        revenue_group_id: norm.group.value,
-        batch_id: selectPresent.id,
-        calculation_unit_id: norm.calculation_unit.value,
-        class_level_code: selected.code,
-        amount: norm.quantity,
-        unit_price: norm.price,
-        created_by: user.id,
-        start_at: time,
-      },
-    };
-
-    let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    });
-
-    mutation.mutate({ token, objects, log });
+    mutation.mutate({ norm, time, selectPresent });
   }, [norm, selected]);
   return (
-    <div className="flex flex-col pr-3 w-[40%] gap-2">
-      <h6 className="text-center">Định mức thu</h6>
+    <div className="flex flex-col pr-3 gap-2">
+      <h6 className="text-center">Dự kiến thu</h6>
       {selected && (
         <div className="flex flex-col gap-1">
           {norm && (
@@ -377,7 +368,7 @@ const LeftPanel = ({ selected }) => {
                     </button>
                     <div
                       className="tooltip flex items-center justify-center"
-                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
+                      data-tip="Dự kiến sẽ tự động cân đối tiền của số vé thừa kỳ trước. Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
                     >
                       <IoIosInformationCircleOutline
                         size={20}
@@ -397,4 +388,38 @@ const LeftPanel = ({ selected }) => {
   );
 };
 
-export default LeftPanel;
+const Class = () => {
+  const { listSearch } = useContext(listContext);
+  const [selected, setSelected] = useState();
+  return (
+    <>
+      <div className="flex gap-1 items-center w-full">
+        <h6>Lớp học: </h6>
+        <Select
+          noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
+          placeholder="Vui lòng chọn!"
+          options={listSearch.classes
+            .sort(
+              (a, b) =>
+                a.class_level_code - b.class_level_code ||
+                a.code.localeCompare(b.code)
+            )
+            .map((item) => ({
+              ...item,
+              value: item.id,
+              label: item.name,
+            }))}
+          value={selected}
+          onChange={(e) => e.value !== selected?.value && setSelected(e)}
+          className="text-black w-[30%]"
+          classNames={{
+            menu: () => "!z-[11]",
+          }}
+        />
+      </div>
+      {selected && <Content selected={selected} />}
+    </>
+  );
+};
+
+export default Class;
