@@ -1,5 +1,6 @@
 import { getPermission } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
+import Content from "./content";
 
 const Page = async () => {
   const pathName = "/report/cash-fund";
@@ -31,7 +32,7 @@ const Page = async () => {
       </div>
     );
   }
-  return <div>Page</div>;
+  return <Content />;
 };
 
 export default Page;

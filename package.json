@@ -20,6 +20,8 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^10.16.4",
+    "html2pdf.js": "^0.10.1",
+    "js-html2pdf": "^1.1.4",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

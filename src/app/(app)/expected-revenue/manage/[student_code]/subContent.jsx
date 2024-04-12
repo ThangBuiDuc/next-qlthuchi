@@ -25,6 +25,7 @@ import { TbReload } from "react-icons/tb";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
+import Html2Pdf from "js-html2pdf";
 
 const times = localFont({ src: "../../../../times.ttf" });
 
@@ -846,6 +847,19 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
   const printRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
+    // print: async (printIframe) => {
+    //   const document = printIframe.contentDocument;
+    //   if (document) {
+    //     const html = document.getElementsByClassName("App")[0];
+    //     const options = {
+    //       // margin: 0,
+    //       // filename: "the-joys-of-buying-over-building.pdf",
+    //       jdPDF: { format: "a5", orientation: "landscape" },
+    //     };
+    //     const exporter = new Html2Pdf(html, options);
+    //     await exporter.getPdf(options);
+    //   }
+    // },
   });
   // console.log(data);
   const previous_batch_money = data
@@ -904,7 +918,7 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
       <div className="hidden">
         <div
           ref={printRef}
-          className={`flex flex-col relative justify-center items-center  mb-5 ${times.className}`}
+          className={`flex flex-col relative justify-center items-center  mb-5 ${times.className} App`}
         >
           <style type="text/css" media="print">
             {"@page {size: landscape; margin: 10px;}"}

@@ -2,10 +2,9 @@
 import { useState } from "react";
 import { useMemo } from "react";
 import Select from "react-select";
-import Class from "./_class/class";
-import Student from "./_student/student";
 import { createContext } from "react";
 import Expected from "./_expected_revenue/expected";
+import Import from "./_import/import";
 
 export const listContext = createContext();
 
@@ -65,12 +64,12 @@ const Content = ({ listSearch, present, listRevenue, calculationUnit }) => {
         </div>
         {selected?.value === 1 && (
           <Expected
-            listRevenue={listRevenue}
-            listSearch={listSearch}
-            present={present}
+          // listRevenue={listRevenue}
+          // listSearch={listSearch}
+          // present={present}
           />
         )}
-        {selected?.value === 2 && <Student />}
+        {selected?.value === 2 && <Import />}
       </div>
     </listContext.Provider>
   );
