@@ -1,22 +1,16 @@
 "use client";
-import StudentFilter from "@/app/_component/studentFilter";
-import { listContext } from "../../content";
-import { useContext, Fragment, useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useContext, Fragment, useState, useEffect } from "react";
 import {
   meilisearchGetToken,
   meilisearchStudentSearch,
 } from "@/utils/funtionApi";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
-import { CiCircleMore } from "react-icons/ci";
-import Select from "react-select";
-import CurrencyInput from "react-currency-input-field";
-import { toast } from "react-toastify";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { listContext } from "./content";
 import "react-toastify/dist/ReactToastify.css";
-import { IoIosInformationCircleOutline } from "react-icons/io";
-import { createTicketExpectedRevenueRouter } from "@/utils/funtionApi";
-import moment from "moment";
 import "moment/locale/vi";
-import Link from "next/link";
+import { CiCircleMore } from "react-icons/ci";
+import StudentFilter from "@/app/_component/studentFilter";
 
 const HitItem = ({ hit, isRefetching }) => {
   return (
@@ -41,13 +35,11 @@ const HitItem = ({ hit, isRefetching }) => {
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <>
-              <Link
-                className="tooltip cursor-pointer"
-                data-tip="Nhập vé ăn"
-                href={`ticket/${hit.code}`}
-              >
-                <CiCircleMore size={25} />
-              </Link>
+              <div className="tooltip" data-tip="Chi tiết">
+                <Link href={`refund-ticket/${hit.code}`}>
+                  <CiCircleMore size={25} />
+                </Link>
+              </div>
             </>
           )}
         </td>
@@ -160,7 +152,7 @@ const Student = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h6>Tìm kiếm học sinh:</h6>
+      <h5>Tìm kiếm học sinh:</h5>
       <StudentFilter
         selected={selected}
         setSelected={setSelected}

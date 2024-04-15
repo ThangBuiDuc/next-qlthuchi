@@ -1,7 +1,7 @@
 "use client";
 import { getTicketStudent, updateTicket } from "@/utils/funtionApi";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState, Fragment, useCallback } from "react";
 import LoadingCustom from "@/app/_component/loadingCustom";
 import { toast } from "react-toastify";
@@ -38,6 +38,7 @@ const Item = ({
     <tr className="hover">
       <td>{data.student_code}</td>
       <td>{`${data.first_name} ${data.last_name}`}</td>
+      <td>{data.ticket_remain}</td>
       {ticketCollected.map((item) => (
         <td key={`${data.student_code}${item.code}_thu`}>
           {item.position === data.position ? data.amount : 0}
@@ -78,10 +79,10 @@ const Item = ({
 };
 
 const Content = ({ present, student }) => {
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [mutating, setMutating] = useState(false);
   const [ticketData, setTicketData] = useState();
-  const { user } = useUser();
+  // const { user } = useUser();
 
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -121,7 +122,7 @@ const Content = ({ present, student }) => {
         ticketData.map((item) => ({
           _set: {
             ticket_count: parseInt(item.ticket_count),
-            updated_by: user.id,
+            updated_by: userId,
             updated_at: time,
           },
           where: { id: { _eq: item.id } },
@@ -189,6 +190,7 @@ const Content = ({ present, student }) => {
               <tr>
                 <th>Mã học sinh</th>
                 <th>Họ tên học sinh</th>
+                <th>Số vé ăn còn lại</th>
                 {[
                   ...new Map(
                     data.data.results.map((item) => [item.position, item])

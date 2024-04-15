@@ -10,7 +10,7 @@ import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { getTicketStudent, updateTicket } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import LoadingCustom from "@/app/_component/loadingCustom";
 
 // const Skeleton = () => {
@@ -41,6 +41,7 @@ const Item = ({
     <tr className="hover">
       <td>{data.student_code}</td>
       <td>{`${data.first_name} ${data.last_name}`}</td>
+      <td>{data.ticket_remain}</td>
       {ticketCollected.map((item) => (
         <td key={`${data.student_code}${item.code}_thu`}>
           {item.position === data.position ? data.amount : 0}
@@ -83,9 +84,9 @@ const Item = ({
 const Content = ({ selected }) => {
   const [mutating, setMutating] = useState(false);
   const [ticketData, setTicketData] = useState();
-  const { user } = useUser();
+  // const { user } = useUser();
   const { selectPresent } = useContext(listContext);
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   // console.log(selected);
   const { data, isFetching, isRefetching } = useQuery({
     queryFn: async () =>
@@ -120,7 +121,7 @@ const Content = ({ selected }) => {
         ticketData.map((item) => ({
           _set: {
             ticket_count: parseInt(item.ticket_count),
-            updated_by: user.id,
+            updated_by: userId,
             updated_at: time,
           },
           where: { id: { _eq: item.id } },
@@ -158,7 +159,7 @@ const Content = ({ selected }) => {
     mutation.mutate({ ticketData, time });
   }, [ticketData]);
 
-  if (isFetching || !ticketData) return <LoadingCustom />;
+  if (isFetching) return <LoadingCustom />;
 
   if (data.data.results.length === 0)
     return (
@@ -167,6 +168,7 @@ const Content = ({ selected }) => {
       </div>
     );
 
+  if (!ticketData) return <LoadingCustom />;
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
@@ -176,6 +178,7 @@ const Content = ({ selected }) => {
             <tr>
               <th>Mã học sinh</th>
               <th>Họ tên học sinh</th>
+              <th>Số vé ăn còn lại</th>
               {[
                 ...new Map(
                   data.data.results.map((item) => [item.position, item])

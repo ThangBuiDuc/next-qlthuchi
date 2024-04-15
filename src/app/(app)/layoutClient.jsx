@@ -36,13 +36,17 @@ const LayoutClient = ({ children }) => {
                 <>
                   <li>{breadCrumbs.title}</li>
                   {breadCrumbs.subNav ? (
-                    <li>
-                      {
-                        breadCrumbs.subNav.find((item) =>
-                          pathName.includes(item.path)
-                        ).title
-                      }
-                    </li>
+                    pathName.includes("refund-ticket") ? (
+                      <li>Hoàn trả tiền thừa vé ăn</li>
+                    ) : (
+                      <li>
+                        {
+                          breadCrumbs.subNav.find((item) =>
+                            pathName.includes(item.path)
+                          ).title
+                        }
+                      </li>
+                    )
                   ) : (
                     <></>
                   )}

@@ -10,9 +10,36 @@ import moment from "moment";
 import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { createTicketExpectedRevenueRouter } from "@/utils/funtionApi";
+function getMonthsBetween(startMonth, endMonth) {
+  // Validate input months
+  if (startMonth < 1 || startMonth > 12 || endMonth < 1 || endMonth > 12) {
+    return [];
+  }
+
+  if (startMonth === endMonth) {
+    return [startMonth];
+  }
+
+  const startIndex = startMonth - 1; // Adjust index to start from 0
+  const endIndex = endMonth - 1; // Adjust index to start from 0
+
+  if (endIndex > startIndex) {
+    return Array.from(
+      { length: endIndex - startIndex + 1 },
+      (_, i) => startIndex + i + 1
+    );
+  } else {
+    const monthsBetween = Array.from(
+      { length: 12 - startIndex + endIndex + 1 },
+      (_, i) => ((startIndex + i) % 12) + 1
+    );
+    return monthsBetween;
+  }
+}
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, selectPresent } =
+    useContext(listContext);
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
@@ -105,7 +132,13 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
                 .revenue_groups.find((item) => item.id === norm.group.value)
-                .revenues.map((item) => {
+                .revenues.filter((item) =>
+                  getMonthsBetween(
+                    parseInt(selectPresent.start_day.split("-")[1]),
+                    parseInt(selectPresent.end_day.split("-")[1])
+                  ).includes(item.position)
+                )
+                .map((item) => {
                   return {
                     ...item,
                     value: item.id,
@@ -282,13 +315,13 @@ const Content = ({ selected }) => {
         revenue: listRevenue.revenue_types
           .find((item) => item.id === norm.type.value)
           .revenue_groups.find((item) => item.id === norm.group.value)
-          .revenues.filter(
-            (item) =>
-              item.position >=
-                parseInt(selectPresent.start_day.split("-")[1]) &&
-              item.position <= parseInt(selectPresent.end_day.split("-")[1])
-          )
-          .filter((item) => item.position >= norm.revenue.position),
+          .revenues.filter((item) =>
+            getMonthsBetween(
+              parseInt(norm.revenue.position),
+              parseInt(selectPresent.end_day.split("-")[1])
+            ).includes(item.position)
+          ),
+        // .filter((item) => item.position >= norm.revenue.position),
       }),
     onSuccess: () => {
       // queryClient.invalidateQueries({

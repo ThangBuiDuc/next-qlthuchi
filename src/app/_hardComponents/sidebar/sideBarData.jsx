@@ -126,6 +126,7 @@ export const sideBarData = [
     path: "/spend",
     subNav: [
       { title: "Hoàn trả tiền thừa", path: "/spend/refund" },
+      { title: "Hoàn trả tiền thừa vé ăn", path: "/spend/refund-ticket" },
       { title: "Lập phiếu chi tiền mặt", path: "/spend/create-bill-refund" },
       {
         title: "Quản lý phiếu chi tiền mặt",

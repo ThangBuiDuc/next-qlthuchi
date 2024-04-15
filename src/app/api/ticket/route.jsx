@@ -32,55 +32,73 @@ export async function PUT(req) {
           .join(",")})`
       );
 
-      const previous_batch = await client.query(`SELECT "id"
-	,"batch"
-	,"school_year"
-	,"is_active"
-	,"previous_batch_id"
-	,"previous_batch"
-	,"previous_school_year"
-FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
+      //       const previous_batch = await client.query(`SELECT "id"
+      // 	,"batch"
+      // 	,"school_year"
+      // 	,"is_active"
+      // 	,"previous_batch_id"
+      // 	,"previous_batch"
+      // 	,"previous_school_year"
+      // FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
 
-      //   const ticket_status =
-      //     await client.query(`SELECT A.student_code,B.id as ticket_id,A.unit_price
-      // 	,A.amount
-      // 	,A.amount_collected
-      // 	,B.ticket_count
-      //     ,A.amount_spend
-      // FROM expected_revenues A
-      // JOIN ticket B ON A.id = B.expected_revenue_id
-      // WHERE B.is_refund IS FALSE
-      // 	AND B.is_transfer IS FALSE
-      //     AND B.ticket_count < A.amount
-      // 	AND A.student_code IN (${sql_student.rows
-      //     .map((item) => `'${item.code}'`)
-      //     .join(",")})`);
+      const ticket_status =
+        await client.query(`SELECT A.id,A.student_code,A.unit_price
+       	,A.amount
+       	,SUM(B.ticket_count) as ticket_count
+       FROM expected_revenues A
+       JOIN ticket B ON A.id = B.expected_revenue_id
+       WHERE A.ticket_refund IS FALSE
+       AND A.ticket_transfer IS FALSE
+       AND A.student_code IN (${sql_student.rows
+         .map((item) => `'${item.code}'`)
+         .join(",")})
+       GROUP BY A.id,A.student_code,A.unit_price,A.amount
+      	`);
 
       const objects = sql_student.rows.map((item) => {
-        // const ticket = ticket_status.rows.find(
-        //   (el) => item.code === el.student_code
-        // );
+        const ticket = ticket_status.rows.find(
+          (el) => item.code === el.student_code && el.amount > el.ticket_count
+        );
 
-        // if (ticket) {
-        //   const money =
-        //     ticket.unit_price === norm.price
-        //       ? (norm.quantity - (ticket.amount - ticket.ticket_count)) *
-        //         norm.price
-        //       : norm.quantity * norm.price -
-        //         (ticket.amount - ticket.ticket_count) * ticket.unit_price;
-        //   return {
-        //     revenue_code: norm.revenue.code,
-        //     revenue_group_id: norm.group.value,
-        //     amount: norm.quantity,
-        //     calculation_unit_id: norm.calculation_unit.value,
-        //     unit_price: norm.price,
-        //     student_code: item.code,
-        //     batch_id: batch_id,
-        //     prescribed_money: money,
-        //     created_by: userId,
-        //     start_at: time,
-        //     next_batch_money: money,
-        //   };
+        if (ticket) {
+          const money =
+            ticket.unit_price === norm.price
+              ? (norm.quantity - (ticket.amount - ticket.ticket_count)) *
+                norm.price
+              : norm.quantity * norm.price -
+                (ticket.amount - ticket.ticket_count) * ticket.unit_price;
+          return {
+            revenue_code: norm.revenue.code,
+            revenue_group_id: norm.group.value,
+            amount: norm.quantity - (ticket.amount - ticket.ticket_count),
+            ticket_remain: norm.quantity,
+            calculation_unit_id: norm.calculation_unit.value,
+            unit_price: norm.price,
+            student_code: item.code,
+            batch_id: batch_id,
+            prescribed_money: money,
+            created_by: userId,
+            start_at: time,
+            next_batch_money: money,
+            tickets: {
+              data: revenue.map((el) => ({
+                batch_id,
+                created_by: userId,
+                student_code: item.code,
+                revenue_code: el.code,
+              })),
+            },
+            ticket_note: {
+              old_id: ticket.id,
+              old_unit_price: ticket.unit_price,
+              remain_ticket: ticket.amount - ticket.ticket_count,
+              new_unit_price: norm.price,
+              collected_more:
+                (norm.price - ticket.unit_price) *
+                (ticket.amount - ticket.ticket_count),
+            },
+          };
+        }
         // } else {
         //   return {
         //     revenue_code: norm.revenue.code,
@@ -101,6 +119,7 @@ FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
           revenue_code: norm.revenue.code,
           revenue_group_id: norm.group.value,
           amount: norm.quantity,
+          ticket_remain: norm.quantity,
           calculation_unit_id: norm.calculation_unit.value,
           unit_price: norm.price,
           student_code: item.code,
@@ -125,16 +144,18 @@ FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
         method: "PUT",
         data: {
           objects: objects,
-          // updates: ticket_status.rows.map((item) => ({
-          //   _set: {
-          //     is_transfer: true,
-          //     updated_by: userId,
-          //     updated_at: time,
-          //   },
-          //   where: {
-          //     id: { _eq: item.ticket_id },
-          //   },
-          // })),
+          updates: ticket_status.rows
+            .filter((item) => item.amount > item.ticket_count)
+            .map((item) => ({
+              _set: {
+                ticket_transfer: true,
+                updated_by: userId,
+                updated_at: time,
+              },
+              where: {
+                id: { _eq: item.id },
+              },
+            })),
         },
         headers: {
           "content-type": "Application/json",
@@ -160,51 +181,70 @@ FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
           .join(",")})`
       );
 
-      const objects = sql_student.rows.map((item) => {
-        // const ticket = ticket_status.rows.find(
-        //   (el) => item.code === el.student_code
-        // );
+      const ticket_status =
+        await client.query(`SELECT A.id,A.student_code,A.unit_price
+       	,A.amount
+       	,SUM(B.ticket_count) as ticket_count
+       FROM expected_revenues A
+       JOIN ticket B ON A.id = B.expected_revenue_id
+       WHERE A.ticket_refund IS FALSE
+       AND A.ticket_transfer IS FALSE
+       AND A.student_code IN (${sql_student.rows
+         .map((item) => `'${item.code}'`)
+         .join(",")})
+       GROUP BY A.id,A.student_code,A.unit_price,A.amount
+      	`);
 
-        // if (ticket) {
-        //   const money =
-        //     ticket.unit_price === norm.price
-        //       ? (norm.quantity - (ticket.amount - ticket.ticket_count)) *
-        //         norm.price
-        //       : norm.quantity * norm.price -
-        //         (ticket.amount - ticket.ticket_count) * ticket.unit_price;
-        //   return {
-        //     revenue_code: norm.revenue.code,
-        //     revenue_group_id: norm.group.value,
-        //     amount: norm.quantity,
-        //     calculation_unit_id: norm.calculation_unit.value,
-        //     unit_price: norm.price,
-        //     student_code: item.code,
-        //     batch_id: batch_id,
-        //     prescribed_money: money,
-        //     created_by: userId,
-        //     start_at: time,
-        //     next_batch_money: money,
-        //   };
-        // } else {
-        //   return {
-        //     revenue_code: norm.revenue.code,
-        //     revenue_group_id: norm.group.value,
-        //     amount: norm.quantity,
-        //     calculation_unit_id: norm.calculation_unit.value,
-        //     unit_price: norm.price,
-        //     student_code: item.code,
-        //     batch_id: batch_id,
-        //     prescribed_money: norm.quantity * norm.price,
-        //     created_by: userId,
-        //     start_at: time,
-        //     next_batch_money: norm.quantity * norm.price,
-        //   };
-        // }
+      const objects = sql_student.rows.map((item) => {
+        const ticket = ticket_status.rows.find(
+          (el) => item.code === el.student_code && el.amount > el.ticket_count
+        );
+
+        if (ticket) {
+          const money =
+            ticket.unit_price === norm.price
+              ? (norm.quantity - (ticket.amount - ticket.ticket_count)) *
+                norm.price
+              : norm.quantity * norm.price -
+                (ticket.amount - ticket.ticket_count) * ticket.unit_price;
+          return {
+            revenue_code: norm.revenue.code,
+            revenue_group_id: norm.group.value,
+            amount: norm.quantity - (ticket.amount - ticket.ticket_count),
+            ticket_remain: norm.quantity,
+            calculation_unit_id: norm.calculation_unit.value,
+            unit_price: norm.price,
+            student_code: item.code,
+            batch_id: batch_id,
+            prescribed_money: money,
+            created_by: userId,
+            start_at: time,
+            next_batch_money: money,
+            tickets: {
+              data: revenue.map((el) => ({
+                batch_id,
+                created_by: userId,
+                student_code: item.code,
+                revenue_code: el.code,
+              })),
+            },
+            ticket_note: {
+              old_id: ticket.id,
+              old_unit_price: ticket.unit_price,
+              remain_ticket: ticket.amount - ticket.ticket_count,
+              new_unit_price: norm.price,
+              collected_more:
+                (norm.price - ticket.unit_price) *
+                (ticket.amount - ticket.ticket_count),
+            },
+          };
+        }
 
         return {
           revenue_code: norm.revenue.code,
           revenue_group_id: norm.group.value,
           amount: norm.quantity,
+          ticket_remain: norm.quantity,
           calculation_unit_id: norm.calculation_unit.value,
           unit_price: norm.price,
           student_code: item.code,
@@ -229,16 +269,18 @@ FROM "public"."v_transfer" WHERE is_active IS TRUE;`);
         method: "PUT",
         data: {
           objects: objects,
-          // updates: ticket_status.rows.map((item) => ({
-          //   _set: {
-          //     is_transfer: true,
-          //     updated_by: userId,
-          //     updated_at: time,
-          //   },
-          //   where: {
-          //     id: { _eq: item.ticket_id },
-          //   },
-          // })),
+          updates: ticket_status.rows
+            .filter((item) => item.amount > item.ticket_count)
+            .map((item) => ({
+              _set: {
+                ticket_transfer: true,
+                updated_by: userId,
+                updated_at: time,
+              },
+              where: {
+                id: { _eq: item.id },
+              },
+            })),
         },
         headers: {
           "content-type": "Application/json",
