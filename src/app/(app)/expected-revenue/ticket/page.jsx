@@ -1,9 +1,16 @@
-import { getPermission } from "@/utils/funtionApi";
-import { auth } from "@clerk/nextjs";
+import {
+  getListSearch,
+  getSchoolYear,
+  getPermission,
+  getListRevenue,
+  getCalculationUnit,
+} from "@/utils/funtionApi";
 import Content from "./content";
+import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/report/cash-fund";
+  const pathName = "/expected-revenue/ticket";
+
   const { getToken } = auth();
 
   const token = await getToken({
@@ -32,7 +39,30 @@ const Page = async () => {
       </div>
     );
   }
-  return <Content />;
+  const apiListRevenue = await getListRevenue();
+
+  const apiListSearch = await getListSearch();
+
+  const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  const apiCalculationUnit = await getCalculationUnit();
+
+  if (
+    apiListSearch.status !== 200 ||
+    present.status !== 200 ||
+    apiListRevenue.status !== 200 ||
+    apiCalculationUnit.status !== 200
+  )
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  return (
+    <Content
+      listSearch={apiListSearch.data}
+      present={present.data}
+      listRevenue={apiListRevenue.data}
+      calculationUnit={apiCalculationUnit.data}
+    />
+  );
 };
 
 export default Page;

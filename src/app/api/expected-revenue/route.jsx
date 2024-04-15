@@ -9,11 +9,11 @@ import { createExpectedRevenue } from "@/utils/funtionApi";
 export async function PUT(req) {
   const { userId, getToken } = auth();
   const client = new Client({
-    host: "27.72.249.149",
-    port: 8501,
-    database: "hns_qlthuchi",
-    user: "admin",
-    password: "Abc123654",
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
   });
   // console.log(userId);
   // console.log(

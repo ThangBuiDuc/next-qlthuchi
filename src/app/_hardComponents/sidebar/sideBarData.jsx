@@ -102,6 +102,7 @@ export const sideBarData = [
       { title: "Lập dự kiến thu", path: "/expected-revenue/create" },
       { title: "Giảm giá", path: "/expected-revenue/voucher" },
       { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
+      { title: "Vé ăn", path: "/expected-revenue/ticket" },
     ],
   },
 
@@ -125,6 +126,7 @@ export const sideBarData = [
     path: "/spend",
     subNav: [
       { title: "Hoàn trả tiền thừa", path: "/spend/refund" },
+      { title: "Hoàn trả tiền thừa vé ăn", path: "/spend/refund-ticket" },
       { title: "Lập phiếu chi tiền mặt", path: "/spend/create-bill-refund" },
       {
         title: "Quản lý phiếu chi tiền mặt",

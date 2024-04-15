@@ -106,18 +106,23 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
 };
 
 const SecondPrintComponent = ({ data, secondPrintRef }) => {
+  console.log(data);
+
   return (
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={secondPrintRef}>
         <style type="text/css" media="print">
-          {"@page { size: A4; size: landscape; margin: 10px;}"}
+          {"@page { size: A4 landscape !important;  margin: 10px;}"}
         </style>
         <div className="flex flex-col">
           {/* <p className="text-[12px]">TRƯỜNG TH&THCS HỮU NGHỊ QUỐC TẾ</p> */}
           <p className="text-[24px] font-semibold text-center">
             BẢNG KÊ BIÊN LAI THU TIỀN
           </p>
-          <p className="text-[14px]">Hình thức thu: Tiền mặt</p>
+          <p className="text-[16px]">Hình thức thu: Tiền mặt</p>
+          <p className="text-[16px]">
+            Từ ngày ….. tháng ….. năm …. đến ngày …. tháng ….. năm ….
+          </p>
           <div className="mt-[4px]"></div>
         </div>
       </div>
@@ -347,12 +352,12 @@ const ListReceipt = ({
       ) : (
         <></>
       )}
-      {/* <button
+      <button
         className="btn w-fit self-center"
         onClick={() => handleSecondPrint()}
       >
         Hoàn thành
-      </button> */}
+      </button>
       <PrintComponent
         printRef={printRef}
         billReceipt={billReceipt}

@@ -1,15 +1,22 @@
 "use client";
 import StudentFilter from "@/app/_component/studentFilter";
-import { useContext, Fragment, useState, useEffect } from "react";
+import { listContext } from "../../content";
+import { useContext, Fragment, useState, useEffect, useCallback } from "react";
 import {
   meilisearchGetToken,
   meilisearchStudentSearch,
 } from "@/utils/funtionApi";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { listContext } from "../content";
-// import { useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { CiCircleMore } from "react-icons/ci";
+import Select from "react-select";
+import CurrencyInput from "react-currency-input-field";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { IoIosInformationCircleOutline } from "react-icons/io";
+import { createTicketExpectedRevenueRouter } from "@/utils/funtionApi";
+import moment from "moment";
+import "moment/locale/vi";
+import Link from "next/link";
 
 const HitItem = ({ hit, isRefetching }) => {
   return (
@@ -34,11 +41,13 @@ const HitItem = ({ hit, isRefetching }) => {
             <span className="loading loading-spinner loading-md self-center"></span>
           ) : (
             <>
-              <div className="tooltip" data-tip="Chi tiết">
-                <Link href={`create/${hit.code}`}>
-                  <CiCircleMore size={25} />
-                </Link>
-              </div>
+              <Link
+                className="tooltip cursor-pointer"
+                data-tip="Nhập vé ăn"
+                href={`ticket/${hit.code}`}
+              >
+                <CiCircleMore size={25} />
+              </Link>
             </>
           )}
         </td>
@@ -141,7 +150,6 @@ const Search = ({ queryObject }) => {
 };
 
 const Student = () => {
-  // const queryClient = useQueryClient();
   const { listSearch } = useContext(listContext);
   const [selected, setSelected] = useState({
     school: null,

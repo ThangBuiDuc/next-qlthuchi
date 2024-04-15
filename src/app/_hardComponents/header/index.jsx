@@ -12,16 +12,7 @@ const SignOutButton = () => {
   const router = useRouter();
 
   return (
-    
-    <button
-      onClick={() =>
-        signOut(() =>
-          router.push(
-            "/sign-in"
-          )
-        )
-      }
-    >
+    <button onClick={() => signOut(() => router.push("/sign-in"))}>
       Đăng xuất
     </button>
   );
@@ -45,17 +36,21 @@ export default function Index({ setIsOpen, isOpen }) {
               transition={{ delay: 0.3 }}
             >
               <Link className="flex gap-[10px]" href="/home">
-                <Image
-                  src="/logo2.png"
-                  alt=""
-                  width="70"
-                  height="70"
-                  className="w-[70px] h-[70px] object-scale-down cursor-pointer"
-                />
-                <p className="flex flex-col items-center justify-center">
-                  <span className="font-semibold text-[#CA2627]">HUU NGHI</span>
-                  <span className="font-semibold text-[#134A9A]">SCHOOL</span>
-                </p>
+                <>
+                  <Image
+                    src="/logo2.png"
+                    alt=""
+                    width="70"
+                    height="70"
+                    className="w-[70px] h-[70px] object-scale-down cursor-pointer"
+                  />
+                  <p className="flex flex-col items-center justify-center">
+                    <span className="font-semibold text-[#CA2627]">
+                      HUU NGHI
+                    </span>
+                    <span className="font-semibold text-[#134A9A]">SCHOOL</span>
+                  </p>
+                </>
               </Link>
             </motion.div>
           )}

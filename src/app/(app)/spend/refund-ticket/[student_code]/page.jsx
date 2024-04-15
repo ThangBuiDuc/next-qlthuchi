@@ -1,9 +1,15 @@
-import { getPermission } from "@/utils/funtionApi";
+import {
+  getSchoolYear,
+  meilisearchStudentGet,
+  getPreReceipt,
+  getPermission,
+} from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
+
 import Content from "./content";
 
-const Page = async () => {
-  const pathName = "/report/cash-fund";
+const Page = async ({ params }) => {
+  const pathName = "/spend/refund";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -32,7 +38,24 @@ const Page = async () => {
       </div>
     );
   }
-  return <Content />;
+
+  const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  const student = await meilisearchStudentGet(params.student_code);
+
+  const apiPreReceipt = await getPreReceipt();
+
+  if (present.status !== 200 || !student || !apiPreReceipt)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  return (
+    <Content
+      student={student}
+      present={present.data}
+      InitialPreReceipt={apiPreReceipt}
+      permission={permission.data.result[0]?.permission.id.toString()}
+    />
+  );
 };
 
 export default Page;
