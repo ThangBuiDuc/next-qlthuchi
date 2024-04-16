@@ -56,10 +56,11 @@ function numberWithCommas(x) {
 //   );
 // };
 
-const Modal = ({ data, student }) => {
-  console.log(data);
+const Modal = ({ data, student, selectPresent }) => {
+  // console.log(data);
   const queryClient = useQueryClient();
   //   const { getToken } = useAuth();
+  const ref = useRef();
   const { getToken, userId } = useAuth();
   const [mutating, setMutating] = useState(false);
 
@@ -67,6 +68,71 @@ const Modal = ({ data, student }) => {
     (data.ticket_remain -
       data.ticket.reduce((total, curr) => curr.ticket_count + total, 0)) *
     data.unit_price;
+
+  const handlePrint = useReactToPrint({
+    content: () => ref.current,
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (objects) =>
+      createRefund(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+        }),
+        objects
+      ),
+    onSuccess: () => {
+      setMutating(false);
+      // modalRef.current.close();
+      toast.success("Lập biên lai hoàn trả thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [["ticket_student", student.code]],
+      });
+
+      handlePrint();
+    },
+    onError: () => {
+      setMutating(false);
+      modalRef.current.close();
+      toast.error("Lập biên lai hoàn trả không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
+
+  const handleOnClick = () => {
+    setMutating(true);
+    const time = moment().format();
+    const objects = {
+      amount_spend: money,
+      batch_id: selectPresent.id,
+      created_by: userId,
+      start_at: time,
+      student_code: student.code,
+      schoolyear_student_id: student.schoolyear_student_id,
+      refund_details: {
+        data: {
+          amount_spend: money,
+          batch_id: selectPresent.id,
+          created_by: userId,
+          expected_revenue_id: data.id,
+          start_at: time,
+        },
+      },
+    };
+    mutation.mutate(objects);
+  };
+
   return (
     <div className="flex flex-col p-2 gap-2">
       <h6 className="col-span-3 text-center">Lập biên lai hoàn trả</h6>
@@ -161,6 +227,117 @@ const Modal = ({ data, student }) => {
                 </p>
                 <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PRINT DIV */}
+        <div className="hidden">
+          <div
+            ref={ref}
+            className="flex flex-col relative justify-center items-center gap-1 mb-5"
+          >
+            <h5 className="text-center uppercase text-[16px]">
+              Bảng kê hoàn trả tiền thừa
+            </h5>
+            <p className="text-center  text-[14px]">{`(Theo 1 học sinh)`}</p>
+            <div className="flex justify-center gap-4 text-[12px]">
+              <p>Mã học sinh: {student.code}</p>
+              <p>
+                Họ và tên học sinh:{" "}
+                {`${student.first_name} ${student.last_name}`}
+              </p>
+              <p>
+                Ngày sinh:{" "}
+                {student.date_of_birth.split("-").reverse().join("/")}
+              </p>
+              <p>Lớp: {student.class_name}</p>
+            </div>
+            <p className="text-[14px]">
+              Tại Ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+              {moment().year()}
+            </p>
+            <div className="grid grid-cols-1 w-full border border-black divide-y divide-black">
+              <div className="flex   divide-x border-black divide-black">
+                <p className=" font-semibold text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                  TT
+                </p>
+                <p className=" font-semibold text-[14px] w-[35%] flex justify-center items-center h-full ">
+                  Nội dung
+                </p>
+                <p className=" font-semibold text-[12px] w-[20%] flex justify-center items-center h-full ">
+                  Loại khoản thu
+                </p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center  text-center">{`Số tiền hoàn trả (đồng)`}</p>
+                <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full ">
+                  Ký nhận
+                </p>
+              </div>
+              <div className="grid grid-cols-1 w-full divide-y divide-black divide-dotted">
+                <div className="flex   divide-x border-black divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    I
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền phí, học phí hoàn trả
+                  </p>
+                  <p className=" text-[12px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    0
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+                <div className="flex   divide-x border-black divide-black">
+                  <p className=" text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    1
+                  </p>
+                  <p className=" text-[14px] w-[35%] flex  items-center h-full pl-1">
+                    Tiền ăn bán trú
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full ">
+                    Thu hộ
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {money}
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+                <div className="flex   divide-x border-black divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    II
+                  </p>
+                  <p className=" font-semibold  text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền thu hộ hoàn trả
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {money}
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+                <div className="flex   divide-x divide-black">
+                  <p className=" font-semibold  text-[14px] w-[5%] flex justify-center items-center h-full  ">
+                    III
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[35%] flex justify-start items-center h-full pl-1">
+                    Tổng tiền hoàn trả (=I+II)
+                  </p>
+                  <p className=" text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                  <p className=" text-[14px] w-[20%] flex justify-end items-center  text-center pr-1">
+                    {money}
+                  </p>
+                  <p className=" font-semibold text-[14px] w-[20%] flex justify-center items-center h-full "></p>
+                </div>
+              </div>
+            </div>
+            <p className="italic text-right">
+              Hải Phòng, ngày {moment().date()} tháng {moment().month() + 1} năm{" "}
+              {moment().year()}
+            </p>
+            <div className="flex justify-around w-full">
+              <p className="font-semibold">Thủ trưởng</p>
+              <p className="font-semibold">Kế toán trưởng</p>
+              <p className="font-semibold">Người lập</p>
             </div>
           </div>
         </div>
@@ -340,7 +517,11 @@ const SubContent = ({ student, selectPresent }) => {
                       ✕
                     </button>
                   </form>
-                  <Modal data={data.data.results[0]} student={student} />
+                  <Modal
+                    data={data.data.results[0]}
+                    student={student}
+                    selectPresent={selectPresent}
+                  />
                 </div>
               </dialog>
             </>
