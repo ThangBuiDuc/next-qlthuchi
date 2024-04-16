@@ -45,7 +45,8 @@ function getMonthsBetween(startMonth, endMonth) {
 }
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, selectPresent } =
+    useContext(listContext);
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
@@ -280,6 +281,8 @@ const Item = ({ norm, setNorm, school_level_code }) => {
 const Modal = ({ hit }) => {
   const { selectPresent, listRevenue } = useContext(listContext);
   const [mutating, setMutating] = useState(false);
+
+  console.log(selectPresent);
 
   const [norm, setNorm] = useState({
     group: null,
