@@ -106,7 +106,7 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
 };
 
 const SecondPrintComponent = ({ data, secondPrintRef }) => {
-  console.log(data);
+  // console.log(data);
 
   return (
     <div className="hidden">
@@ -175,6 +175,7 @@ const ListReceipt = ({
   setMutating,
   selected,
 }) => {
+  console.log(condition);
   const queryClient = useQueryClient();
   const { selectPresent, preBill, permission } = useContext(listContext);
   const { getToken } = useAuth();

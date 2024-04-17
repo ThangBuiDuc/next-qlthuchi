@@ -101,14 +101,25 @@ const Content = ({ listSearch, permission }) => {
       ? `start_date <= ${moment(selected.toDate).unix()}`
       : "";
 
-    const fromBillRefund = selected.fromReciept
-      ? `code >= ${selected.fromReciept}`
+    // const fromBillRefund = selected.fromReciept
+    //   ? `code >= ${selected.fromReciept}`
+    //   : "";
+
+    // const toBillRefund = selected.toReceipt
+    //   ? `code <= ${selected.toReceipt}`
+    //   : "";
+
+    const fromBillRefund = selected.fromReceipt
+      ? selected.fromReceipt.includes("PC")
+        ? `code_number >= ${selected.fromReceipt.substring(2)}`
+        : `code_number >= ${selected.fromReceipt}`
       : "";
 
     const toBillRefund = selected.toReceipt
-      ? `code <= ${selected.toReceipt}`
+      ? selected.toReceipt.includes("PC")
+        ? `code_number <= ${selected.toReceipt.substring(2)}`
+        : `code_number <= ${selected.toReceipt}`
       : "";
-
     setCondition(
       [
         bill_formality && bill_formality,

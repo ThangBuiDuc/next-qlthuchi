@@ -104,11 +104,17 @@ const Receipt = ({ selected }) => {
       : "";
 
     const fromReceipt = selectedFilter.fromReceipt
-      ? `receipt_code >= ${selectedFilter.fromReceipt}`
+      ? selectedFilter.fromReceipt.includes("BM") ||
+        selectedFilter.fromReceipt.includes("BK")
+        ? `code_number >= ${selectedFilter.fromReceipt.substring(2)}`
+        : `code_number >= ${selectedFilter.fromReceipt}`
       : "";
 
     const toReceipt = selectedFilter.toReceipt
-      ? `receipt_code <= ${selectedFilter.toReceipt}`
+      ? selectedFilter.toReceipt.includes("BM") ||
+        selectedFilter.toReceipt.includes("BK")
+        ? `code_number <= ${selectedFilter.toReceipt.substring(2)}`
+        : `code_number <= ${selectedFilter.toReceipt}`
       : "";
 
     const school_level = selectedFilter.school_level?.length
