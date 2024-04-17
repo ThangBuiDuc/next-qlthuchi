@@ -73,7 +73,7 @@ const Content = ({ listSearch, preReceipt, permission }) => {
         : ""
     }`;
 
-    const year = selected.year ? `start_year = ${selected.year}` : "";
+    const year = selected.year ? `start_year = ${selected.year.year()}` : "";
 
     const school_year = `${
       selected.school_year?.length
@@ -100,10 +100,17 @@ const Content = ({ listSearch, preReceipt, permission }) => {
       : "";
 
     const fromReceipt = selected.fromReceipt
-      ? `code >= ${selected.fromReceipt}`
+      ? selected.fromReceipt.includes("BM") ||
+        selected.fromReceipt.includes("BK")
+        ? `code_number >= ${selected.fromReceipt.substring(2)}`
+        : `code_number >= ${selected.fromReceipt}`
       : "";
 
-    const toReceipt = selected.toReceipt ? `code <= ${selected.toReceipt}` : "";
+    const toReceipt = selected.toReceipt
+      ? selected.toReceipt.includes("BM") || selected.toReceipt.includes("BK")
+        ? `code_number <= ${selected.toReceipt.substring(2)}`
+        : `code_number <= ${selected.toReceipt}`
+      : "";
 
     const school_level = selected.school_level?.length
       ? `schoolyear_student.class.school_level_code IN [${selected.school_level

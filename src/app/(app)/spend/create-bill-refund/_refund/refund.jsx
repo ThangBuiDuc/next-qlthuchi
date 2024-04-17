@@ -116,20 +116,20 @@ const Refund = ({ selected }) => {
     }`;
 
     const fromDate = selectedFilter.fromDate
-      ? `start_date >= ${moment(selectedFilter.fromDate).unix()}`
+      ? `start_at >= ${moment(selectedFilter.fromDate).unix()}`
       : "";
 
     const toDate = selectedFilter.toDate
-      ? `start_date <= ${moment(selectedFilter.toDate).unix()}`
+      ? `start_at <= ${moment(selectedFilter.toDate).unix()}`
       : "";
 
-    const fromReceipt = selectedFilter.fromReceipt
-      ? `receipt_code >= ${selectedFilter.fromReceipt}`
-      : "";
+    // const fromReceipt = selectedFilter.fromReceipt
+    //   ? `receipt_code >= ${selectedFilter.fromReceipt}`
+    //   : "";
 
-    const toReceipt = selectedFilter.toReceipt
-      ? `receipt_code <= ${selectedFilter.toReceipt}`
-      : "";
+    // const toReceipt = selectedFilter.toReceipt
+    //   ? `receipt_code <= ${selectedFilter.toReceipt}`
+    //   : "";
 
     const school_level = selectedFilter.school_level?.length
       ? `student.school_level_code IN [${selectedFilter.school_level

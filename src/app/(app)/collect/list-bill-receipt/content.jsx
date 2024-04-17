@@ -71,11 +71,15 @@ const Content = ({ listSearch, permission }) => {
       : "";
 
     const fromBillReceipt = selected.fromReceipt
-      ? `code >= ${selected.fromReceipt}`
+      ? selected.fromReceipt.includes("PT")
+        ? `code_number >= ${selected.fromReceipt.substring(2)}`
+        : `code_number >= ${selected.fromReceipt}`
       : "";
 
     const toBillReceipt = selected.toReceipt
-      ? `code <= ${selected.toReceipt}`
+      ? selected.toReceipt.includes("PT")
+        ? `code_number <= ${selected.toReceipt.substring(2)}`
+        : `code_number <= ${selected.toReceipt}`
       : "";
 
     setCondition(

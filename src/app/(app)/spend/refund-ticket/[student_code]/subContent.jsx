@@ -418,12 +418,14 @@ const SubContent = ({ student, selectPresent }) => {
   if (isFetching || !ticketData) return <LoadingCustom />;
 
   if (
-    data.data.results.length === 0 &&
+    data.data.results.length === 0 ||
     data.data.results[0].ticket_remain >
       data.data.results[0].ticket.reduce(
         (total, curr) => total + curr.ticket_count,
         0
-      )
+      ) ||
+    data.data.results[0].ticket_refund ||
+    data.data.results[0].ticket_transfer
   )
     return (
       <div className="flex flex-col">
