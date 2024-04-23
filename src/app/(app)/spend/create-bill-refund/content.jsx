@@ -9,7 +9,13 @@ import Refund from "./_refund/refund";
 
 export const listContext = createContext();
 
-const Content = ({ listSearch, InitialPreBill, present, permission }) => {
+const Content = ({
+  listSearch,
+  InitialPreBill,
+  present,
+  permission,
+  revenueGroup,
+}) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -28,6 +34,7 @@ const Content = ({ listSearch, InitialPreBill, present, permission }) => {
       <listContext.Provider
         value={{
           listSearch,
+          revenueGroup,
           preBill: preBill.data,
           selectPresent,
           permission,

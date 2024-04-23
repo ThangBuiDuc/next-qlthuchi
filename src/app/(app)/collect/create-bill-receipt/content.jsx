@@ -20,7 +20,13 @@ import Receipt from "./_receipt/receipt";
 
 export const listContext = createContext();
 
-const Content = ({ listSearch, InitialPreBill, present, permission }) => {
+const Content = ({
+  listSearch,
+  InitialPreBill,
+  present,
+  permission,
+  revenueGroup,
+}) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -42,6 +48,7 @@ const Content = ({ listSearch, InitialPreBill, present, permission }) => {
           preBill: preBill.data,
           selectPresent,
           permission,
+          revenueGroup,
         }}
       >
         <div className="flex flex-col  gap-3">

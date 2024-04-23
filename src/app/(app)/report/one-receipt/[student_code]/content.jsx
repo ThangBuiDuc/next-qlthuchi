@@ -35,9 +35,10 @@ function sumArrayObjectsById(arr) {
 }
 
 const Content = ({ revenueGroup, student_code, student }) => {
-  const [filter, setFilter] = useState({ start_at: null, end_at: null });
+  // console.log(revenueGroup);
+  // const [filter, setFilter] = useState({ start_at: null, end_at: null });
   const data = useQuery({
-    queryKey: ["report_receipt_one", student_code, filter],
+    queryKey: ["report_receipt_one", student_code],
     queryFn: async () =>
       meilisearchReportReceiptOneGet(
         await meilisearchGetToken(),
@@ -47,7 +48,7 @@ const Content = ({ revenueGroup, student_code, student }) => {
 
   const handleExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("TH da hoan tra mot hs", {
+    const sheet = workbook.addWorksheet("TH da thu mot hs", {
       pageSetup: { paperSize: 9, orientation: "landscape" },
     });
 
