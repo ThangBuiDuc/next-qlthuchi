@@ -419,7 +419,7 @@ const SubContent = ({ student, selectPresent }) => {
 
   if (
     data.data.results.length === 0 ||
-    data.data.results[0].ticket_remain >
+    data.data.results[0].ticket_remain <=
       data.data.results[0].ticket.reduce(
         (total, curr) => total + curr.ticket_count,
         0

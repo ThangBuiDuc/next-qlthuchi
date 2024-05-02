@@ -741,7 +741,9 @@ const SubContent = ({ student, selectPresent }) => {
             {expectedRevenue.isRefetching ||
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
-            ) : data?.every((item) => item.expected_revenues.length === 0) ? (
+            ) : data
+                ?.filter((item) => item.id !== 12)
+                ?.every((item) => item.expected_revenues.length === 0) ? (
               <tr>
                 <td colSpan={11} className="text-center">
                   Không có kết quả!
@@ -758,6 +760,7 @@ const SubContent = ({ student, selectPresent }) => {
                   item.scope.some((el) => el === student.school_level_code)
                 )
                 .filter((item) => item.expected_revenues.length > 0)
+                .filter((item) => item.id !== 12)
                 .map((item, index) => {
                   // if (item.expected_revenues.length === 0) {
                   //   return (
