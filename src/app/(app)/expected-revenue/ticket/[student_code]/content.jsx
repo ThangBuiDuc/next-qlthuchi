@@ -78,7 +78,7 @@ const Item = ({
   );
 };
 
-const Content = ({ present, student }) => {
+const Content = ({ present, student, permission }) => {
   const { getToken, userId } = useAuth();
   const [mutating, setMutating] = useState(false);
   const [ticketData, setTicketData] = useState();
@@ -252,13 +252,15 @@ const Content = ({ present, student }) => {
         {!isFetching || !isRefetching ? (
           mutating ? (
             <LoadingCustom style={"loading-xs"} />
-          ) : (
+          ) : permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
             <button
               className="btn w-fit self-center"
               onClick={() => handleOnclick()}
             >
               Cập nhật
             </button>
+          ) : (
+            <></>
           )
         ) : (
           <></>

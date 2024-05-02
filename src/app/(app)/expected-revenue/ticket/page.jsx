@@ -61,6 +61,7 @@ const Page = async () => {
       present={present.data}
       listRevenue={apiListRevenue.data}
       calculationUnit={apiCalculationUnit.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
     />
   );
 };

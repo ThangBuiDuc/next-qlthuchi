@@ -272,7 +272,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
 };
 
 const Content = ({ selected }) => {
-  const { selectPresent, listRevenue } = useContext(listContext);
+  const { selectPresent, listRevenue, permission } = useContext(listContext);
 
   const [norm, setNorm] = useState({
     group: null,
@@ -385,30 +385,34 @@ const Content = ({ selected }) => {
               <span className="loading loading-spinner loading-sm bg-primary"></span>
             ) : (
               <>
-                {norm.group &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <>
-                    <button
-                      className="btn w-fit"
-                      onClick={() => handleOnclick()}
-                    >
-                      Hoàn thành
-                    </button>
-                    <div
-                      className="tooltip flex items-center justify-center"
-                      data-tip="Dự kiến sẽ tự động cân đối tiền của số vé thừa kỳ trước. Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
-                    >
-                      <IoIosInformationCircleOutline
-                        size={20}
-                        className="text-red-500"
-                      />
-                    </div>
-                  </>
+                {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+                  norm.group &&
+                  norm.type &&
+                  norm.revenue &&
+                  norm.calculation_unit &&
+                  norm.price &&
+                  norm.quantity &&
+                  norm.total ? (
+                    <>
+                      <button
+                        className="btn w-fit"
+                        onClick={() => handleOnclick()}
+                      >
+                        Hoàn thành
+                      </button>
+                      <div
+                        className="tooltip flex items-center justify-center"
+                        data-tip="Dự kiến sẽ tự động cân đối tiền của số vé thừa kỳ trước. Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
+                      >
+                        <IoIosInformationCircleOutline
+                          size={20}
+                          className="text-red-500"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )
                 ) : (
                   <></>
                 )}

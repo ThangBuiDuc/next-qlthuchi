@@ -54,6 +54,7 @@ const Page = async ({ params }) => {
   return (
     <Content
       //   listSearch={apiListSearch.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
       present={present.data}
       student={student}
     />
