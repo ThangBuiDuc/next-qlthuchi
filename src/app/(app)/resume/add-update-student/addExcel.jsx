@@ -361,7 +361,9 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
                   (el) => el.code === item.class_code
                 ) &&
                 catalogStudent.status.some((el) => el.id === item.status) &&
-                catalogStudent.gender.some((el) => el.id === item.gender)
+                catalogStudent.gender.some((el) => el.id === item.gender) &&
+                item.dob &&
+                item.joinDate
             ) &&
             (mutating ? (
               <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
