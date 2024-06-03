@@ -362,7 +362,7 @@ const SubContent = ({ present }) => {
                       <td>
                         {numberWithCommas(
                           item.sub.reduce(
-                            (total, curr) => total + curr.amount_of_spend,
+                            (total, curr) => total + curr.amount_spend,
                             0
                           )
                         )}
