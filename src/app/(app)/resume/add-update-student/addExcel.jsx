@@ -245,7 +245,7 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
           ),
           bgd_code: item.bgd_code ? item.bgd_code : null,
           first_name: item.firtsName,
-          last_name: item.lastName,
+          last_name: item.lastName.toString(),
           date_of_birth: item.dob.toString().split(/[\/-]/).reverse().join("-"),
           gender_id: item.gender,
           address: item.address,
