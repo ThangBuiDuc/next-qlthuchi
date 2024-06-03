@@ -96,11 +96,11 @@ const Receipt = ({ selected }) => {
     }`;
 
     const fromDate = selectedFilter.fromDate
-      ? `start_date >= ${moment(selectedFilter.fromDate).unix()}`
+      ? `start_at >= ${moment(selectedFilter.fromDate).unix()}`
       : "";
 
     const toDate = selectedFilter.toDate
-      ? `start_date <= ${moment(selectedFilter.toDate).unix()}`
+      ? `start_at <= ${moment(selectedFilter.toDate).unix()}`
       : "";
 
     const fromReceipt = selectedFilter.fromReceipt
