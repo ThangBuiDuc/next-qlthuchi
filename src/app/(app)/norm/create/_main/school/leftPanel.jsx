@@ -17,7 +17,6 @@ const Item = ({ norm, setNorm, school_level_code }) => {
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
-
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="grid grid-cols-2 auto-rows-auto gap-2">
@@ -66,6 +65,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === school_level_code)
                 )
+                .filter((item) => item.id !== 12)
                 .filter((item) => item.revenues.length > 0)
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({

@@ -1,15 +1,15 @@
-import Content from "./content";
 import {
   getListSearch,
-  getPreBill,
   getSchoolYear,
   getPermission,
-  getRevenueGroup,
+  meilisearchStudentGet,
 } from "@/utils/funtionApi";
+import Content from "./content";
 import { auth } from "@clerk/nextjs";
 
-const Page = async () => {
-  const pathName = "/collect/create-bill-receipt";
+const Page = async ({ params }) => {
+  const pathName = "/expected-revenue/ticket";
+
   const { getToken } = auth();
 
   const token = await getToken({
@@ -39,25 +39,24 @@ const Page = async () => {
     );
   }
 
-  const apiGetRevenueGroup = await getRevenueGroup();
-  const apiListSearch = await getListSearch();
-  const apiPreBill = await getPreBill();
+  //   const apiListSearch = await getListSearch();
+
   const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  if (
-    apiListSearch.status !== 200 ||
-    !apiPreBill ||
-    apiGetRevenueGroup.status !== 200
-  )
+  const student = await meilisearchStudentGet(params.student_code);
+
+  //   if (apiListSearch.status !== 200 || present.status !== 200)
+  //     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  if (present.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
-      revenueGroup={apiGetRevenueGroup.data}
-      listSearch={apiListSearch.data}
-      InitialPreBill={apiPreBill}
-      present={present.data}
+      //   listSearch={apiListSearch.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      present={present.data}
+      student={student}
     />
   );
 };

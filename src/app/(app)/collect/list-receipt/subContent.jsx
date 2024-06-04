@@ -7,7 +7,7 @@ import {
 import { listContext } from "./content";
 import { useState, useContext, useRef, useMemo } from "react";
 import moment from "moment";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
 import { IoMdPrint } from "react-icons/io";
 import { IoTrashBinOutline } from "react-icons/io5";
@@ -335,8 +335,9 @@ const ModalPrint = ({ data }) => {
   );
 };
 
-const CancelModal = ({ receipt_code, cancelRef, pageIndex, refetch }) => {
+const CancelModal = ({ receipt_code, cancelRef }) => {
   const [note, setNote] = useState("");
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { user } = useUser();
   const [mutating, setMutating] = useState(false);
@@ -365,7 +366,7 @@ const CancelModal = ({ receipt_code, cancelRef, pageIndex, refetch }) => {
     },
     onSuccess: () => {
       cancelRef.current.close();
-      refetch({ refetchPage: (_, index) => index === pageIndex });
+      queryClient.invalidateQueries([`searchReceipt`, condition]);
       setMutating(false);
       toast.success("Huỷ biên lai thu thành công!", {
         position: "top-center",
@@ -420,7 +421,7 @@ const CancelModal = ({ receipt_code, cancelRef, pageIndex, refetch }) => {
   );
 };
 
-const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
+const RowTable = ({ data, isRefetching, permission }) => {
   const printRef = useRef();
   const cancelRef = useRef();
   return (
@@ -491,12 +492,7 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
                       ✕
                     </button>
                   </form>
-                  <CancelModal
-                    receipt_code={data.code}
-                    cancelRef={cancelRef}
-                    pageIndex={pageIndex}
-                    refetch={refetch}
-                  />
+                  <CancelModal receipt_code={data.code} cancelRef={cancelRef} />
                 </div>
               </dialog>
             </>
@@ -508,23 +504,29 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
 };
 
 const SubContent = ({ condition, permission }) => {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-    isRefetching,
-    refetch,
-  } = useInfiniteQuery({
+  // const {
+  //   data,
+  //   error,
+  //   fetchNextPage,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  //   status,
+  //   isRefetching,
+  //   refetch,
+  // } = useInfiniteQuery({
+  //   queryKey: [`searchReceipt`, condition],
+  //   queryFn: async ({ pageParam = 1 }) =>
+  //     meilisearchReceiptGet(condition, await meilisearchGetToken(), pageParam),
+  //   getNextPageParam: (res) => {
+  //     if ((res.nextPage - 1) * 10 < res.data.total) return res.nextPage;
+  //     else return undefined;
+  //   },
+  // });
+
+  const { data, error, status, isRefetching, refetch } = useQuery({
     queryKey: [`searchReceipt`, condition],
-    queryFn: async ({ pageParam = 1 }) =>
-      meilisearchReceiptGet(condition, await meilisearchGetToken(), pageParam),
-    getNextPageParam: (res) => {
-      if ((res.nextPage - 1) * 10 < res.data.total) return res.nextPage;
-      else return undefined;
-    },
+    queryFn: async () =>
+      meilisearchReceiptGet(condition, await meilisearchGetToken()),
   });
 
   return status === "loading" ? (
@@ -559,30 +561,28 @@ const SubContent = ({ condition, permission }) => {
             </tr>
           </thead>
           <tbody>
-            {data.pages[0].data.results.length === 0 ? (
+            {data.results.length === 0 ? (
               <tr>
                 <td colSpan={6} className=" text-center">
                   Không tìm thấy kết quả
                 </td>
               </tr>
             ) : (
-              data.pages.map((item) =>
-                item.data.results.map((item) => (
-                  <RowTable
-                    key={item.code}
-                    data={item}
-                    pageIndex={findIndexInArray(data.pages, item)}
-                    isRefetching={isRefetching}
-                    refetch={refetch}
-                    permission={permission}
-                  />
-                ))
-              )
+              data.results.map((item) => (
+                <RowTable
+                  key={item.code}
+                  data={item}
+                  // pageIndex={findIndexInArray(data.pages, item)}
+                  isRefetching={isRefetching}
+                  refetch={refetch}
+                  permission={permission}
+                />
+              ))
             )}
           </tbody>
         </table>
       </div>
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <button
           className="btn"
           onClick={() => fetchNextPage()}
@@ -596,7 +596,7 @@ const SubContent = ({ condition, permission }) => {
             "Đã hết kết quả tìm kiếm!"
           )}
         </button>
-      </div>
+      </div> */}
     </>
   );
 };

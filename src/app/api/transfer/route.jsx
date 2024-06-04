@@ -9,11 +9,11 @@ import { Transfer } from "@/utils/funtionApi";
 export async function POST(req) {
   const { userId, getToken } = auth();
   const client = new Client({
-    host: "27.72.249.149",
-    port: 8501,
-    database: "hns_qlthuchi",
-    user: "admin",
-    password: "Abc123654",
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
   });
   // console.log(userId);
   // console.log(
@@ -30,7 +30,7 @@ export async function POST(req) {
 	,"batch_id"
 	,"next_batch_money"
 	,"revenue_group_id"
-FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next_batch_money < 0;`);
+FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next_batch_money < 0 AND revenue_group_id != 12;`);
     const updates = sql_debt.rows.map((item) => ({
       _set: {
         next_batch_money: 0,

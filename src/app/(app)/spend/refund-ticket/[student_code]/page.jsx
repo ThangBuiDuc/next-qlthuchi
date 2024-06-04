@@ -1,15 +1,15 @@
-import Content from "./content";
 import {
-  getListSearch,
-  getPreBill,
   getSchoolYear,
+  meilisearchStudentGet,
+  getPreReceipt,
   getPermission,
-  getRevenueGroup,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
-const Page = async () => {
-  const pathName = "/collect/create-bill-receipt";
+import Content from "./content";
+
+const Page = async ({ params }) => {
+  const pathName = "/spend/refund";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -39,24 +39,20 @@ const Page = async () => {
     );
   }
 
-  const apiGetRevenueGroup = await getRevenueGroup();
-  const apiListSearch = await getListSearch();
-  const apiPreBill = await getPreBill();
   const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  if (
-    apiListSearch.status !== 200 ||
-    !apiPreBill ||
-    apiGetRevenueGroup.status !== 200
-  )
+  const student = await meilisearchStudentGet(params.student_code);
+
+  const apiPreReceipt = await getPreReceipt();
+
+  if (present.status !== 200 || !student || !apiPreReceipt)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
-      revenueGroup={apiGetRevenueGroup.data}
-      listSearch={apiListSearch.data}
-      InitialPreBill={apiPreBill}
+      student={student}
       present={present.data}
+      InitialPreReceipt={apiPreReceipt}
       permission={permission.data.result[0]?.permission.id.toString()}
     />
   );

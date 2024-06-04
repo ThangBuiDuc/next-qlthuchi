@@ -101,22 +101,25 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
 
   // console.log("lỗi:",mutation.error?.response?.data?.error)
 
-  const handleOnSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    let arg = {
-      code: infor.code,
-      description: infor.description,
-      ratio: infor.ratio / 100,
-      discount_type_id: discountType?.value,
-      revenue_group_id: revenueGroup?.value,
-    };
-    let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    });
+  const handleOnSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      let arg = {
+        code: infor.code,
+        description: infor.description,
+        ratio: infor.ratio / 100,
+        discount_type_id: discountType?.value,
+        revenue_group_id: revenueGroup?.value,
+      };
+      let token = await getToken({
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+      });
 
-    mutation.mutate({ token, arg });
-    console.log(arg);
-  }, [infor, discountType, revenueGroup]);
+      mutation.mutate({ token, arg });
+      console.log(arg);
+    },
+    [infor, discountType, revenueGroup]
+  );
 
   return (
     <>
@@ -138,22 +141,26 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
             style={{ overflowY: "unset" }}
           >
             <div className="grid grid-cols-2 gap-[20px]">
-              <Select
-                placeholder="Loại giảm giá"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={discountTypeData.result.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
-                value={discountType}
-                onChange={setDiscountType}
-              />
+              <div className="flex flex-col gap-1">
+                <p className="text-xs">Loại giảm giá:</p>
+                <Select
+                  placeholder="Loại giảm giá"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={discountTypeData.result.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
+                  value={discountType}
+                  onChange={setDiscountType}
+                />
+              </div>
+
               <TextInput
                 label={"Mã giảm giá (Không được trùng lặp)"}
                 value={infor.code}

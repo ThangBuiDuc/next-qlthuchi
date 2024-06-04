@@ -1,15 +1,16 @@
 "use client";
-import StudentFilter from "@/app/_component/studentFilter";
+import Link from "next/link";
 import { useContext, Fragment, useState, useEffect } from "react";
 import {
   meilisearchGetToken,
   meilisearchStudentSearch,
 } from "@/utils/funtionApi";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { listContext } from "../content";
-// import { useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import { listContext } from "./content";
+import "react-toastify/dist/ReactToastify.css";
+import "moment/locale/vi";
 import { CiCircleMore } from "react-icons/ci";
+import StudentFilter from "@/app/_component/studentFilter";
 
 const HitItem = ({ hit, isRefetching }) => {
   return (
@@ -35,7 +36,7 @@ const HitItem = ({ hit, isRefetching }) => {
           ) : (
             <>
               <div className="tooltip" data-tip="Chi tiết">
-                <Link href={`create/${hit.code}`}>
+                <Link href={`refund-ticket/${hit.code}`}>
                   <CiCircleMore size={25} />
                 </Link>
               </div>
@@ -141,7 +142,6 @@ const Search = ({ queryObject }) => {
 };
 
 const Student = () => {
-  // const queryClient = useQueryClient();
   const { listSearch } = useContext(listContext);
   const [selected, setSelected] = useState({
     school: null,
@@ -152,7 +152,7 @@ const Student = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h6>Tìm kiếm học sinh:</h6>
+      <h5>Tìm kiếm học sinh:</h5>
       <StudentFilter
         selected={selected}
         setSelected={setSelected}

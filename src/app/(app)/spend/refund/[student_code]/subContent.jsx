@@ -78,14 +78,6 @@ const Modal = ({ data, modalRef }) => {
         .reduce((total, curr) => total + curr.nowMoney, 0),
   };
 
-  // const [formality, setFormality] = useState({
-  //   label: preReceipt.formality[0].name,
-  //   value: preReceipt.formality[0].id,
-  // });
-  // const middleIndex = Math.round(data.length / 2);
-  // const firstPart = data.slice(0, middleIndex);
-  // const secondPart = data.slice(middleIndex);
-
   const [mutating, setMutating] = useState(false);
   const handlePrint = useReactToPrint({
     content: () => ref.current,
@@ -112,25 +104,6 @@ const Modal = ({ data, modalRef }) => {
       queryClient.invalidateQueries({
         queryKey: ["get_expected_revenue", student.code],
       });
-      // data
-      //   .reduce((total, curr) => [...total, ...curr.expected_revenues], [])
-      //   .forEach((element) => {
-      //     queryClient.invalidateQueries({
-      //       queryKey: [
-      //         "get_history_receipt",
-      //         {
-      //           where: {
-      //             batch_id: { _eq: selectPresent.id },
-      //             student_code: { _eq: student.code },
-      //             receipt_details: { expected_revenue_id: { _eq: element.id } },
-      //           },
-      //           where1: {
-      //             expected_revenue_id: { _eq: element.id },
-      //           },
-      //         },
-      //       ],
-      //     });
-      //   });
 
       handlePrint();
     },
@@ -768,7 +741,9 @@ const SubContent = ({ student, selectPresent }) => {
             {expectedRevenue.isRefetching ||
             (expectedRevenue.isFetching && expectedRevenue.isLoading) ? (
               <Skeleton />
-            ) : data?.every((item) => item.expected_revenues.length === 0) ? (
+            ) : data
+                ?.filter((item) => item.id !== 12)
+                ?.every((item) => item.expected_revenues.length === 0) ? (
               <tr>
                 <td colSpan={11} className="text-center">
                   Không có kết quả!
@@ -785,6 +760,7 @@ const SubContent = ({ student, selectPresent }) => {
                   item.scope.some((el) => el === student.school_level_code)
                 )
                 .filter((item) => item.expected_revenues.length > 0)
+                .filter((item) => item.id !== 12)
                 .map((item, index) => {
                   // if (item.expected_revenues.length === 0) {
                   //   return (

@@ -1,22 +1,55 @@
-import Select from "react-select";
+"use client";
+import StudentFilter from "@/app/_component/studentFilter";
 import { listContext } from "../../content";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, Fragment, useState, useEffect, useCallback } from "react";
+import {
+  meilisearchGetToken,
+  meilisearchStudentSearch,
+} from "@/utils/funtionApi";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { CiCircleMore } from "react-icons/ci";
+import Select from "react-select";
 import CurrencyInput from "react-currency-input-field";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { createRevenueNorm } from "@/utils/funtionApi";
-import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
+import { IoIosInformationCircleOutline } from "react-icons/io";
+import { createTicketExpectedRevenueRouter } from "@/utils/funtionApi";
 import moment from "moment";
 import "moment/locale/vi";
-import { IoIosInformationCircleOutline } from "react-icons/io";
+
+function getMonthsBetween(startMonth, endMonth) {
+  // Validate input months
+  if (startMonth < 1 || startMonth > 12 || endMonth < 1 || endMonth > 12) {
+    return [];
+  }
+
+  if (startMonth === endMonth) {
+    return [startMonth];
+  }
+
+  const startIndex = startMonth - 1; // Adjust index to start from 0
+  const endIndex = endMonth - 1; // Adjust index to start from 0
+
+  if (endIndex > startIndex) {
+    return Array.from(
+      { length: endIndex - startIndex + 1 },
+      (_, i) => startIndex + i + 1
+    );
+  } else {
+    const monthsBetween = Array.from(
+      { length: 12 - startIndex + endIndex + 1 },
+      (_, i) => ((startIndex + i) % 12) + 1
+    );
+    return monthsBetween;
+  }
+}
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, selectPresent } =
+    useContext(listContext);
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
-
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="grid grid-cols-2 auto-rows-auto gap-2">
@@ -25,6 +58,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
             placeholder="Loại khoản thu"
+            isDisabled
             options={listRevenue.revenue_types
               .sort((a, b) => a.id - b.id)
               .map((item) => ({
@@ -65,7 +99,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === school_level_code)
                 )
-                .filter((item) => item.id !== 12)
+                .filter((item) => item.id === 12)
                 .filter((item) => item.revenues.length > 0)
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({
@@ -105,7 +139,13 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
                 .revenue_groups.find((item) => item.id === norm.group.value)
-                .revenues.map((item) => {
+                .revenues.filter((item) =>
+                  getMonthsBetween(
+                    parseInt(selectPresent.start_day.split("-")[1]),
+                    parseInt(selectPresent.end_day.split("-")[1])
+                  ).includes(item.position)
+                )
+                .map((item) => {
                   return {
                     ...item,
                     value: item.id,
@@ -141,10 +181,12 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               <Select
                 noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
                 placeholder="Đơn vị tính"
-                options={calculationUnit.calculation_units.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
+                options={calculationUnit.calculation_units
+                  .filter((item) => item.id === 1)
+                  .map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
                 value={norm.calculation_unit}
                 onChange={(e) =>
                   setNorm((pre) => ({ ...pre, calculation_unit: e }))
@@ -236,45 +278,47 @@ const Item = ({ norm, setNorm, school_level_code }) => {
   );
 };
 
-const LeftPanel = ({ selected }) => {
-  const queryClient = useQueryClient();
-  const { selectPresent } = useContext(listContext);
+const Modal = ({ hit }) => {
+  const { selectPresent, listRevenue, permission } = useContext(listContext);
+  const [mutating, setMutating] = useState(false);
+
   const [norm, setNorm] = useState({
     group: null,
-    type: null,
+    type: {
+      value: listRevenue.revenue_types.find((item) => item.id === 2).id,
+      label: listRevenue.revenue_types.find((item) => item.id === 2).name,
+    },
     revenue: null,
     calculation_unit: null,
     price: 100000,
     quantity: 1,
     total: 100000,
   });
-  const [mutating, setMutating] = useState(false);
-  const { getToken } = useAuth();
-  const { user } = useUser();
-
-  console.log(selected);
-
-  useEffect(() => {
-    if (selected)
-      setNorm({
-        group: null,
-        type: null,
-        revenue: null,
-        calculation_unit: null,
-        price: 100000,
-        quantity: 1,
-        total: 100000,
-      });
-  }, [selected]);
 
   const mutation = useMutation({
-    mutationFn: ({ token, objects, log }) =>
-      createRevenueNorm(token, objects, [log]),
+    mutationFn: ({ norm, time, selectPresent }) =>
+      createTicketExpectedRevenueRouter({
+        type: "STUDENT",
+        data: [hit.code],
+        norm,
+        batch_id: selectPresent.id,
+        time,
+        revenue: listRevenue.revenue_types
+          .find((item) => item.id === norm.type.value)
+          .revenue_groups.find((item) => item.id === norm.group.value)
+          .revenues.filter((item) =>
+            getMonthsBetween(
+              parseInt(selectPresent.start_day.split("-")[1]),
+              parseInt(selectPresent.end_day.split("-")[1])
+            ).includes(item.position)
+          ),
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["get_revenue_norms", selected],
-      });
-      toast.success("Tạo mới định mức thu cho cấp học thành công!", {
+      // queryClient.invalidateQueries({
+      //   queryKey: ["get_revenue_norms", selected],
+      // });
+      document.getElementById(`modal_${hit.code}`).close();
+      toast.success("Tạo mới dự kiến thu vé ăn cho học sinh thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -283,7 +327,10 @@ const LeftPanel = ({ selected }) => {
       });
       setNorm({
         group: null,
-        type: null,
+        type: {
+          value: listRevenue.revenue_types.find((item) => item.id === 2).id,
+          label: listRevenue.revenue_types.find((item) => item.id === 2).name,
+        },
         revenue: null,
         calculation_unit: null,
         price: 100000,
@@ -293,7 +340,7 @@ const LeftPanel = ({ selected }) => {
       setMutating(false);
     },
     onError: () => {
-      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+      toast.error("Tạo mới dự kiến thu vé ăn cho học sinh không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -307,94 +354,234 @@ const LeftPanel = ({ selected }) => {
   const handleOnclick = useCallback(async () => {
     setMutating(true);
     let time = moment().format();
-    let objects = {
-      revenue_code: norm.revenue.code,
-      revenue_group_id: norm.group.value,
-      batch_id: selectPresent.id,
-      calculation_unit_id: norm.calculation_unit.value,
-      class_level_code: selected.code,
-      amount: norm.quantity,
-      unit_price: norm.price,
-      created_by: user.id,
-      start_at: time,
-    };
 
-    let log = {
-      clerk_user_id: user.id,
-      type: "create",
-      table: "revenue_norms",
-      data: {
-        revenue_code: norm.revenue.code,
-        revenue_group_id: norm.group.value,
-        batch_id: selectPresent.id,
-        calculation_unit_id: norm.calculation_unit.value,
-        class_level_code: selected.code,
-        amount: norm.quantity,
-        unit_price: norm.price,
-        created_by: user.id,
-        start_at: time,
-      },
-    };
+    mutation.mutate({ norm, time, selectPresent });
+  }, [norm]);
 
-    let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    });
-
-    mutation.mutate({ token, objects, log });
-  }, [norm, selected]);
   return (
-    <div className="flex flex-col pr-3 w-[40%] gap-2">
-      <h6 className="text-center">Định mức thu</h6>
-      {selected && (
-        <div className="flex flex-col gap-1">
-          {norm && (
-            <>
-              <Item
-                norm={norm}
-                setNorm={setNorm}
-                school_level_code={selected.school_level_code}
-              />
-            </>
-          )}
-          <div className="flex justify-center gap-2">
-            {mutating ? (
-              <span className="loading loading-spinner loading-sm bg-primary"></span>
-            ) : (
+    <dialog id={`modal_${hit.code}`} className="modal">
+      <div className="modal-box" style={{ overflowY: "unset" }}>
+        <form method="dialog">
+          {/* if there is a button in form, it will close the modal */}
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
+        </form>
+        <div className="flex flex-col pr-3 gap-2">
+          <h6 className="text-center">Dự kiến thu</h6>
+          <div className="flex flex-col gap-1">
+            {norm && (
               <>
-                {norm.group &&
-                norm.type &&
-                norm.revenue &&
-                norm.calculation_unit &&
-                norm.price &&
-                norm.quantity &&
-                norm.total ? (
-                  <>
-                    <button
-                      className="btn w-fit"
-                      onClick={() => handleOnclick()}
-                    >
-                      Hoàn thành
-                    </button>
-                    <div
-                      className="tooltip flex items-center justify-center"
-                      data-tip="Định mức thu trùng lặp sẽ lấy định mức thu thêm vào mới nhất!"
-                    >
-                      <IoIosInformationCircleOutline
-                        size={20}
-                        className="text-red-500"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <></>
-                )}
+                <Item
+                  norm={norm}
+                  setNorm={setNorm}
+                  school_level_code={hit.school_level_code}
+                />
               </>
             )}
+            <div className="flex justify-center gap-2">
+              {mutating ? (
+                <span className="loading loading-spinner loading-sm bg-primary"></span>
+              ) : (
+                <>
+                  {permission ===
+                  process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+                    norm.group &&
+                    norm.type &&
+                    norm.revenue &&
+                    norm.calculation_unit &&
+                    norm.price &&
+                    norm.quantity &&
+                    norm.total ? (
+                      <>
+                        <button
+                          className="btn w-fit"
+                          onClick={() => handleOnclick()}
+                        >
+                          Hoàn thành
+                        </button>
+                        <div
+                          className="tooltip flex items-center justify-center"
+                          data-tip="Dự kiến sẽ tự động cân đối tiền của số vé thừa kỳ trước. Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
+                        >
+                          <IoIosInformationCircleOutline
+                            size={20}
+                            className="text-red-500"
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <></>
+                    )
+                  ) : (
+                    <></>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      )}
+      </div>
+    </dialog>
+  );
+};
+
+const HitItem = ({ hit, isRefetching }) => {
+  return (
+    <>
+      <tr className="hover">
+        <td
+          // className="w-[20%] self-center"
+          dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
+        />
+        <td
+          // className="w-[40%] self-center"
+          dangerouslySetInnerHTML={{
+            __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
+          }}
+        />
+        <td
+          // className="w-[20%] self-center"
+          dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
+        />
+        <td className="self-center">
+          {isRefetching ? (
+            <span className="loading loading-spinner loading-md self-center"></span>
+          ) : (
+            <>
+              <div
+                className="tooltip cursor-pointer"
+                data-tip="Lập dự kiến"
+                onClick={() =>
+                  document.getElementById(`modal_${hit.code}`).showModal()
+                }
+              >
+                <CiCircleMore size={25} />
+              </div>
+            </>
+          )}
+        </td>
+      </tr>
+      <>
+        <Modal hit={hit} />
+      </>
+    </>
+  );
+};
+
+const Search = ({ queryObject }) => {
+  const [result, setResult] = useState();
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    isRefetching,
+  } = useInfiniteQuery({
+    queryKey: [`search`, queryObject],
+    queryFn: async ({ pageParam = 1 }) =>
+      meilisearchStudentSearch(
+        queryObject,
+        await meilisearchGetToken(),
+        pageParam
+      ),
+    getNextPageParam: (res) => {
+      if (res.page < res.totalPages) return res.page + 1;
+      else return undefined;
+    },
+  });
+
+  useEffect(() => {
+    if (Array.isArray(data?.pages))
+      setResult(
+        data?.pages
+          .reduce((total, curr) => [...total, ...curr.hits], [])
+          .map((item) => ({ ...item, isOpen: false }))
+      );
+  }, [data]);
+
+  return status === "loading" ? (
+    <span className="loading loading-spinner loading-lg self-center"></span>
+  ) : status === "error" ? (
+    <p className="self-center">Error: {error.message}</p>
+  ) : (
+    result && (
+      <>
+        <div className="overflow-x-auto">
+          <table className="table">
+            {/* head */}
+            <thead>
+              <tr>
+                {/* <th></th> */}
+                <th>Mã học sinh</th>
+                <th>Họ tên</th>
+                <th>Lớp</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className=" text-center">
+                    Không tìm thấy kết quả
+                  </td>
+                </tr>
+              ) : (
+                result.map((el) => (
+                  <Fragment key={el.code}>
+                    <HitItem
+                      hit={el}
+                      isRefetching={isRefetching}
+                      setResult={setResult}
+                    />
+                  </Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-center">
+          <button
+            className="btn"
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
+          >
+            {isFetchingNextPage ? (
+              <span className="loading loading-spinner loading-lg"></span>
+            ) : hasNextPage ? (
+              "Xem thêm"
+            ) : (
+              "Đã hết kết quả tìm kiếm!"
+            )}
+          </button>
+        </div>
+      </>
+    )
+  );
+};
+
+const Student = () => {
+  const { listSearch } = useContext(listContext);
+  const [selected, setSelected] = useState({
+    school: null,
+    class_level: null,
+    class: null,
+    query: "",
+  });
+
+  return (
+    <div className="flex flex-col gap-3">
+      <h6>Tìm kiếm học sinh:</h6>
+      <StudentFilter
+        selected={selected}
+        setSelected={setSelected}
+        listSearch={listSearch}
+      />
+      <Search queryObject={selected} />
     </div>
   );
 };
 
-export default LeftPanel;
+export default Student;

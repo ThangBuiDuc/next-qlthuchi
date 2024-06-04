@@ -245,7 +245,7 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
           ),
           bgd_code: item.bgd_code ? item.bgd_code : null,
           first_name: item.firtsName,
-          last_name: item.lastName,
+          last_name: item.lastName.toString(),
           date_of_birth: item.dob.toString().split(/[\/-]/).reverse().join("-"),
           gender_id: item.gender,
           address: item.address,
@@ -361,7 +361,9 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
                   (el) => el.code === item.class_code
                 ) &&
                 catalogStudent.status.some((el) => el.id === item.status) &&
-                catalogStudent.gender.some((el) => el.id === item.gender)
+                catalogStudent.gender.some((el) => el.id === item.gender) &&
+                item.dob &&
+                item.joinDate
             ) &&
             (mutating ? (
               <span className="loading loading-spinner loading-sm bg-primary self-center"></span>

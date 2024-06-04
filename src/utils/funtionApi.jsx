@@ -439,6 +439,21 @@ export const getListSearch = async () => {
   return res;
 };
 
+//Lấy thông tin biến động quỹ tiền mặt phục vụ báo cáo
+export const getReportCashFund = async (token, where) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REPORT_CASH_FUND,
+    method: "post",
+    data: { where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //Lấy thông tin định mức thu
 export const getRevenueNorms = async (token, where) => {
   const res = await axios({
@@ -507,6 +522,21 @@ export const getExpectedRevenueDiscount = async (
   return res;
 };
 
+//Lấy thông tin vé ăn của học sinh
+export const getTicketStudent = async (token, where) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_TICKET,
+    method: "post",
+    data: { where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
@@ -515,6 +545,19 @@ export const updateRevenueNorm = async (token, updates, objects, log) => {
     url: process.env.NEXT_PUBLIC_HASURA_UPDATE_REVENUE_NORM,
     method: "patch",
     data: { updates: updates, objects: objects, log: log },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Cập nhật định mức thu
+export const updateTicket = async (token, updates) => {
+  return await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_TICKET,
+    method: "patch",
+    data: { updates },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -816,6 +859,35 @@ export const createExpectedRevenue = async (token, objects) => {
 
   return res;
 };
+
+//Tạo dự kiến thu vé ăn router handler
+export const createTicketExpectedRevenueRouter = async (data) => {
+  const res = await axios({
+    url: "/api/ticket",
+    method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+//Tạo dự kiến thu vé ăn
+// export const createTicketExpectedRevenue = async (token, objects, updates) => {
+//   const res = await axios({
+//     url: process.env.NEXT_PUBLIC_HASURA_CREATE_TICKET_EXPECTED_REVENUE,
+//     method: "PUT",
+//     data: {
+//       objects,
+//       updates,
+//     },
+//     headers: {
+//       "content-type": "Application/json",
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
+
+//   return res;
+// };
 
 //Tạo dự kiến thu bổ sung
 export const createExpectedRevenueWithOutRevenue = async (token, objects) => {
