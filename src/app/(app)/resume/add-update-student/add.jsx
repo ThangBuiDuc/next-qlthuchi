@@ -10,6 +10,7 @@ import moment from "moment";
 import "moment/locale/vi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import Datetime from "react-datetime";
 
 registerLocale("vi", vi);
 
@@ -132,7 +133,7 @@ function reducer(state, action) {
   }
 }
 
-const Add = ({ catalogStudent, countStudent, present }) => {
+const Add = ({ catalogStudent, countStudent, present, queryObject }) => {
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -180,7 +181,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
     onSuccess: () => {
       setMutating(false);
       document.getElementById("modal_add").close();
-      queryClient.invalidateQueries(["count_student"]);
+      queryClient.invalidateQueries(["search", queryObject]);
       dispatchInfor({
         type: "reset",
         payload: {
@@ -348,7 +349,25 @@ const Add = ({ catalogStudent, countStudent, present }) => {
             </div>
             <div className=" w-full flex flex-col gap-1">
               <p className="text-xs">Ngày sinh:</p>
-              <DatePicker
+              <Datetime
+                value={infor.dob}
+                closeOnSelect
+                timeFormat={false}
+                onChange={(value) => {
+                  dispatchInfor({
+                    type: "change_dob",
+                    payload: {
+                      value: value,
+                    },
+                  });
+                }}
+                inputProps={{
+                  placeholder: "Nhập ngày sinh",
+                  className:
+                    "px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300",
+                }}
+              />
+              {/* <DatePicker
                 placeholderText="Nhập ngày sinh"
                 locale={"vi"}
                 autoComplete="off"
@@ -369,7 +388,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                     },
                   })
                 }
-              />
+              /> */}
               {/* <label
                 htmlFor={"add_change_dob"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-[#898989]  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
@@ -422,7 +441,25 @@ const Add = ({ catalogStudent, countStudent, present }) => {
 
             <div className="flex flex-col gap-1">
               <p className="text-xs">Ngày nhập học:</p>
-              <DatePicker
+              <Datetime
+                value={infor.joinDate}
+                closeOnSelect
+                timeFormat={false}
+                onChange={(value) => {
+                  dispatchInfor({
+                    type: "change_joinDate",
+                    payload: {
+                      value: value,
+                    },
+                  });
+                }}
+                inputProps={{
+                  placeholder: "Nhập ngày nhập học",
+                  className:
+                    "px-2.5 pb-2.5 pt-4 w-full text-sm text-black rounded-[5px] border-[1px] border-gray-300",
+                }}
+              />
+              {/* <DatePicker
                 locale={"vi"}
                 placeholderText="Nhập ngày nhập học"
                 showMonthDropdown
@@ -442,7 +479,7 @@ const Add = ({ catalogStudent, countStudent, present }) => {
                     },
                   })
                 }
-              />
+              /> */}
               {/* <label
                 htmlFor={"add_change_joinDate"}
                 className="cursor-pointer absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2  left-1"

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.10.4",
     "@clerk/localizations": "^1.26.8",
     "@clerk/nextjs": "^4.26.1",
     "@react-spring/web": "^9.7.3",
@@ -20,6 +21,7 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^10.16.4",
+    "graphql-ws": "^5.16.0",
     "html2pdf.js": "^0.10.1",
     "js-html2pdf": "^1.1.4",
     "jsonwebtoken": "^9.0.2",

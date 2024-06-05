@@ -1,6 +1,6 @@
 import {
   getCatalogStudent,
-  getCountStudent,
+  // getCountStudent,
   getListSearch,
   getSchoolYear,
   getPermission,
@@ -11,6 +11,19 @@ import { auth } from "@clerk/nextjs";
 const Page = async () => {
   const pathName = "/resume/add-update-student";
   const { getToken } = auth();
+
+  // const client = createApolloClient();
+  // const { data } = client.subscribe({
+  //   query: gql`
+  //     subscription MySubscription {
+  //       count_student {
+  //         count
+  //       }
+  //     }
+  //   `,
+  // });
+
+  // console.log(data);
 
   const token = await getToken({
     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
@@ -39,25 +52,23 @@ const Page = async () => {
     );
   }
 
-  const presentPromise = getSchoolYear({ is_active: { _eq: true } });
+  // const presentPromise = getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCatalogStudentPromise = getCatalogStudent();
+  // const apiCatalogStudentPromise = getCatalogStudent();
 
-  const apiListSearchPromise = getListSearch();
+  // const apiListSearchPromise = getListSearch();
 
-  const apiCountStudentPromise = getCountStudent();
+  // const apiCountStudentPromise = getCountStudent();
 
-  const [present, apiCatalogStudent, apiListSearch, apiCountStudent] =
-    await Promise.all([
-      presentPromise,
-      apiCatalogStudentPromise,
-      apiListSearchPromise,
-      apiCountStudentPromise,
-    ]);
+  const [present, apiCatalogStudent, apiListSearch] = await Promise.all([
+    getSchoolYear({ is_active: { _eq: true } }),
+    getCatalogStudent(),
+    getListSearch(),
+  ]);
 
   if (
     apiCatalogStudent.status !== 200 ||
-    apiCountStudent.status !== 200 ||
+    // apiCountStudent.status !== 200 ||
     apiListSearch.status !== 200 ||
     present.status !== 200
   )
@@ -66,7 +77,7 @@ const Page = async () => {
   return (
     <Content
       catalogStudent={apiCatalogStudent.data}
-      countStudent={apiCountStudent.data}
+      // countStudent={apiCountStudent.data}
       present={present.data}
       listSearch={apiListSearch.data}
       permission={permission.data.result[0]?.permission.id.toString()}

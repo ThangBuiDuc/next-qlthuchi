@@ -103,14 +103,18 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
                   .sort((a, b) => a.class_level_code - b.class_level_code)
                   .map((item) => ({
                     ...item,
-                    value: item.code,
+                    value: item.name,
                     label: item.name,
                   }))
               : listSearch.classes
-                  .sort((a, b) => a.class_level_code - b.class_level_code)
+                  .sort(
+                    (a, b) =>
+                      a.class_level_code - b.class_level_code ||
+                      a.code.localeCompare(b.code)
+                  )
                   .map((item) => ({
                     ...item,
-                    value: item.code,
+                    value: item.name,
                     label: item.name,
                   }))
           }

@@ -12,9 +12,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import { createStudent } from "@/utils/funtionApi";
 import { useAuth } from "@clerk/nextjs";
 import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
+// import { saveAs } from "file-saver";
 import { useCallback, useEffect, useRef, useState } from "react";
 import moment from "moment";
+import { FaTimes } from "react-icons/fa";
+const { parse, isValid } = require("date-fns");
 
 function createId(lastCount, code) {
   return `${code}${moment().year().toString().slice(-2)}${(
@@ -23,72 +25,34 @@ function createId(lastCount, code) {
   ).slice(-4)}`;
 }
 
-const AddExcel = ({ catalogStudent, countStudent, present }) => {
+function isValidDateTime(text) {
+  // Try parsing the date with a known format
+  const dateFormats = [
+    "yyyy-MM-dd",
+    "MM/dd/yyyy",
+    "dd/MM/yyyy",
+    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+    "MMMM d, yyyy HH:mm:ss",
+  ];
+
+  for (const format of dateFormats) {
+    const parsedDate = parse(text, format, new Date());
+    if (isValid(parsedDate) && parsedDate.toString() !== "Invalid Date") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+const AddExcel = ({ catalogStudent, countStudent, present, queryObject }) => {
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const [file, setFile] = useState();
   const [infor, setInfor] = useState([]);
+  const [err, setErr] = useState([]);
   const ref = useRef();
-
-  const handleExcelClick = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("Danh sach hoc sinh", {
-      pageSetup: { paperSize: 9, orientation: "landscape" },
-    });
-
-    sheet.addRow([
-      "MaBoGiaoDuc",
-      "Lop",
-      "MaLop",
-      "HoDem",
-      "Ten",
-      "NgaySinh",
-      "MaGioiTinh",
-      "NgayNhapHoc",
-      "MaTrangThai",
-      "DiaChi",
-    ]);
-
-    for (let i = 1; i <= sheet.columnCount; i++) {
-      sheet.getColumn(i).numFmt = "@";
-    }
-
-    // sheet.getCell('F1').note('Đổi định dạng cột sang TEXT trước khi nhập!!')
-    // sheet.getCell('H1').note('Đổi định dạng cột sang TEXT trước khi nhập!!')
-
-    const sheet1 = workbook.addWorksheet("Danh muc lop hoc", {
-      pageSetup: { paperSize: 9, orientation: "landscape" },
-    });
-
-    sheet1.addRow(["lớp học"]);
-
-    catalogStudent.classes.forEach((item) => sheet1.addRow([item.name]));
-
-    const sheet2 = workbook.addWorksheet("Danh muc gioi tinh", {
-      pageSetup: { paperSize: 9, orientation: "landscape" },
-    });
-
-    sheet2.addRow(["Mã", "Giới tính"]);
-
-    catalogStudent.gender.forEach((item) =>
-      sheet2.addRow([item.id, item.description])
-    );
-
-    const sheet3 = workbook.addWorksheet("Danh muc trang thai", {
-      pageSetup: { paperSize: 9, orientation: "landscape" },
-    });
-
-    sheet3.addRow(["Mã", "Trạng thái"]);
-
-    catalogStudent.status.forEach((item) =>
-      sheet3.addRow([item.id, item.name])
-    );
-
-    const buf = await workbook.xlsx.writeBuffer();
-
-    saveAs(new Blob([buf]), "danh-sach-hoc-sinh.xlsx");
-  };
 
   useEffect(() => {
     const processExcel = async () => {
@@ -133,13 +97,13 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
     mutationFn: ({ token, objects }) => createStudent(token, objects),
     onSuccess: () => {
       document.getElementById("modal_add_excel").close();
+      queryClient.invalidateQueries(["search", queryObject]);
       setFile(null);
       setMutating(false);
       setInfor([]);
       if (ref.current) {
         ref.current.value = null;
       }
-      queryClient.invalidateQueries(["count_student"]);
       toast.success("Tạo mới học sinh thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -275,6 +239,29 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
     [infor]
   );
 
+  useEffect(() => {
+    if (infor.length > 0) {
+      setErr(
+        infor.reduce((total, curr, index) => {
+          if (
+            catalogStudent.classes.some(
+              (el) => el.class_level_code === curr.class_level_code
+            ) &&
+            catalogStudent.classes.some((el) => el.code === curr.class_code) &&
+            catalogStudent.status.some((el) => el.id === curr.status) &&
+            catalogStudent.gender.some((el) => el.id === curr.gender) &&
+            isValidDateTime(curr.dob) &&
+            isValidDateTime(curr.joinDate)
+          )
+            return total;
+          else return [...total, index + 2];
+        }, [])
+      );
+    }
+  }, [infor]);
+
+  console.log(err);
+
   // console.log(infor);
   //   const mutation = useMutation({
   //     mutationFn: ({ token, arg }) => createStudent(token, arg),
@@ -338,19 +325,39 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
             ✕
           </button>
         </form>
-        <div className="flex justify-end p-2">
+        {/* <div className="flex justify-end p-2">
           <button className="btn w-fit" onClick={() => handleExcelClick()}>
             File Mẫu
           </button>
-        </div>
+        </div> */}
         <form onSubmit={onSubmit} className="flex flex-col gap-2">
-          <input
-            ref={ref}
-            accept=".xlsx,.xls"
-            type="file"
-            className="file-input file-input-bordered w-full max-w-xs"
-            onChange={(e) => setFile(e.target.files[0])}
-          />
+          <div className="flex gap-2">
+            <input
+              ref={ref}
+              accept=".xlsx,.xls"
+              type="file"
+              className="file-input file-input-bordered w-full max-w-xs"
+              onChange={(e) => setFile(e.target.files[0])}
+            />
+            <div
+              className="cursor-pointer tooltip w-fit h-fit self-center"
+              data-tip="Xoá File chọn!"
+              onClick={() => {
+                setFile("");
+                ref.current.value = "";
+                setInfor([]);
+                setErr([]);
+              }}
+            >
+              <FaTimes size={20} />
+            </div>
+          </div>
+          {err.length > 0 && (
+            <p className="font-semibold">
+              Vị trí dòng dữ liệu phát hiện lỗi:{" "}
+              <span className="text-red-400">{err.join(", ")}</span>
+            </p>
+          )}
           {infor.length > 0 &&
             infor.every(
               (item) =>
@@ -362,8 +369,8 @@ const AddExcel = ({ catalogStudent, countStudent, present }) => {
                 ) &&
                 catalogStudent.status.some((el) => el.id === item.status) &&
                 catalogStudent.gender.some((el) => el.id === item.gender) &&
-                item.dob &&
-                item.joinDate
+                isValidDateTime(item.dob) &&
+                isValidDateTime(item.joinDate)
             ) &&
             (mutating ? (
               <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
