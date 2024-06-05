@@ -53,7 +53,7 @@ const Content = ({ permission, relationshipData }) => {
         ))}
       </div> */}
       <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
+        <table className="table table-pin-rows table-lg">
           {/* head */}
           <thead>
             <tr>

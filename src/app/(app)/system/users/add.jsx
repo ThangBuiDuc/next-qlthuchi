@@ -13,8 +13,8 @@ import { getWards } from "@/utils/funtionApi";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+  import { toast } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
 
 // const gender = [
 //   {

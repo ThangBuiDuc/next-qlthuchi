@@ -99,89 +99,72 @@ const Item = ({
   };
 
   //================================= bảng giảm giá theo nhập học =============================================
-  const [a, setA] = useState(data.prescribed_money);
-  const [discountAData, setDiscountAData] = useState([]);
+  const a = data.prescribed_money;
+  // const [a, setA] = useState(data.prescribed_money);
+  // const [discountAData, setDiscountAData] = useState([]);
+
   // useEffect(() => {
   //   // Filter and map the discounts data
   //   const filteredAData = discountsData
-  //     ?.filter((item) => item.discount_type.id == 4)
-  //     .map((item) => ({
-  //       ...item,
-  //       isChecked: false
-  //     }));
+  //     ?.filter((item) => item.discount_type.id === 4)
+  //     .map((item) => {
+  //       const checkedItem = checkedDiscount?.find(
+  //         (el) => el.discount_id === item.id && el.status == true
+  //       );
+  //       if (checkedItem) {
+  //         // If item is found in checkedDiscount, set isChecked to true
+  //         return {
+  //           ...item,
+  //           isChecked: true,
+  //         };
+  //       } else {
+  //         // If item is not found in checkedDiscount, set isChecked to false
+  //         return {
+  //           ...item,
+  //           isChecked: false,
+  //         };
+  //       }
+  //     });
   //   setDiscountAData(filteredAData);
-  // }, [discountsData]);
+  // }, [discountsData, checkedDiscount]);
+  // // console.log("discountAData:", discountAData);
 
-  useEffect(() => {
-    // Filter and map the discounts data
-    const filteredAData = discountsData
-      ?.filter((item) => item.discount_type.id === 4)
-      .map((item) => {
-        const checkedItem = checkedDiscount?.find(
-          (el) => el.discount_id === item.id && el.status == true
-        );
-        if (checkedItem) {
-          // If item is found in checkedDiscount, set isChecked to true
-          return {
-            ...item,
-            isChecked: true,
-          };
-        } else {
-          // If item is not found in checkedDiscount, set isChecked to false
-          return {
-            ...item,
-            isChecked: false,
-          };
-        }
-      });
-    setDiscountAData(filteredAData);
-  }, [discountsData, checkedDiscount]);
-  // console.log("discountAData:", discountAData);
+  // const toggleItemA = (index) => {
+  //   setDiscountAData(
+  //     discountAData.map((item, i) => {
+  //       if (i == index) {
+  //         return {
+  //           ...item,
+  //           isChecked: !item.isChecked,
+  //         };
+  //       } else {
+  //         return {
+  //           ...item,
+  //           isChecked: false,
+  //         };
+  //       }
+  //     })
+  //   );
+  // };
 
-  const toggleItemA = (index) => {
-    setDiscountAData(
-      discountAData.map((item, i) => {
-        if (i == index) {
-          return {
-            ...item,
-            isChecked: !item.isChecked,
-          };
-        } else {
-          return {
-            ...item,
-            isChecked: false,
-          };
-        }
-      })
-    );
-  };
+  // useEffect(() => {
+  //   const checkedItemA = discountAData.filter((item) => item.isChecked);
+  //   if (checkedItemA.length === 0) {
+  //     setA(data.prescribed_money);
+  //   } else {
+  //     // Assuming you meant to iterate over checked items
+  //     const discountedValue = checkedItemA.reduce((acc, item) => {
+  //       return acc * (1 - item.ratio);
+  //     }, data.prescribed_money);
+  //     setA(discountedValue);
+  //   }
+  // }, [discountAData, data.prescribed_money]);
 
-  useEffect(() => {
-    const checkedItemA = discountAData.filter((item) => item.isChecked);
-    if (checkedItemA.length === 0) {
-      setA(data.prescribed_money);
-    } else {
-      // Assuming you meant to iterate over checked items
-      const discountedValue = checkedItemA.reduce((acc, item) => {
-        return acc * (1 - item.ratio);
-      }, data.prescribed_money);
-      setA(discountedValue);
-    }
-  }, [discountAData, data.prescribed_money]);
-
-  // console.log("a:", a);
+  // // console.log("a:", a);
 
   //================================= bảng ưu đãi (b)=============================================
   const [b, setB] = useState(0);
   const [discountBData, setDiscountBData] = useState([]);
-  // useEffect(() => {
-  //   // Filter and map the discounts data
-  //   const filteredData = discountsData
-  //     ?.filter((item) => item.discount_type.id === 1)
-  //     .map((item) => ({ ...item, isChecked: false }));
-  //   setDiscountBData(filteredData);
-  // }, [discountsData]);
-  // console.log(discountBData);
 
   useEffect(() => {
     // Filter and map the discounts data
@@ -242,6 +225,7 @@ const Item = ({
 
   useEffect(() => {
     if (getBiggestRatioInCheckedList(discountBData) !== null) {
+      // console.log(getBiggestRatioInCheckedList(discountBData))
       setB(a * getBiggestRatioInCheckedList(discountBData).ratio);
     } else {
       setB(0);
@@ -253,13 +237,6 @@ const Item = ({
   //================================= bảng đối tượng chính sách (c)=============================================
   const [c, setC] = useState(0);
   const [discountCData, setDiscountCData] = useState([]);
-  // useEffect(() => {
-  //   // Filter and map the discounts data
-  //   const filteredCData = discountsData
-  //     ?.filter((item) => item.discount_type.id === 2)
-  //     .map((item) => ({ ...item, isChecked: false }));
-  //   setDiscountCData(filteredCData);
-  // }, [discountsData]);
 
   useEffect(() => {
     // Filter and map the discounts data
@@ -418,7 +395,6 @@ const Item = ({
   const [formattedDiscounts, setFormattedDiscounts] = useState();
   useEffect(() => {
     const mergedDiscounts = [
-      ...discountAData,
       ...discountBData,
       ...discountCData,
       ...discountDData,
@@ -430,7 +406,7 @@ const Item = ({
         status: item.isChecked,
       }))
     );
-  }, [discountAData, discountBData, discountCData, discountDData]);
+  }, [discountBData, discountCData, discountDData]);
 
   // console.log("dữ liệu api:", formattedDiscounts);
 
@@ -512,6 +488,8 @@ const Item = ({
           )}
         </td>
       </tr>
+
+      {/* dropdown */}
       <tr>
         <td colSpan="10">
           <AnimatePresence>
@@ -523,22 +501,29 @@ const Item = ({
               >
                 <div className="p-[20px] flex flex-col items-center gap-5 w-full justify-center border-x border-b rounded-b-lg">
                   <h5>Thêm giảm giá: </h5>
-                  <div className="grid grid-cols-4 gap-2 w-full justify-items-center">
-                    <p>Giảm giá cho đối tượng mới nhập học</p>
-                    <p>Trừ ưu đãi học phí</p>
-                    <p>Trừ giảm học phí cho đối tượng chính sách</p>
-                    <p>Trừ giảm học phí cho đối tượng đóng học phí cả năm</p>
+                  {discount == 0 ? (
+                    <div className="w-full">
+                      <h6>Tổng số tiền giảm giá: 0₫</h6>
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <h6>
+                        Tổng số tiền giảm giá: {numberWithCommas(discount)} ₫
+                      </h6>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-4 w-full justify-items-center">
+                    {/* <p>Giảm giá cho đối tượng mới nhập học</p> */}
+                    {/* <p>Giảm ưu đãi</p>
+                    <p>Giảm chính sách</p>
+                    <p>Giảm nhập học</p> */}
 
                     {/* bảng giảm giá theo thời gian nhập học */}
-                    <div className="overflow-x-auto  border rounded-md">
+                    {/* <div className="overflow-x-auto  border rounded-md">
                       <table className="table">
-                        {/* head */}
                         <thead>
                           <tr>
                             <th>
-                              {/* <label>
-                                <input type="checkbox" className="checkbox" />
-                              </label> */}
                             </th>
                             <th>STT</th>
                             <th>Mã giảm</th>
@@ -567,13 +552,33 @@ const Item = ({
                           ))}
                         </tbody>
                       </table>
-                    </div>
+                    </div> */}
 
                     {/* bảng ưu đãi học phí */}
-                    <div className="overflow-x-auto  border rounded-md">
-                      <table className="table">
+                    <div className="overflow-x-auto w-full border rounded-md max-h-[300px]">
+                      <table className="table table-pin-rows">
                         {/* head */}
                         <thead>
+                          <tr>
+                            <th colSpan={5} className="text-center">
+                              Bảng giảm ưu đãi
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Mã được áp dụng:{" "}
+                              {
+                                getBiggestRatioInCheckedList(discountBData)
+                                  ?.code
+                              }
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Số tiền giảm:{" "}
+                              {b ? <>{numberWithCommas(b)} đ</> : null}
+                            </th>
+                          </tr>
                           <tr>
                             <th>
                               <label>
@@ -616,10 +621,30 @@ const Item = ({
                     </div>
 
                     {/* bảng đối tượng chính sách */}
-                    <div className="overflow-x-auto  border rounded-md">
-                      <table className="table">
+                    <div className="overflow-x-auto w-full border rounded-md max-h-[300px]">
+                      <table className="table table-pin-rows">
                         {/* head */}
                         <thead>
+                          <tr>
+                            <th colSpan={5} className="text-center">
+                              Bảng giảm chỉnh sách
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Mã được áp dụng:{" "}
+                              {
+                                getBiggestRatioInCheckedList(discountCData)
+                                  ?.code
+                              }
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Số tiền giảm:{" "}
+                              {c ? <>{numberWithCommas(c)} đ</> : null}
+                            </th>
+                          </tr>
                           <tr>
                             <th>
                               <label>
@@ -661,10 +686,30 @@ const Item = ({
                     </div>
 
                     {/* bảng trừ giảm đối tượng đóng học phí cả năm */}
-                    <div className="overflow-x-auto  border rounded-md">
-                      <table className="table">
+                    <div className="overflow-x-auto w-full border rounded-md max-h-[300px]">
+                      <table className="table table-pin-rows">
                         {/* head */}
                         <thead>
+                          <tr>
+                            <th colSpan={5} className="text-center">
+                              Bảng giảm thanh toán
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Mã được áp dụng:{" "}
+                              {
+                                getBiggestRatioInCheckedList(discountDData)
+                                  ?.code
+                              }
+                            </th>
+                          </tr>
+                          <tr>
+                            <th colSpan={5}>
+                              Số tiền giảm:{" "}
+                              {d ? <>{numberWithCommas(d)} đ</> : null}
+                            </th>
+                          </tr>
                           <tr>
                             <th>
                               <label>
@@ -701,13 +746,68 @@ const Item = ({
                               <td>{item.ratio * 100}</td>
                             </tr>
                           ))}
+                          {/* <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr> */}
                         </tbody>
                       </table>
                     </div>
                   </div>
-                  {discount == 0 ? null : (
-                    <h6>Số tiền giảm giá: {numberWithCommas(discount)} ₫</h6>
-                  )}
+
                   {permission ===
                     process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
                     <button
@@ -790,7 +890,7 @@ const SubContent = ({ student, selectPresent, discounts, permission }) => {
   return (
     <div className="flex flex-col gap-4">
       {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-hidden">
         <table className="table table-xs table-pin-rows">
           {/* head */}
           <thead>

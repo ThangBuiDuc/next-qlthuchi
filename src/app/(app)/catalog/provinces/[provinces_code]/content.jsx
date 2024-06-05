@@ -5,7 +5,7 @@ import Link from "next/link";
 const Content = async ({ districts }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra">
+      <table className="table table-zebra table-lg">
         {/* head */}
         <thead>
           <tr>

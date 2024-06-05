@@ -103,7 +103,7 @@ const Content = ({
         revenueGroupData={revenueGroupData}
       /> */}
       <div className="overflow-x-auto">
-        <table className="table table-zebra">
+        <table className="table table-zebra table-lg">
           <thead>
             <tr>
               <th>STT</th>

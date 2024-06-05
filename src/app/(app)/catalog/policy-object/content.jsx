@@ -81,7 +81,7 @@ const Content = () => {
       </button>
       <Add />
       <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
+        <table className="table table-lg table-pin-rows">
           <thead>
             <tr>
               <th></th>
