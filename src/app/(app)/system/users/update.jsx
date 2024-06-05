@@ -145,7 +145,7 @@ const Edit = ({ data, provinces, districts, gender }) => {
         closeOnClick: true,
         theme: "light",
       });
-      const modalCheckbox = document.getElementById(`modal_add_${data.id}`);
+      const modalCheckbox = document.getElementById(`modal_fix_${data.id}`);
       if (modalCheckbox) {
         modalCheckbox.checked = false;
       }

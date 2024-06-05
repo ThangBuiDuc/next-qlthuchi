@@ -51,7 +51,7 @@ const Content = ({ permission, statusData }) => {
         ))}
       </div> */}
       <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
+        <table className="table table-pin-rows table-lg">
           <thead>
             <tr>
               <th></th>
