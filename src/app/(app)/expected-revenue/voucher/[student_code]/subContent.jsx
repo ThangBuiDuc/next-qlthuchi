@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import {
   getExpectedRevenue,
   createExpectedRevenueDiscount,
+  createExpectedRevenueDiscount2,
   getExpectedRevenueDiscount,
 } from "@/utils/funtionApi";
 import {
@@ -35,7 +36,7 @@ const Skeleton = () => {
     <>
       {[...Array(4)].map((_, i) => (
         <tr key={i}>
-          {[...Array(9)].map((_, ii) => (
+          {[...Array(11)].map((_, ii) => (
             <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
@@ -415,8 +416,10 @@ const Item = ({
   const { getToken } = useAuth();
 
   const mutation = useMutation({
-    mutationFn: ({ token, id, discount, objects }) =>
-      createExpectedRevenueDiscount(token, id, discount, objects),
+    // mutationFn: ({ token, id, discount, objects }) =>
+    //   createExpectedRevenueDiscount(token, id, discount, objects),
+    mutationFn: ({ token, objects }) =>
+      createExpectedRevenueDiscount2(token, objects),
     onSuccess: () => {
       queryClient.invalidateQueries(["get_expected_revenue"]);
       toast.success("Cập nhật mã giảm giá cho khoản thu thành công!", {
@@ -445,7 +448,8 @@ const Item = ({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
-    mutation.mutate({ token, id, discount, objects });
+    // mutation.mutate({ token, id, discount, objects });
+    mutation.mutate({ token, objects });
   }, [formattedDiscounts, discount]);
 
   return (
@@ -458,6 +462,8 @@ const Item = ({
         <td>{revenue_type.name}</td>
         <td>{numberWithCommas(data.prescribed_money)} đ</td>
         <td>{numberWithCommas(data.discount)} đ</td>
+        <td>Giảm trừ ngoài</td>
+        <td>Lý do giảm trừ</td>
         <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
         <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
         <td>{numberWithCommas(data.amount_collected)} ₫</td>
@@ -491,7 +497,7 @@ const Item = ({
 
       {/* dropdown */}
       <tr>
-        <td colSpan="10">
+        <td colSpan="12">
           <AnimatePresence>
             {checked && (
               <motion.div
@@ -746,9 +752,6 @@ const Item = ({
                               <td>{item.ratio * 100}</td>
                             </tr>
                           ))}
-                          {/* <tr>
-                            <td>1</td>
-                          </tr>
                           <tr>
                             <td>1</td>
                           </tr>
@@ -802,7 +805,10 @@ const Item = ({
                           </tr>
                           <tr>
                             <td>1</td>
-                          </tr> */}
+                          </tr>
+                          <tr>
+                            <td>1</td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -900,6 +906,8 @@ const SubContent = ({ student, selectPresent, discounts, permission }) => {
               <th>Loại khoản thu</th>
               <th>Số tiền quy định</th>
               <th>Số tiền giảm giá</th>
+              <th>Giảm trừ ngoài</th>
+              <th>Lý do giảm trừ</th>
               <th>Công nợ đầu kỳ</th>
               <th>Số phải nộp kỳ này</th>
               {/* <th>Nộp cả năm</th> */}

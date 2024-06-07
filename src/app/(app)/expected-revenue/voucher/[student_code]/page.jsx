@@ -52,7 +52,7 @@ const Page = async ({ params }) => {
 
   const student = await meilisearchStudentGet(params.student_code);
 
-  console.log(student)
+  // console.log(student)
 
   const apiGetDiscounts = await getDiscounts();
 

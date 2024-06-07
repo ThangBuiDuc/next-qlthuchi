@@ -948,6 +948,27 @@ export const createExpectedRevenueDiscount = async (
   return res;
 };
 
+//Thêm / sửa mã giảm giá cho khoản thu bản 2
+export const createExpectedRevenueDiscount2 = async (
+  token,
+  objects
+) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
+    method: "POST",
+    data: {
+      objects: objects
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+
 //DELETE---------------------------------------------------------------------
 
 //Huỷ định mức thu
