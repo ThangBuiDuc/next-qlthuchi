@@ -463,7 +463,6 @@ const Item = ({
         <td>{numberWithCommas(data.prescribed_money)} đ</td>
         <td>{numberWithCommas(data.discount)} đ</td>
         <td>Giảm trừ ngoài</td>
-        <td>Lý do giảm trừ</td>
         <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
         <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
         <td>{numberWithCommas(data.amount_collected)} ₫</td>
@@ -497,7 +496,7 @@ const Item = ({
 
       {/* dropdown */}
       <tr>
-        <td colSpan="12">
+        <td colSpan="11">
           <AnimatePresence>
             {checked && (
               <motion.div
@@ -907,7 +906,6 @@ const SubContent = ({ student, selectPresent, discounts, permission }) => {
               <th>Số tiền quy định</th>
               <th>Số tiền giảm giá</th>
               <th>Giảm trừ ngoài</th>
-              <th>Lý do giảm trừ</th>
               <th>Công nợ đầu kỳ</th>
               <th>Số phải nộp kỳ này</th>
               {/* <th>Nộp cả năm</th> */}
