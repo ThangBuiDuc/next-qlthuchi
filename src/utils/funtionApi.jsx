@@ -537,6 +537,23 @@ export const getTicketStudent = async (token, where) => {
   return res;
 };
 
+
+//Lấy số tiền giảm trừ ngoài của 1 khoản thu
+export const getExternalDeduction = async (token, expected_revenue_id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_NEXT_PUBLIC_HASURA_GET_EXTERNAL_DEDUCTION,
+    method: "post",
+    data: { expected_revenue_id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+
 //UPDATE---------------------------------------------------------------------
 
 //Cập nhật định mức thu
@@ -955,6 +972,26 @@ export const createExpectedRevenueDiscount2 = async (
 ) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
+    method: "POST",
+    data: {
+      objects: objects
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Thêm mới số tiền giảm trừ ngoài
+export const createExternalDeduction = async (
+  token,
+  objects
+) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_EXTERNAL_DEDUCTION,
     method: "POST",
     data: {
       objects: objects

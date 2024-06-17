@@ -26,6 +26,8 @@ import { TbReload } from "react-icons/tb";
 // import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TbPencilDiscount } from "react-icons/tb";
+import { TicketPlus } from "lucide-react";
+import ExternalDeduction from "./ExternalDeduction";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -101,67 +103,6 @@ const Item = ({
 
   //================================= bảng giảm giá theo nhập học =============================================
   const a = data.prescribed_money;
-  // const [a, setA] = useState(data.prescribed_money);
-  // const [discountAData, setDiscountAData] = useState([]);
-
-  // useEffect(() => {
-  //   // Filter and map the discounts data
-  //   const filteredAData = discountsData
-  //     ?.filter((item) => item.discount_type.id === 4)
-  //     .map((item) => {
-  //       const checkedItem = checkedDiscount?.find(
-  //         (el) => el.discount_id === item.id && el.status == true
-  //       );
-  //       if (checkedItem) {
-  //         // If item is found in checkedDiscount, set isChecked to true
-  //         return {
-  //           ...item,
-  //           isChecked: true,
-  //         };
-  //       } else {
-  //         // If item is not found in checkedDiscount, set isChecked to false
-  //         return {
-  //           ...item,
-  //           isChecked: false,
-  //         };
-  //       }
-  //     });
-  //   setDiscountAData(filteredAData);
-  // }, [discountsData, checkedDiscount]);
-  // // console.log("discountAData:", discountAData);
-
-  // const toggleItemA = (index) => {
-  //   setDiscountAData(
-  //     discountAData.map((item, i) => {
-  //       if (i == index) {
-  //         return {
-  //           ...item,
-  //           isChecked: !item.isChecked,
-  //         };
-  //       } else {
-  //         return {
-  //           ...item,
-  //           isChecked: false,
-  //         };
-  //       }
-  //     })
-  //   );
-  // };
-
-  // useEffect(() => {
-  //   const checkedItemA = discountAData.filter((item) => item.isChecked);
-  //   if (checkedItemA.length === 0) {
-  //     setA(data.prescribed_money);
-  //   } else {
-  //     // Assuming you meant to iterate over checked items
-  //     const discountedValue = checkedItemA.reduce((acc, item) => {
-  //       return acc * (1 - item.ratio);
-  //     }, data.prescribed_money);
-  //     setA(discountedValue);
-  //   }
-  // }, [discountAData, data.prescribed_money]);
-
-  // // console.log("a:", a);
 
   //================================= bảng ưu đãi (b)=============================================
   const [b, setB] = useState(0);
@@ -310,14 +251,6 @@ const Item = ({
   //================================= bảng trừ giảm đối tượng đóng học phí cả năm (d)=============================================
   const [d, setD] = useState(0);
   const [discountDData, setDiscountDData] = useState([]);
-  // useEffect(() => {
-  //   // Filter and map the discounts data
-  //   const filteredDData = discountsData
-  //     ?.filter((item) => item.discount_type.id === 3)
-  //     .map((item) => ({ ...item, isChecked: false }));
-  //   setDiscountDData(filteredDData);
-  // }, [discountsData]);
-  // console.log(discountDData);
 
   useEffect(() => {
     // Filter and map the discounts data
@@ -443,7 +376,7 @@ const Item = ({
 
   const handleOnSubmit = useCallback(async () => {
     let objects = formattedDiscounts;
-    let id = data.id;
+    // let id = data.id;
     let token = await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
@@ -451,6 +384,8 @@ const Item = ({
     // mutation.mutate({ token, id, discount, objects });
     mutation.mutate({ token, objects });
   }, [formattedDiscounts, discount]);
+
+  // console.log(data)
 
   return (
     <>
@@ -462,7 +397,15 @@ const Item = ({
         <td>{revenue_type.name}</td>
         <td>{numberWithCommas(data.prescribed_money)} đ</td>
         <td>{numberWithCommas(data.discount)} đ</td>
-        <td>Giảm trừ ngoài</td>
+        <td>
+          <div className="flex gap-3 items-center justify-between">
+            <>{numberWithCommas(data.external_deduction)} đ</>
+            <label htmlFor={`modal_${data.id}`}>
+              Thêm 
+            </label>
+            <ExternalDeduction data={data}/>
+          </div>
+        </td>
         <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
         <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
         <td>{numberWithCommas(data.amount_collected)} ₫</td>
@@ -505,7 +448,7 @@ const Item = ({
                 exit={{ opacity: 0, height: 0 }}
               >
                 <div className="p-[20px] flex flex-col items-center gap-5 w-full justify-center border-x border-b rounded-b-lg">
-                  <h5>Thêm giảm giá: </h5>
+                  <h5>Áp mã giảm giá: </h5>
                   {discount == 0 ? (
                     <div className="w-full">
                       <h6>Tổng số tiền giảm giá: 0₫</h6>
@@ -518,46 +461,6 @@ const Item = ({
                     </div>
                   )}
                   <div className="grid grid-cols-3 gap-4 w-full justify-items-center">
-                    {/* <p>Giảm giá cho đối tượng mới nhập học</p> */}
-                    {/* <p>Giảm ưu đãi</p>
-                    <p>Giảm chính sách</p>
-                    <p>Giảm nhập học</p> */}
-
-                    {/* bảng giảm giá theo thời gian nhập học */}
-                    {/* <div className="overflow-x-auto  border rounded-md">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th>
-                            </th>
-                            <th>STT</th>
-                            <th>Mã giảm</th>
-                            <th>Mô tả</th>
-                            <th>Tỉ lệ(%)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {discountAData?.map((item, index) => (
-                            <tr key={index}>
-                              <td>
-                                <label key={index}>
-                                  <input
-                                    type="checkbox"
-                                    className="checkbox"
-                                    checked={item.isChecked}
-                                    onChange={() => toggleItemA(index)}
-                                  />
-                                </label>
-                              </td>
-                              <td>{index + 1}. </td>
-                              <td>{item.code}</td>
-                              <td>{item.description}</td>
-                              <td>{item.ratio * 100}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div> */}
 
                     {/* bảng ưu đãi học phí */}
                     <div className="overflow-x-auto w-full border rounded-md max-h-[300px]">
@@ -751,63 +654,6 @@ const Item = ({
                               <td>{item.ratio * 100}</td>
                             </tr>
                           ))}
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
-                          <tr>
-                            <td>1</td>
-                          </tr>
                         </tbody>
                       </table>
                     </div>
