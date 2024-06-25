@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   Fragment,
   useMemo,
+  useEffect,
 } from "react";
 import { listContext } from "../content";
 import CurrencyInput from "react-currency-input-field";
@@ -22,10 +23,84 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { TbReload } from "react-icons/tb";
+import { BiSolidCategory } from "react-icons/bi";
 // import { Scrollbars } from "react-custom-scrollbars-2";
 import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
+import { set } from "lodash";
+
+export const priority = [
+  { index: 1, code: "VATT12", name: "Vé ăn tháng 12" },
+  { index: 2, code: "VATT11", name: "Vé ăn tháng 11" },
+  { index: 3, code: "VATT10", name: "Vé ăn tháng 10" },
+  { index: 4, code: "VATT9", name: "Vé ăn tháng 9" },
+  { index: 5, code: "VATT8", name: "Vé ăn tháng 8" },
+  { index: 6, code: "VATT7", name: "Vé ăn tháng 7" },
+  { index: 7, code: "VATT6", name: "Vé ăn tháng 6" },
+  { index: 8, code: "VATT5", name: "Vé ăn tháng 5" },
+  { index: 9, code: "VATT4", name: "Vé ăn tháng 4" },
+  { index: 10, code: "VATT3", name: "Vé ăn tháng 3" },
+  { index: 11, code: "VATT2", name: "Vé ăn tháng 2" },
+  { index: 12, code: "VATT1", name: "Vé ăn tháng 1" },
+  { index: 13, code: "TN", name: "Học phí ôn thi tốt nghiệp" },
+  { index: 14, code: "THK", name: "Phí thu hộ khác" },
+  { index: 15, code: "XD", name: "Vé gửi xe đạp" },
+  { index: 16, code: "S/VG", name: "Sách, vở ghi" },
+  { index: 17, code: "DP", name: "Đồng phục" },
+  { index: 18, code: "KSK/HS", name: "Phí khám sức khoẻ, làm thẻ học sinh" },
+  { index: 19, code: "HTTN", name: "Phí hoạt động học tập trải nghiệm, THTT" },
+  { index: 20, code: "QLHSNG", name: "Phí quản lý học sinh ngoài giờ" },
+  { index: 21, code: "DDHS", name: "Phí đưa đón học sinh" },
+  { index: 22, code: "TL", name: "Phí thi lại" },
+  { index: 23, code: "CSVC", name: "Cơ sở vật chất" },
+  { index: 24, code: "NN", name: "Phí ngoại ngữ" },
+  { index: 25, code: "VN", name: "Phí văn nghệ" },
+  { index: 26, code: "BHYT", name: "Bảo hiểm y tế" },
+  { index: 27, code: "HLHP", name: "Phí học liệu, học phẩm" },
+  { index: 28, code: "DTDV", name: "Phí dự tuyển đầu vào" },
+  { index: 29, code: "BT", name: "Phí bán trú" },
+  { index: 30, code: "HP", name: "Học phí" },
+];
+
+
+function mergeSort(arr, priority) {
+  if (arr.length <= 1) {
+    return arr;
+  }
+
+  const middle = Math.floor(arr.length / 2);
+  const left = arr.slice(0, middle);
+  const right = arr.slice(middle);
+
+  return merge(
+    mergeSort(left, priority),
+    mergeSort(right, priority),
+    priority
+  );
+}
+
+function merge(left, right, priority) {
+  let result = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+
+  while (leftIndex < left.length && rightIndex < right.length) {
+    const priorityA = priority.find(p => p.code === left[leftIndex].code)?.index || Infinity;
+    const priorityB = priority.find(p => p.code === right[rightIndex].code)?.index || Infinity;
+
+    if (priorityA < priorityB) {
+      result.push(left[leftIndex]);
+      leftIndex++;
+    } else {
+      result.push(right[rightIndex]);
+      rightIndex++;
+    }
+  }
+
+  return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+}
+
 
 const times = localFont({ src: "../../../../times.ttf" });
 
@@ -471,6 +546,9 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
     queryKey: ["get_history_receipt", where],
   });
 
+  // console.log(data)
+  // console.log(priority)
+
   const amount_collected_ref = useRef();
   return (
     <tr className="hover">
@@ -502,10 +580,6 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                             ? {
                                 ...item,
                                 isChecked: e.target.checked,
-                                nowMoney:
-                                  e.target.checked === true
-                                    ? item.next_batch_money
-                                    : 0,
                               }
                             : item
                         ),
@@ -592,7 +666,9 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                             </tr>
                           ))
                         ) : historyData.data.data.result.length === 0 ? (
-                          <tr colSpan={6}>Chưa có dữ liệu</tr>
+                          <tr>
+                            <td colSpan={6}>Chưa có dữ liệu</td>
+                          </tr>
                         ) : (
                           historyData.data.data.result.map((item, index) => (
                             <tr key={item.code} className="hover">
@@ -640,6 +716,10 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
 };
 
 const SubContent = ({ student, selectPresent }) => {
+  const [totalValue, setTotalValue] = useState(0);
+  // console.log(totalValue)
+  const [isCheckedAll, setIsCheckedAll] = useState(false);
+
   const { preReceiptIsRefetch, permission } = useContext(listContext);
   const ref = useRef();
   const [data, setData] = useState();
@@ -674,6 +754,8 @@ const SubContent = ({ student, selectPresent }) => {
       ),
   });
 
+  // console.log(data);
+
   useLayoutEffect(() => {
     if (expectedRevenue.data) {
       setData(
@@ -693,6 +775,34 @@ const SubContent = ({ student, selectPresent }) => {
     }
   }, [expectedRevenue.data]);
 
+  const selectAll = () => {
+    setIsCheckedAll(!isCheckedAll);
+    setData((pre) =>
+      pre.map((item) =>
+        item.expected_revenues.length === 0
+          ? item
+          : {
+              ...item,
+              expected_revenues: item.expected_revenues.map((el) => ({
+                ...el,
+                isChecked: !isCheckedAll,
+              })),
+            }
+      )
+    );
+  };
+
+  useEffect(() => {
+    if (expectedRevenue.data && data) {
+      const allChecked = data.every((item) =>
+        item.expected_revenues.length === 0
+          ? true
+          : item.expected_revenues.every((revenue) => revenue.isChecked)
+      );
+      setIsCheckedAll(allChecked);
+    }
+  }, [data]);
+
   // if (expectedRevenue.isFetching && expectedRevenue.isLoading) {
   //   return (
   //     <div className="w-full flex flex-col justify-center items-center">
@@ -701,9 +811,57 @@ const SubContent = ({ student, selectPresent }) => {
   //   );
   // }
 
+  const allocateFunds = () => {
+    if (!totalValue || totalValue <= 0) return;
+  
+    // Tạo bản sao của dữ liệu để cập nhật
+    const updatedData = data.map(item => ({
+      ...item,
+      expected_revenues: item.expected_revenues.map(revenue => ({
+        ...revenue,
+        nowMoney: 0, // Đặt nowMoney về 0 cho mỗi revenue
+      })),
+    }));
+  
+    // Lấy tất cả các mục được chọn và sắp xếp theo thứ tự ưu tiên từ index nhỏ đến lớn
+    const checkedItems = mergeSort(
+      updatedData
+        .flatMap(item => item.expected_revenues)
+        .filter(revenue => revenue.isChecked),
+      priority
+    );
+    
+  
+    let remainingAmount = totalValue;
+  
+    // Phân bổ số tiền dựa trên số tiền còn lại và các mục đã chọn
+    for (let i = 0; i < checkedItems.length; i++) {
+      const revenue = checkedItems[i];
+      const allocatedAmount = Math.min(revenue.next_batch_money, remainingAmount);
+      revenue.nowMoney = allocatedAmount;
+      remainingAmount -= allocatedAmount;
+      if (remainingAmount <= 0) break;
+    }
+  
+    // Nếu còn thừa tiền sau khi đã phân bổ hết, gộp vào mục cuối cùng
+    if (remainingAmount > 0) {
+      const lastItem = checkedItems[checkedItems.length - 1];
+      lastItem.nowMoney += remainingAmount;
+    }
+  
+    // Cập nhật lại dữ liệu với số tiền đã phân bổ
+    setData(updatedData);
+  
+    // Console.log các phần tử đã sắp xếp và phân bổ
+    console.log("Sorted and allocated items:", checkedItems);
+  };  
+  
+
   if (expectedRevenue.isError) {
     throw new Error();
   }
+
+  console.log(data)
 
   return (
     <div className="flex flex-col gap-4">
@@ -722,48 +880,7 @@ const SubContent = ({ student, selectPresent }) => {
               {/* <th>Nộp cả năm</th> */}
               <th>Đã điều chỉnh</th>
               <th>Đã hoàn trả</th>
-              {data ? (
-                <th
-                  className="cursor-pointer"
-                  onClick={() =>
-                    setData((pre) =>
-                      pre.map((item) =>
-                        item.expected_revenues.length === 0
-                          ? item
-                          : {
-                              ...item,
-                              expected_revenues: item.expected_revenues.map(
-                                (el) =>
-                                  el.isChecked
-                                    ? { ...el, isChecked: false, nowMoney: 0 }
-                                    : {
-                                        ...el,
-                                        isChecked: true,
-                                        nowMoney:
-                                          el.previous_batch_money +
-                                          el.actual_amount_collected +
-                                          el.amount_edited -
-                                          el.amount_collected -
-                                          el.nowMoney,
-                                      }
-                              ),
-                            }
-                      )
-                    )
-                  }
-                >
-                  <>
-                    <div
-                      data-tip={"Chọn tất cả"}
-                      className="tooltip tooltip-left"
-                    >
-                      Tích chọn nộp
-                    </div>
-                  </>
-                </th>
-              ) : (
-                <th>Tích chọn nộp</th>
-              )}
+              {data ? <th>Tích chọn nộp</th> : <th>Tích chọn nộp</th>}
               <th>Số tiền nộp lần này</th>
               <th>Số đã nộp trong kỳ</th>
               <th>Công nợ cuối kỳ</th>
@@ -779,6 +896,38 @@ const SubContent = ({ student, selectPresent }) => {
                 >
                   <TbReload size={30} />
                 </div>
+              </th>
+            </tr>
+            <tr>
+              <th colSpan={7}></th>
+              <th></th>
+              <th>
+                <>
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-xs"
+                    checked={isCheckedAll}
+                    onChange={() => selectAll()}
+                  />
+                </>
+              </th>
+              <th>
+                <CurrencyInput
+                  autoComplete="off"
+                  intlConfig={{ locale: "vi-VN", currency: "VND" }}
+                  className={`input input-xs`}
+                  value={totalValue}
+                  onValueChange={(value) => setTotalValue(value)}
+                  decimalsLimit={2}
+                />
+              </th>
+              <th colSpan={3}>
+                <button
+                  onClick={allocateFunds}
+                  className="cursor-pointer bg-white relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-[#F5F5F5] hover:text-[#06B6D4] h-9 px-3 "
+                >
+                  <BiSolidCategory /> Phân bổ
+                </button>
               </th>
             </tr>
           </thead>

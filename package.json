@@ -33,6 +33,7 @@
     "js-html2pdf": "^1.1.4",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.394.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.44",
     "next": "13.5.4",
