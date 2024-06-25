@@ -36,9 +36,13 @@ const Page = async ({ params }) => {
       </div>
     );
   }
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const [student, present] = await Promise.all([
+    meilisearchStudentGet(params.student_code),
+    getSchoolYear({ is_active: { _eq: true } }),
+  ]);
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const student = await meilisearchStudentGet(params.student_code);
+  // const student = await meilisearchStudentGet(params.student_code);
 
   if (present.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

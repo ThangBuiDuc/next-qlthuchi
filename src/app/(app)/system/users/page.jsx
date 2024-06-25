@@ -43,22 +43,34 @@ const Page = async () => {
   // const jwt = await getToken({
   //   template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
   // });
-  const apiGetProvinces = await getProvinces();
 
-  const apiGetDistricts = await getDistricts();
+  const [apiGetProvinces, apiGetDistricts, apiGetGender, apiGetUsers] =
+    await Promise.all([
+      getProvinces(),
+      getDistricts(),
+      getGender(),
+      getUsers(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+        })
+      ),
+    ]);
+  // const apiGetProvinces = await getProvinces();
 
-  const apiGetGender = await getGender();
+  // const apiGetDistricts = await getDistricts();
 
-  const apiGetUsers = await getUsers(
-    await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    })
-  );
+  // const apiGetGender = await getGender();
+
+  // const apiGetUsers = await getUsers(
+  //   await getToken({
+  //     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+  //   })
+  // );
 
   if (
     apiGetProvinces.status !== 200 ||
     apiGetDistricts.status !== 200 ||
-    apiGetUsers.status !== 200  ||
+    apiGetUsers.status !== 200 ||
     apiGetGender.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

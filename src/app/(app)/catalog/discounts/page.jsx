@@ -40,9 +40,12 @@ const Page = async () => {
     );
   }
 
-  const apiGetDiscounts = await getDiscounts();
-  const apiGetDiscountType = await getDiscountType();
-  const apiGetRevenueGroup = await getRevenueGroup();
+  const [apiGetDiscounts, apiGetDiscountType, apiGetRevenueGroup] =
+    await Promise.all([getDiscounts(), getDiscountType(), getRevenueGroup()]);
+
+  // const apiGetDiscounts = await getDiscounts();
+  // const apiGetDiscountType = await getDiscountType();
+  // const apiGetRevenueGroup = await getRevenueGroup();
 
   if (
     apiGetDiscounts.status !== 200 ||

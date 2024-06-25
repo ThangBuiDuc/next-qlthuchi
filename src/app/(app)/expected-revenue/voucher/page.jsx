@@ -37,9 +37,14 @@ const Page = async () => {
     );
   }
 
-  const apiListSearch = await getListSearch();
+  const [apiListSearch, present] = await Promise.all([
+    getListSearch(),
+    getSchoolYear({ is_active: { _eq: true } }),
+  ]);
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  // const apiListSearch = await getListSearch();
+
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
   if (apiListSearch.status !== 200 || present.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

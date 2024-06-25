@@ -6,7 +6,7 @@ import moment from "moment";
 import "moment/locale/vi";
 import Select from "react-select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import { updateStudent } from "@/utils/funtionApi";
 
@@ -47,7 +47,10 @@ const Student = ({
   isRefetching,
   catalogStudent,
   permission,
+  present,
+  student,
 }) => {
+  const { user } = useUser();
   const queryClient = useQueryClient();
   const [mutating, setMutating] = useState(false);
   const { getToken } = useAuth();
@@ -94,6 +97,19 @@ const Student = ({
         address: studentRaw.address,
         status_id: studentRaw.status.id,
       },
+      where1: {
+        student_code: {
+          _eq: studentRaw.code,
+        },
+        school_year_id: {
+          _eq: present.result[0].id,
+        },
+      },
+      _set1: {
+        class_code: studentRaw.schoolyear_students[0].class.name,
+        updated_by: user.id,
+        updated_at: moment().format(),
+      },
     };
     let token = await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
@@ -133,11 +149,50 @@ const Student = ({
             }}
           />
         </div>
-        <TextInput
+        {/* <TextInput
           value={studentRaw.schoolyear_students[0].class.name}
           disable
           label={"Lớp học"}
-        />
+        /> */}
+        <div className="flex flex-col gap-1">
+          <p className="text-xs">Lớp học:</p>
+          <Select
+            placeholder="Lớp học"
+            className="text-black text-sm"
+            classNames={{
+              control: () => "!rounded-[5px]",
+              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+              valueContainer: () => "!p-[0_8px]",
+              menu: () => "!z-[11]",
+            }}
+            options={catalogStudent.classes.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
+            value={{
+              value: studentRaw.schoolyear_students[0].class.id,
+              label: studentRaw.schoolyear_students[0].class.name,
+            }}
+            onChange={(e) =>
+              setStudentRaw((pre) => ({
+                ...pre,
+                schoolyear_students: pre.schoolyear_students.map(
+                  (item, index) => {
+                    if (index === 0)
+                      return {
+                        class: {
+                          ...item.class,
+                          id: e.value,
+                          name: e.label,
+                        },
+                      };
+                    return item;
+                  }
+                ),
+              }))
+            }
+          />
+        </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs">Ngày sinh:</p>
           <Datetime
@@ -150,11 +205,42 @@ const Student = ({
             }}
           />
         </div>
-        <TextInput
+        {/* <TextInput
           value={studentRaw.gender.description}
           disable
           label={"Giới tính"}
-        />
+        /> */}
+        <div className="flex flex-col gap-1">
+          <p className="text-xs">Giới tính:</p>
+          <Select
+            placeholder="Giới tính"
+            className="text-black text-sm"
+            classNames={{
+              control: () => "!rounded-[5px]",
+              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+              valueContainer: () => "!p-[0_8px]",
+              menu: () => "!z-[11]",
+            }}
+            options={catalogStudent.gender.map((item) => ({
+              value: item.id,
+              label: item.description,
+            }))}
+            value={{
+              value: studentRaw.gender.id,
+              label: studentRaw.gender.description,
+            }}
+            onChange={(e) =>
+              setStudentRaw((pre) => ({
+                ...pre,
+                gender: {
+                  ...pre.gender,
+                  id: e.value,
+                  description: e.label,
+                },
+              }))
+            }
+          />
+        </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs">Trạng thái:</p>
           <Select

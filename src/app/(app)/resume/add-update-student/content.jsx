@@ -3,13 +3,13 @@ import Link from "next/link";
 import Add from "./add";
 import AddExcel from "./addExcel";
 import { GoPersonAdd } from "react-icons/go";
-import { Fragment, useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CiCircleMore } from "react-icons/ci";
 import {
   meilisearchGetToken,
   meilisearchStudentSearch,
 } from "@/utils/funtionApi";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { CiImport } from "react-icons/ci";
 import "react-toastify/dist/ReactToastify.css";
 import StudentFilter from "@/app/_component/studentFilter";
@@ -17,147 +17,206 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useSubscription, gql } from "@apollo/client";
 import { CiExport } from "react-icons/ci";
+import parse from "html-react-parser";
 
-const HitItem = ({ hit, isRefetching }) => {
-  return (
-    <>
-      <tr className="hover">
-        <td
-          // className="w-[20%] self-center"
-          dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
-        />
-        <td
-          // className="w-[40%] self-center"
-          dangerouslySetInnerHTML={{
-            __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
-          }}
-        />
-        <td
-          // className="w-[20%] self-center"
-          dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
-        />
-        <td className="self-center">
-          {isRefetching ? (
-            <span className="loading loading-spinner loading-md self-center"></span>
-          ) : (
-            <>
-              <div className="tooltip" data-tip="Cập nhật">
-                <Link href={`add-update-student/${hit.code}`}>
-                  <CiCircleMore size={25} />
-                </Link>
-              </div>
-            </>
-          )}
-        </td>
-      </tr>
-    </>
-  );
-};
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Pagination } from "@nextui-org/pagination";
+import { Spinner } from "@nextui-org/spinner";
+import { Tooltip } from "@nextui-org/tooltip";
+// const HitItem = ({ hit, isRefetching }) => {
+//   return (
+//     <>
+//       {/* <tr className="hover"> */}
+//       <TableCell>
+//         A{/* {parse(hit._formatted.code)} */}
+//         {/* <div
+//           // className="w-[20%] self-center"
+//           dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
+//         /> */}
+//       </TableCell>
+
+//       <TableCell>
+//         A{/* {parse(hit._formatted.code)} */}
+//         {/* <div
+//           // className="w-[20%] self-center"
+//           dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
+//         /> */}
+//       </TableCell>
+//       <TableCell>
+//         A{/* {parse(hit._formatted.code)} */}
+//         {/* <div
+//           // className="w-[20%] self-center"
+//           dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
+//         /> */}
+//       </TableCell>
+
+//       <TableCell>
+//         <div
+//           // className="w-[40%] self-center"
+//           dangerouslySetInnerHTML={{
+//             __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
+//           }}
+//         />
+//       </TableCell>
+
+//       <TableCell>
+//         <div
+//           // className="w-[40%] self-center"
+//           dangerouslySetInnerHTML={{
+//             __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
+//           }}
+//         />
+//       </TableCell>
+//       <TableCell>
+//         <div
+//           // className="w-[20%] self-center"
+//           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
+//         />
+//       </TableCell>
+
+//       <TableCell>
+//         <p className="self-center">
+//           {isRefetching ? (
+//             <span className="loading loading-spinner loading-md self-center"></span>
+//           ) : (
+//             <>
+//               <div className="tooltip" data-tip="Cập nhật">
+//                 <Link href={`add-update-student/${hit.code}`}>
+//                   <CiCircleMore size={25} />
+//                 </Link>
+//               </div>
+//             </>
+//           )}
+//         </p>
+//       </TableCell>
+
+//       {/* </tr> */}
+//     </>
+//   );
+// };
 
 const Search = ({ queryObject }) => {
-  const [result, setResult] = useState();
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-    isRefetching,
-  } = useInfiniteQuery({
+  // const [result, setResult] = useState(null);
+  const { data, isRefetching, isLoading } = useQuery({
     queryKey: [`search`, queryObject],
-    queryFn: async ({ pageParam = 1 }) =>
-      meilisearchStudentSearch(
-        queryObject,
-        await meilisearchGetToken(),
-        pageParam
-      ),
-    getNextPageParam: (res) => {
-      if (res.page < res.totalPages) return res.page + 1;
-      else return undefined;
-    },
+    queryFn: async () =>
+      meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
   });
 
-  useEffect(() => {
-    if (Array.isArray(data?.pages))
-      setResult(
-        data?.pages
-          .reduce((total, curr) => [...total, ...curr.hits], [])
-          .map((item) => ({ ...item, isOpen: false }))
-      );
-  }, [data]);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 30;
 
-  return status === "loading" ? (
-    <span className="loading loading-spinner loading-lg self-center"></span>
-  ) : status === "error" ? (
-    <p className="self-center">Error: {error.message}</p>
-  ) : (
-    result && (
-      <>
-        <div className="overflow-x-auto">
-          <table className="table">
-            {/* head */}
-            <thead>
-              <tr>
-                {/* <th></th> */}
-                <th>Mã học sinh</th>
-                <th>Họ tên</th>
-                <th>Lớp</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className=" text-center">
-                    Không tìm thấy kết quả
-                  </td>
-                </tr>
-              ) : (
-                result.map((el) => (
-                  <Fragment key={el.code}>
-                    <HitItem
-                      hit={el}
-                      isRefetching={isRefetching}
-                      setResult={setResult}
-                    />
-                  </Fragment>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex justify-center">
-          <button
-            className="btn"
-            onClick={() => fetchNextPage()}
-            disabled={!hasNextPage || isFetchingNextPage}
-          >
-            {isFetchingNextPage ? (
-              <span className="loading loading-spinner loading-lg"></span>
-            ) : hasNextPage ? (
-              "Xem thêm"
-            ) : (
-              "Đã hết kết quả tìm kiếm!"
-            )}
-          </button>
-        </div>
-      </>
-    )
+  const pages = Math.ceil(data?.hits?.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return data?.hits?.slice(start, end);
+  }, [page, data]);
+
+  // useEffect(() => {
+  //   setResult(
+  //     data?.hits
+  //       .reduce((total, curr) => [...total, ...curr.hits], [])
+  //       .map((item) => ({ ...item, isOpen: false }))
+  //   );
+  // }, [data]);
+
+  return (
+    <Table
+      aria-label="Student Table"
+      removeWrapper
+      isHeaderSticky
+      bottomContent={
+        !isLoading && (
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              // showShadow
+              // color="secondary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        )
+      }
+    >
+      <TableHeader>
+        <TableColumn>Mã học sinh</TableColumn>
+        <TableColumn>Họ tên</TableColumn>
+        <TableColumn>Lớp</TableColumn>
+        <TableColumn></TableColumn>
+      </TableHeader>
+
+      <TableBody
+        emptyContent={"Không tìm thấy kết quả"}
+        loadingContent={<Spinner />}
+        isLoading={isLoading}
+      >
+        {items?.map((el) => (
+          <TableRow key={el.code}>
+            <TableCell>
+              {/* <div
+                      dangerouslySetInnerHTML={{ __html: el._formatted.code }}
+                    /> */}
+              {parse(el._formatted.code)}
+            </TableCell>
+            <TableCell>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: `${el._formatted.first_name} ${el._formatted.last_name}`,
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: el._formatted.class_name,
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              <p className="self-center">
+                {isRefetching ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <>
+                    {/* <div className="tooltip" data-tip="Cập nhật">
+                      <Link href={`add-update-student/${el.code}`}>
+                        <CiCircleMore size={25} />
+                      </Link>
+                    </div> */}
+
+                    <Tooltip content="Cập nhật" showArrow>
+                      <Link
+                        className="flex w-fit"
+                        href={`add-update-student/${el.code}`}
+                      >
+                        <CiCircleMore size={25} />
+                      </Link>
+                    </Tooltip>
+                  </>
+                )}
+              </p>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 
 const Content = (props) => {
-  // const countStudent = useQuery({
-  //   queryKey: ["count_student"],
-  //   queryFn: async () => getCountStudent(),
-  //   initialData: () => ({
-  //     data: props.countStudent,
-  //   }),
-  // });
-
-  // console.log(countStudent.data);
-
   const countStudent = useSubscription(
     gql`
       subscription MySubscription {
@@ -175,7 +234,7 @@ const Content = (props) => {
     school: null,
     class_level: null,
     class: null,
-    code: "",
+    query: "",
   });
 
   const handleExcelClick = async () => {
@@ -246,7 +305,7 @@ const Content = (props) => {
         <div className="flex justify-start gap-2">
           {props.permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
             countStudent.loading ? (
-              <div>loading...</div>
+              <Spinner />
             ) : (
               <>
                 <button

@@ -39,11 +39,17 @@ const Page = async ({ params }) => {
     );
   }
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const [present, student, apiPreReceipt] = await Promise.all([
+    getSchoolYear({ is_active: { _eq: true } }),
+    meilisearchStudentGet(params.student_code),
+    getPreReceipt(),
+  ]);
 
-  const student = await meilisearchStudentGet(params.student_code);
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiPreReceipt = await getPreReceipt();
+  // const student = await meilisearchStudentGet(params.student_code);
+
+  // const apiPreReceipt = await getPreReceipt();
 
   if (present.status !== 200 || !student || !apiPreReceipt)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

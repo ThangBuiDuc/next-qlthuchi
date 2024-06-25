@@ -3,10 +3,21 @@
 import { GoPersonAdd } from "react-icons/go";
 // import TextInput from "@/app/_component/textInput";
 import Add from "./add";
-import Update from "./update";
+import Edit from "./update";
+import Moment from "react-moment";
+import { GoGear } from "react-icons/go";
 import { getUsers } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import {
+  Table,
+  TableBody,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 // import { motion } from "framer-motion";
 
 const Skeleton = () => {
@@ -14,7 +25,7 @@ const Skeleton = () => {
     <>
       {[...Array(3)].map((_, i) => (
         <tr key={i}>
-          {[...Array(11)].map((_,ii) => (
+          {[...Array(11)].map((_, ii) => (
             <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
@@ -54,7 +65,7 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
             <GoPersonAdd size={20} />
             Thêm mới
           </label>
-          <Add provinces={provinces} districts={districts} gender={gender}/>
+          <Add provinces={provinces} districts={districts} gender={gender} />
         </>
       )}
 
@@ -71,46 +82,77 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
         </button>
       </form> */}
 
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Tên</th>
-              <th>Giới tính</th>
-              <th>Ngày sinh</th>
-              <th>Địa chỉ</th>
-              <th>Phường, xã</th>
-              <th>Quận, huyện</th>
-              <th>Tỉnh, thành phố</th>
-              <th>Email</th>
-              <th>Số điện thoại</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.isFetching || data.isLoading ? (
-              <Skeleton />
-            ) : data?.data?.data?.length === 0 ? (
-              <p>Không có kết quả!</p>
-            ) : data ? (
-              data?.data?.data.result.map((item) => (
-                <Update key={item.id} data={item} provinces={provinces} districts={districts} permission={permission} gender={gender}/>
-              ))
+      <Table>
+        <TableHeader>
+          <TableColumn>Mã</TableColumn>
+          <TableColumn>Tên</TableColumn>
+          <TableColumn>Giới tính</TableColumn>
+          <TableColumn>Ngày sinh</TableColumn>
+          <TableColumn>Địa chỉ</TableColumn>
+          <TableColumn>Phường, xã</TableColumn>
+          <TableColumn>Quận, huyện</TableColumn>
+          <TableColumn>Tỉnh, thành phố</TableColumn>
+          <TableColumn>Email</TableColumn>
+          <TableColumn>Số điện thoại</TableColumn>
+          <TableColumn></TableColumn>
+        </TableHeader>
+        <TableBody
+          emptyContent="Không tìm thấy kết quả!"
+          isLoading={data.isFetching || data.isLoading}
+          loadingContent={<Spinner />}
+        >
+          {data?.data?.data.result.map((item) =>
+            permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+              <TableRow>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+                <TableCell>{item.gender.description}</TableCell>
+                <TableCell>
+                  <Moment format="DD/MM/YYYY">{item.date_of_birth}</Moment>
+                </TableCell>
+                <TableCell>{item.address}</TableCell>
+                <TableCell>{item.ward?.name}</TableCell>
+                <TableCell>{item.district?.name}</TableCell>
+                <TableCell>{item.province?.name}</TableCell>
+                <TableCell>{item.email}</TableCell>
+                <TableCell>{item.phone_number}</TableCell>
+                <TableCell>
+                  <div>
+                    <label
+                      htmlFor={`modal_fix_${item.id}`}
+                      className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+                    >
+                      <GoGear size={25} />
+                    </label>
+                    <Edit
+                      data={item}
+                      provinces={provinces}
+                      districts={districts}
+                      gender={gender}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : (
-              <></>
-            )}
-
-            {/* {usersData ? (
-              usersData.result.map((item) => (
-                <Update key={item.id} data={item} />
-              ))
-            ) : (
-              <></>
-            )} */}
-          </tbody>
-        </table>
-      </div>
+              <TableRow>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+                <TableCell>{item.gender.description}</TableCell>
+                <TableCell>
+                  <Moment format="DD/MM/YYYY">{item.date_of_birth}</Moment>
+                </TableCell>
+                <TableCell>{item.address}</TableCell>
+                <TableCell>{item.ward?.name}</TableCell>
+                <TableCell>{item.district?.name}</TableCell>
+                <TableCell>{item.province?.name}</TableCell>
+                <TableCell>{item.email}</TableCell>
+                <TableCell>{item.phone_number}</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            )
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

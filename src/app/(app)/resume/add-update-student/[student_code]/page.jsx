@@ -2,6 +2,7 @@ import {
   getCatalogStudent,
   // getSchoolYear,
   getPermission,
+  getSchoolYear,
   getStudent,
 } from "@/utils/funtionApi";
 import Content from "./content";
@@ -40,20 +41,17 @@ const Page = async ({ params }) => {
 
   // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCatalogStudentPromise = getCatalogStudent();
-
-  const studentInforPromise = getStudent(token, {
-    code: { _eq: params.student_code },
-  });
-
-  const [apiCatalogStudent, studentInfor] = await Promise.all([
-    apiCatalogStudentPromise,
-    studentInforPromise,
+  const [present, apiCatalogStudent, studentInfor] = await Promise.all([
+    getSchoolYear({ is_active: { _eq: true } }),
+    getCatalogStudent(),
+    getStudent(token, {
+      code: { _eq: params.student_code },
+    }),
   ]);
 
   if (
     apiCatalogStudent.status !== 200 ||
-    // present.status !== 200 ||
+    present.status !== 200 ||
     studentInfor.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -61,7 +59,7 @@ const Page = async ({ params }) => {
     <Content
       student_code={params.student_code}
       initialStudent={studentInfor.data}
-      // present={present.data}
+      present={present.data}
       catalogStudent={apiCatalogStudent.data}
       permission={permission.data.result[0]?.permission.id.toString()}
     />

@@ -42,19 +42,33 @@ const Page = async ({ params }) => {
     );
   }
 
-  const apiListSearch = await getListSearch();
+  const [
+    apiListSearch,
+    present,
+    apiListRevenue,
+    apiCalculationUnit,
+    student,
+    apiGetDiscounts,
+  ] = await Promise.all([
+    getListSearch(),
+    getSchoolYear({ is_active: { _eq: true } }),
+    getListRevenue(),
+    getCalculationUnit(),
+    meilisearchStudentGet(params.student_code),
+    getDiscounts(),
+  ]);
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  // const apiListSearch = await getListSearch();
 
-  const apiListRevenue = await getListRevenue();
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCalculationUnit = await getCalculationUnit();
+  // const apiListRevenue = await getListRevenue();
 
-  const student = await meilisearchStudentGet(params.student_code);
+  // const apiCalculationUnit = await getCalculationUnit();
 
-  console.log(student)
+  // const student = await meilisearchStudentGet(params.student_code);
 
-  const apiGetDiscounts = await getDiscounts();
+  // const apiGetDiscounts = await getDiscounts();
 
   if (
     apiListSearch.status !== 200 ||

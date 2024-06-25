@@ -13,6 +13,7 @@ import { getWards } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
+import { TableCell, TableRow } from "@nextui-org/table";
 
 // const gender = [
 //   {
@@ -76,6 +77,7 @@ function reducer(state, action) {
 }
 
 const Edit = ({ data, provinces, districts, gender }) => {
+  console.log(1);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
 
@@ -206,7 +208,9 @@ const Edit = ({ data, provinces, districts, gender }) => {
             className="flex flex-col gap-[20px] mt-[20px] "
             style={{ overflowY: "unset" }}
           >
-            <p className="self-center">Cập nhật thông tin cho người dùng</p>
+            <p className="self-center font-semibold">
+              Cập nhật thông tin cho người dùng
+            </p>
             <div className="grid grid-cols-3 gap-[20px]">
               <TextInput
                 label={"Họ đệm"}
@@ -400,32 +404,32 @@ const Edit = ({ data, provinces, districts, gender }) => {
 const Update = ({ data, provinces, districts, permission, gender }) => {
   // console.log(data);
   return (
-    <tr>
-      <td>{data.id}</td>
-      <td>
+    <TableRow>
+      <TableCell>{data.id}</TableCell>
+      <TableCell>
         {data.first_name} {data.last_name}
-      </td>
-      <td>{data.gender.description}</td>
-      <td>
+      </TableCell>
+      <TableCell>{data.gender.description}</TableCell>
+      <TableCell>
         <Moment format="DD/MM/YYYY">{data.date_of_birth}</Moment>
-      </td>
-      <td>{data.address}</td>
-      <td>{data.ward?.name}</td>
-      <td>{data.district?.name}</td>
-      <td>{data.province?.name}</td>
-      <td>{data.email}</td>
-      <td>{data.phone_number}</td>
+      </TableCell>
+      <TableCell>{data.address}</TableCell>
+      <TableCell>{data.ward?.name}</TableCell>
+      <TableCell>{data.district?.name}</TableCell>
+      <TableCell>{data.province?.name}</TableCell>
+      <TableCell>{data.email}</TableCell>
+      <TableCell>{data.phone_number}</TableCell>
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
         <>
-          <td>
+          <TableCell>
             <label
               htmlFor={`modal_fix_${data.id}`}
               className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
             >
               <GoGear size={25} />
             </label>
-          </td>
-          <td>
+          </TableCell>
+          <TableCell>
             <>
               <Edit
                 data={data}
@@ -434,11 +438,11 @@ const Update = ({ data, provinces, districts, permission, gender }) => {
                 gender={gender}
               />
             </>
-          </td>
+          </TableCell>
         </>
       )}
-    </tr>
+    </TableRow>
   );
 };
 
-export default memo(Update);
+export default Edit;

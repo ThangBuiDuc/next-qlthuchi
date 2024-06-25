@@ -1,8 +1,6 @@
 "use client";
 import TextInput from "@/app/_component/textInput";
 import { useCallback, useEffect, useReducer, useState } from "react";
-
-import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { registerLocale } from "react-datepicker";
 import vi from "date-fns/locale/vi";
@@ -16,7 +14,7 @@ registerLocale("vi", vi);
 
 import "react-datepicker/dist/react-datepicker.css";
 import { createStudent } from "@/utils/funtionApi";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 function areAllTrue(obj, excludeKey) {
   for (let key in obj) {
@@ -134,6 +132,7 @@ function reducer(state, action) {
 }
 
 const Add = ({ catalogStudent, countStudent, present, queryObject }) => {
+  const { user } = useUser();
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -145,7 +144,7 @@ const Add = ({ catalogStudent, countStudent, present, queryObject }) => {
       ).count,
       catalogStudent.classes[0].school_level_code
     ),
-    bgd_code: null,
+    bgd_code: "",
     gender: null,
     class: {
       ...catalogStudent.classes[0],
@@ -248,6 +247,8 @@ const Add = ({ catalogStudent, countStudent, present, queryObject }) => {
           data: {
             class_code: infor.class.value,
             school_year_id: present.result[0].id,
+            start_at: moment().format(),
+            created_by: user.id,
           },
         },
       };

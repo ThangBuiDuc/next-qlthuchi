@@ -1,3 +1,4 @@
+const { nextui } = require("@nextui-org/theme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -5,6 +6,7 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
+    "./node_modules/@nextui-org/theme/dist/components/(tooltip|popover|spinner|pagination|table|checkbox|spacer).js",
   ],
   theme: {
     extend: {
@@ -26,5 +28,5 @@ module.exports = {
   //     },
   //   ],
   // },
-  plugins: [require("daisyui")],
+  plugins: [require("daisyui"), nextui()],
 };

@@ -10,7 +10,7 @@ registerLocale("vi", vi);
 
 import "react-datepicker/dist/react-datepicker.css";
 import { createStudent } from "@/utils/funtionApi";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import ExcelJS from "exceljs";
 // import { saveAs } from "file-saver";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -46,6 +46,7 @@ function isValidDateTime(text) {
 }
 
 const AddExcel = ({ catalogStudent, countStudent, present, queryObject }) => {
+  const { user } = useUser();
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -223,6 +224,8 @@ const AddExcel = ({ catalogStudent, countStudent, present, queryObject }) => {
             data: {
               class_code: `${item.class_level_code}${item.class_code}`,
               school_year_id: present.result[0].id,
+              start_at: moment().format(),
+              created_by: user.id,
             },
           },
         })),
@@ -259,8 +262,6 @@ const AddExcel = ({ catalogStudent, countStudent, present, queryObject }) => {
       );
     }
   }, [infor]);
-
-  console.log(err);
 
   // console.log(infor);
   //   const mutation = useMutation({
