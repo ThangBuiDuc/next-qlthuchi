@@ -41,10 +41,6 @@ export const sideBarData = [
     path: "/catalog",
     subNav: [
       // {
-      //   title: "Khối",
-      //   path: "catalog/class",
-      // },
-      // {
       //   title: "Đối tượng chính sách",
       //   path: "/catalog/policy-object",
       // },
@@ -55,6 +51,10 @@ export const sideBarData = [
       {
         title: "Giảm giá",
         path: "/catalog/discounts",
+      },
+      {
+        title: "Loại giảm giá",
+        path: "/catalog/discount-types",
       },
       {
         title: "Quan hệ gia đình",

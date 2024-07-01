@@ -137,7 +137,7 @@ export const getDiscountType = async () => {
   return res;
 };
 
-//Lấy danh sách loại giảm giá
+//Lấy danh sách số dư tiền mặt
 export const getCashFund = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
@@ -1300,3 +1300,4 @@ export const meilisearchStudentGet = async (student_code) => {
 
   return res.data;
 };
+
