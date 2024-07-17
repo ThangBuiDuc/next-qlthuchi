@@ -88,6 +88,7 @@ const Content = ({
           <Add
             discountTypeData={discountTypeData}
             revenueGroupData={revenueGroupData}
+            data={discountsData}
           />
         </>
       )}

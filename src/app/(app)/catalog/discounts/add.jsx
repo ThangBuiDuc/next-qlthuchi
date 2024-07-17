@@ -40,7 +40,7 @@ function reducer(state, action) {
   }
 }
 
-const Add = ({ discountTypeData, revenueGroupData }) => {
+const Add = ({ discountTypeData, revenueGroupData, data }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const [discountType, setDiscountType] = useState();
@@ -77,25 +77,14 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
         modalCheckbox.checked = false;
       }
     },
-    onError: (err) => {
-      console.log(err);
-      if (err.response?.data?.code === "constraint-violation") {
-        toast.error("Mã giảm giá không được trùng lặp, vui lòng tạo lại!", {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          theme: "light",
-        });
-      } else {
-        toast.error("Tạo mã giảm giá không thành công!", {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          theme: "light",
-        });
-      }
+    onError: () => {
+      toast.error("Tạo mã giảm giá không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
     },
   });
 
@@ -104,6 +93,17 @@ const Add = ({ discountTypeData, revenueGroupData }) => {
   const handleOnSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+      const isCodeExist = data.result.some((item) => item.code === infor.code);
+      if (isCodeExist) {
+        toast.error("Mã giảm giá đã tồn tại!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "light",
+        });
+        return;
+      }
       let arg = {
         code: infor.code,
         description: infor.description,

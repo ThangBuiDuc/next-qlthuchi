@@ -47,7 +47,7 @@ const Page = async () => {
 
   return (
     <Content
-      data={apiGetDiscountType.data}
+      discountTypeData={apiGetDiscountType.data}
       permission={permission.data.result[0]?.permission.id.toString()}
     />
   );

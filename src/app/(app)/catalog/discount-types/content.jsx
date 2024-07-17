@@ -3,16 +3,16 @@ import { useState, Fragment } from "react";
 import { GoPersonAdd } from "react-icons/go";
 import Add from "./add";
 import Edit from "./edit";
-import { getDiscounts } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import { GoGear } from "react-icons/go";
+import { getDiscountType } from "@/utils/funtionApi";
 
 const Skeleton = () => {
   return (
     <>
       {[...Array(6)].map((_, i) => (
         <tr key={i}>
-          {[...Array(8)].map((_, ii) => (
+          {[...Array(4)].map((_, ii) => (
             <td key={ii}>
               <>
                 <div className="skeleton h-4 w-full"></div>
@@ -41,7 +41,7 @@ function Item({ data, index, permission }) {
               <GoGear size={20} />
             </label>
 
-            <Edit />
+            <Edit data={data} />
           </>
         </td>
       )}
@@ -49,8 +49,12 @@ function Item({ data, index, permission }) {
   );
 }
 
-export default function Content({ data, permission }) {
-    console.log(data)
+export default function Content({ discountTypeData, permission }) {
+  const data = useQuery({
+    queryKey: ["get_discount_type"],
+    queryFn: async () => await getDiscountType(),
+    initialData: () => ({ data: discountTypeData }),
+  });
   return (
     <div className="flex flex-col gap-[30px]">
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
@@ -62,7 +66,7 @@ export default function Content({ data, permission }) {
             <GoPersonAdd size={20} />
             Thêm mới
           </label>
-          <Add />
+          <Add data={discountTypeData} />
         </>
       )}
       <div className="overflow-x-auto">
@@ -70,7 +74,7 @@ export default function Content({ data, permission }) {
           <thead>
             <tr>
               <th>STT</th>
-              <th>Kí hiệu giảm giá</th>
+              <th>Mã loại giảm giá</th>
               <th>Tên loại giảm giá</th>
               <th></th>
             </tr>
@@ -78,10 +82,10 @@ export default function Content({ data, permission }) {
           <tbody>
             {data.isFetching || data.isLoading ? (
               <Skeleton />
-            ) : data?.length === 0 ? (
+            ) : data?.data?.data?.length === 0 ? (
               <p>Không có kết quả!</p>
             ) : data ? (
-              data?.result.map((item, index) => (
+              data?.data?.data.result.map((item, index) => (
                 <Fragment key={index}>
                   <Item data={item} index={index} permission={permission} />
                 </Fragment>

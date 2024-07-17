@@ -43,6 +43,7 @@ const Content = ({
             <p className="font-semibold ">
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
+            <p className="font-semibold ">Ngày sinh: {student.date_of_birth}</p>
           </div>
           <SubContent student={student} selectPresent={selectPresent} />
         </div>

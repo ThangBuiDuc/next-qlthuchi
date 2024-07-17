@@ -33,6 +33,10 @@ const HitItem = ({ hit, isRefetching }) => {
           // className="w-[20%] self-center"
           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
         />
+        {/* <td
+          // className="w-[20%] self-center"
+          dangerouslySetInnerHTML={{ __html: hit._formatted.date_of_birth }}
+        /> */}
         <td className="self-center">
           {isRefetching ? (
             <span className="loading loading-spinner loading-md self-center"></span>
@@ -100,6 +104,7 @@ const Search = ({ queryObject }) => {
                 <th>Mã học sinh</th>
                 <th>Họ tên</th>
                 <th>Lớp</th>
+                {/* <th>Ngày sinh</th> */}
                 <th></th>
               </tr>
             </thead>
