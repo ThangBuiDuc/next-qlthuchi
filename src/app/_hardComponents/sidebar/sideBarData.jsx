@@ -52,10 +52,10 @@ export const sideBarData = [
         title: "Giảm giá",
         path: "/catalog/discounts",
       },
-      {
-        title: "Loại giảm giá",
-        path: "/catalog/discount-types",
-      },
+      // {
+      //   title: "Loại giảm giá",
+      //   path: "/catalog/discount-types",
+      // },
       {
         title: "Quan hệ gia đình",
         path: "/catalog/relationship",
