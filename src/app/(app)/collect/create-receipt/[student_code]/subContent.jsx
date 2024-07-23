@@ -30,75 +30,6 @@ import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
 import { set } from "lodash";
 
-export const priority = [
-  { index: 1, code: "VATT12", name: "Vé ăn tháng 12" },
-  { index: 2, code: "VATT11", name: "Vé ăn tháng 11" },
-  { index: 3, code: "VATT10", name: "Vé ăn tháng 10" },
-  { index: 4, code: "VATT9", name: "Vé ăn tháng 9" },
-  { index: 5, code: "VATT8", name: "Vé ăn tháng 8" },
-  { index: 6, code: "VATT7", name: "Vé ăn tháng 7" },
-  { index: 7, code: "VATT6", name: "Vé ăn tháng 6" },
-  { index: 8, code: "VATT5", name: "Vé ăn tháng 5" },
-  { index: 9, code: "VATT4", name: "Vé ăn tháng 4" },
-  { index: 10, code: "VATT3", name: "Vé ăn tháng 3" },
-  { index: 11, code: "VATT2", name: "Vé ăn tháng 2" },
-  { index: 12, code: "VATT1", name: "Vé ăn tháng 1" },
-  { index: 13, code: "TN", name: "Học phí ôn thi tốt nghiệp" },
-  { index: 14, code: "THK", name: "Phí thu hộ khác" },
-  { index: 15, code: "XD", name: "Vé gửi xe đạp" },
-  { index: 16, code: "S/VG", name: "Sách, vở ghi" },
-  { index: 17, code: "DP", name: "Đồng phục" },
-  { index: 18, code: "KSK/HS", name: "Phí khám sức khoẻ, làm thẻ học sinh" },
-  { index: 19, code: "HTTN", name: "Phí hoạt động học tập trải nghiệm, THTT" },
-  { index: 20, code: "QLHSNG", name: "Phí quản lý học sinh ngoài giờ" },
-  { index: 21, code: "DDHS", name: "Phí đưa đón học sinh" },
-  { index: 22, code: "TL", name: "Phí thi lại" },
-  { index: 23, code: "CSVC", name: "Cơ sở vật chất" },
-  { index: 24, code: "NN", name: "Phí ngoại ngữ" },
-  { index: 25, code: "VN", name: "Phí văn nghệ" },
-  { index: 26, code: "BHYT", name: "Bảo hiểm y tế" },
-  { index: 27, code: "HLHP", name: "Phí học liệu, học phẩm" },
-  { index: 28, code: "DTDV", name: "Phí dự tuyển đầu vào" },
-  { index: 29, code: "BT", name: "Phí bán trú" },
-  { index: 30, code: "HP", name: "Học phí" },
-];
-
-function mergeSort(arr, priority) {
-  if (arr.length <= 1) {
-    return arr;
-  }
-
-  const middle = Math.floor(arr.length / 2);
-  const left = arr.slice(0, middle);
-  const right = arr.slice(middle);
-
-  return merge(mergeSort(left, priority), mergeSort(right, priority), priority);
-}
-
-function merge(left, right, priority) {
-  let result = [];
-  let leftIndex = 0;
-  let rightIndex = 0;
-
-  while (leftIndex < left.length && rightIndex < right.length) {
-    const priorityA =
-      priority.find((p) => p.code === left[leftIndex].code)?.index || Infinity;
-    const priorityB =
-      priority.find((p) => p.code === right[rightIndex].code)?.index ||
-      Infinity;
-
-    if (priorityA < priorityB) {
-      result.push(left[leftIndex]);
-      leftIndex++;
-    } else {
-      result.push(right[rightIndex]);
-      rightIndex++;
-    }
-  }
-
-  return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
-}
-
 const times = localFont({ src: "../../../../times.ttf" });
 
 function createCode(lastCount) {
@@ -582,6 +513,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
 
   // console.log(data)
   // console.log(priority)
+  // console.log("revenue_type",revenue_type)
 
   const amount_collected_ref = useRef();
   return (
@@ -849,55 +781,98 @@ const SubContent = ({ student, selectPresent }) => {
   // }
 
   const allocateFunds = () => {
-    if (!totalValue || totalValue <= 0) return;
+    if (!data) return;
 
-    // Tạo bản sao của dữ liệu để cập nhật
-    const updatedData = data.map((item) => ({
-      ...item,
-      expected_revenues: item.expected_revenues.map((revenue) => ({
-        ...revenue,
-        nowMoney: 0, // Đặt nowMoney về 0 cho mỗi revenue
-      })),
-    }));
+    let remainingValue = totalValue;
+    let lastAllocatedItem = null;
 
-    // Lấy tất cả các mục được chọn và sắp xếp theo thứ tự ưu tiên từ index nhỏ đến lớn
-    const checkedItems = mergeSort(
-      updatedData
-        .flatMap((item) => item.expected_revenues)
-        .filter((revenue) => revenue.isChecked),
-      priority
+    // Filter and sort items based on the criteria
+    const checkedItems = data.filter((item) =>
+      item.expected_revenues.some((revenue) => revenue.isChecked)
     );
 
-    let remainingAmount = totalValue;
+    const sortedItems = checkedItems.sort((a, b) => {
+      // Priority 1: Sort by previous_batch_money
+      if (
+        a.expected_revenues[0].previous_batch_money > 0 &&
+        b.expected_revenues[0].previous_batch_money === 0
+      ) {
+        return -1;
+      }
+      if (
+        a.expected_revenues[0].previous_batch_money === 0 &&
+        b.expected_revenues[0].previous_batch_money > 0
+      ) {
+        return 1;
+      }
 
-    // Phân bổ số tiền dựa trên số tiền còn lại và các mục đã chọn
-    for (let i = 0; i < checkedItems.length; i++) {
-      const revenue = checkedItems[i];
-      const allocatedAmount = Math.min(
-        revenue.next_batch_money,
-        remainingAmount
+      // Priority 2: Sort by revenue_type.id
+      if (a.revenue_type.id === 2 && b.revenue_type.id === 1) {
+        return -1;
+      }
+      if (a.revenue_type.id === 1 && b.revenue_type.id === 2) {
+        return 1;
+      }
+
+      // Priority 3: Sort within revenue_type.id === 1 by revenue.code
+      if (a.revenue_type.id === 1 && b.revenue_type.id === 1) {
+        if (
+          a.expected_revenues[0].revenue.code !== "HP" &&
+          b.expected_revenues[0].revenue.code === "HP"
+        ) {
+          return -1;
+        }
+        if (
+          a.expected_revenues[0].revenue.code === "HP" &&
+          b.expected_revenues[0].revenue.code !== "HP"
+        ) {
+          return 1;
+        }
+      }
+
+      // Priority 4: Sort by actual_amount_collected
+      return (
+        a.expected_revenues[0].actual_amount_collected -
+        b.expected_revenues[0].actual_amount_collected
       );
-      revenue.nowMoney = allocatedAmount;
-      remainingAmount -= allocatedAmount;
-      if (remainingAmount <= 0) break;
+    });
+
+    // Allocate funds
+    sortedItems.forEach((item) => {
+      const revenue = item.expected_revenues[0];
+
+      if (revenue.previous_batch_money > 0) {
+        const allocation = Math.min(
+          remainingValue,
+          revenue.actual_amount_collected + revenue.previous_batch_money
+        );
+        revenue.nowMoney = allocation;
+        remainingValue -= allocation;
+      } else {
+        const allocation = Math.min(
+          remainingValue,
+          revenue.actual_amount_collected
+        );
+        revenue.nowMoney = allocation;
+        remainingValue -= allocation;
+      }
+
+      lastAllocatedItem = revenue;
+    });
+
+    // Allocate remaining value to the last item
+    if (remainingValue > 0 && lastAllocatedItem) {
+      lastAllocatedItem.nowMoney += remainingValue;
     }
 
-    // Nếu còn thừa tiền sau khi đã phân bổ hết, gộp vào mục cuối cùng
-    if (remainingAmount > 0) {
-      const lastItem = checkedItems[checkedItems.length - 1];
-      lastItem.nowMoney += remainingAmount;
-    }
-
-    // Cập nhật lại dữ liệu với số tiền đã phân bổ
-    setData(updatedData);
-
-    // Console.log các phần tử đã sắp xếp và phân bổ
-    console.log("Sorted and allocated items:", checkedItems);
+    setData([...data]);
   };
 
   if (expectedRevenue.isError) {
     throw new Error();
   }
+
+  console.log(data);
 
   return (
     <div className="flex flex-col gap-4">

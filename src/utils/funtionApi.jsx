@@ -137,7 +137,7 @@ export const getDiscountType = async () => {
   return res;
 };
 
-//Lấy danh sách loại giảm giá
+//Lấy danh sách số dư tiền mặt
 export const getCashFund = async (token) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_CASH_FUND,
@@ -1443,4 +1443,21 @@ export const meilisearchReductionGet = async (token, data) => {
   });
 
   return res.data;
+};
+
+//Thêm mới loại giảm giá
+export const createDiscountType = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT_TYPE,
+    method: "POST",
+    data: {
+      objects: objects,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
 };
