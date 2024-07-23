@@ -1,5 +1,5 @@
 import Content from "./content";
-import { getListSearch, getPermission } from "@/utils/funtionApi";
+import { getConfig, getListSearch, getPermission } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
@@ -32,15 +32,21 @@ const Page = async () => {
       </div>
     );
   }
-  const apiListSearch = await getListSearch();
 
-  if (apiListSearch.status !== 200)
+  const [apiListSearch, apiConfig] = await Promise.all([
+    getListSearch(),
+    getConfig(),
+  ]);
+  // const apiListSearch = await getListSearch();
+
+  if (apiListSearch.status !== 200 || apiConfig.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
       listSearch={apiListSearch.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
     />
   );
 };

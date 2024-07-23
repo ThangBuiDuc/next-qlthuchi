@@ -1,7 +1,7 @@
 import { listContext } from "../../content";
 import Select from "react-select";
 import { Fragment, useContext, useEffect, useState, useCallback } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 // import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
@@ -63,7 +63,7 @@ const Item = ({
                     pre.map((item) =>
                       item.position === ticketCount.position &&
                       item.student_code === data.student_code
-                        ? { ...item, ticket_count: e.target.value }
+                        ? { ...item, ticket_count: Number(e.target.value) }
                         : item
                     )
                   )
@@ -82,11 +82,13 @@ const Item = ({
 };
 
 const Content = ({ selected }) => {
+  const queryClient = useQueryClient();
   const [mutating, setMutating] = useState(false);
   const [ticketData, setTicketData] = useState();
   // const { user } = useUser();
   const { selectPresent, permission } = useContext(listContext);
   const { getToken, userId } = useAuth();
+  const [error, setError] = useState([]);
   // console.log(selected);
   const { data, isFetching, isRefetching } = useQuery({
     queryFn: async () =>
@@ -101,6 +103,23 @@ const Content = ({ selected }) => {
       ),
     queryKey: ["ticket_student", selected],
   });
+
+  useEffect(() => {
+    if (data?.data?.results.length && ticketData) {
+      setError(
+        data.data.results.reduce(
+          (total, curr) =>
+            curr.amount <
+            ticketData
+              .filter((item) => item.student_code === curr.student_code)
+              .reduce((t, c) => t + c.ticket_count, 0)
+              ? [...total, curr.student_code]
+              : total,
+          []
+        )
+      );
+    }
+  }, [ticketData]);
 
   useEffect(() => {
     if (data?.data?.results.length)
@@ -131,6 +150,7 @@ const Content = ({ selected }) => {
       // queryClient.invalidateQueries({
       //   queryKey: ["get_revenue_norms", selected],
       // });
+      queryClient.invalidateQueries({ queryKey: ["ticket_student", selected] });
       toast.success("Cập nhật vé ăn cho lớp học thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -169,6 +189,8 @@ const Content = ({ selected }) => {
     );
 
   if (!ticketData) return <LoadingCustom />;
+
+  console.log(data.data.results);
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
@@ -234,7 +256,12 @@ const Content = ({ selected }) => {
           </tbody>
         </table>
       </div>
-      {!isFetching || !isRefetching ? (
+      {error.length ? (
+        <p className="text-red-500 font-semibold">
+          Những học sinh với mã sinh viên {error.join(", ")} có số vé ăn lớn hơn
+          tổng số vé đã đóng!
+        </p>
+      ) : !isFetching || !isRefetching ? (
         mutating ? (
           <LoadingCustom style={"loading-xs"} />
         ) : permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (

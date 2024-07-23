@@ -2,10 +2,14 @@
 import Select from "react-select";
 import { useQueryClient } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
-const StudentFilter = ({ selected, setSelected, listSearch }) => {
+const StudentFilter = ({ selected, setSelected, listSearch, noQuery }) => {
   const queryClient = useQueryClient();
   return (
-    <div className="grid grid-cols-3 auto-rows-auto gap-2 justify-center items-center">
+    <div
+      className={`grid ${
+        noQuery ? "grid-cols-4" : "grid-cols-3"
+      } auto-rows-auto gap-2 justify-center items-center`}
+    >
       <div className={`w-full flex flex-col gap-1`}>
         <p className="text-xs">Cấp học:</p>
         <Select
@@ -16,7 +20,7 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
             // control: () => "!rounded-[5px]",
             // input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
             // valueContainer: () => "!p-[0_8px]",
-            menu: () => "!z-[11]",
+            menu: () => "!z-[21]",
           }}
           options={listSearch.school_level
             .sort((a, b) => a.code - b.code)
@@ -84,6 +88,12 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
                 }))
           }
           className="text-black w-full"
+          classNames={{
+            // control: () => "!rounded-[5px]",
+            // input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+            // valueContainer: () => "!p-[0_8px]",
+            menu: () => "!z-[21]",
+          }}
         />
       </div>
 
@@ -126,35 +136,57 @@ const StudentFilter = ({ selected, setSelected, listSearch }) => {
               : setSelected((pre) => ({ ...pre, class: null }))
           }
           className="text-black w-full"
-        />
-      </div>
-
-      <div className={`w-full flex flex-col gap-1 col-span-2`}>
-        <p className="text-xs">Thông tin tìm kiếm:</p>
-        <input
-          autoComplete="off"
-          type={"text"}
-          id={`query`}
-          className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-          placeholder="Thông tin tìm kiếm"
-          value={selected?.query?.replace(/"/g, "")}
-          onChange={(e) => {
-            setSelected((pre) => ({
-              ...pre,
-              query: `"${e.target.value.replace(/"/g, "")}"`,
-            }));
+          classNames={{
+            // control: () => "!rounded-[5px]",
+            // input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+            // valueContainer: () => "!p-[0_8px]",
+            menu: () => "!z-[21]",
           }}
         />
       </div>
-      <div
-        className="tooltip  flex cursor-pointer  w-fit h-full items-end"
-        data-tip="Tải lại danh sách tìm kiếm"
-        onClick={() =>
-          queryClient.invalidateQueries({ queryKey: ["search", selected] })
-        }
-      >
-        <TbReload size={45} />
-      </div>
+      {!noQuery && (
+        <div className={`w-full flex flex-col gap-1 col-span-2`}>
+          <p className="text-xs">Thông tin tìm kiếm:</p>
+          <input
+            autoComplete="off"
+            type={"text"}
+            id={`query`}
+            className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+            placeholder="Thông tin tìm kiếm"
+            value={selected?.query?.replace(/"/g, "")}
+            onChange={(e) => {
+              setSelected((pre) => ({
+                ...pre,
+                query: `"${e.target.value.replace(/"/g, "")}"`,
+              }));
+            }}
+          />
+        </div>
+      )}
+
+      {noQuery ? (
+        <div
+          className="tooltip  flex cursor-pointer  w-fit h-full items-end"
+          data-tip="Tải lại danh sách tìm kiếm"
+          onClick={() =>
+            queryClient.invalidateQueries({
+              queryKey: ["listRefund", selected],
+            })
+          }
+        >
+          <TbReload size={45} />
+        </div>
+      ) : (
+        <div
+          className="tooltip  flex cursor-pointer  w-fit h-full items-end"
+          data-tip="Tải lại danh sách tìm kiếm"
+          onClick={() =>
+            queryClient.invalidateQueries({ queryKey: ["search", selected] })
+          }
+        >
+          <TbReload size={45} />
+        </div>
+      )}
     </div>
   );
 };

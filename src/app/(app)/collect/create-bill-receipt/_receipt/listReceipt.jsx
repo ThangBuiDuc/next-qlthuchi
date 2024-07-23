@@ -60,16 +60,22 @@ function createCode(lastCount) {
   ).slice(-4)}`;
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 const PrintComponent = ({ printRef, billReceipt, preBill }) => {
+  const { config } = useContext(listContext);
   return (
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={printRef}>
         <style type="text/css" media="print">
-          {"@page { size: A5 landscape; margin: 10px;}"}
+          {"@page { size: A4; margin: 10px;}"}
         </style>
         <p className="text-[13px]">
           TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
@@ -95,7 +101,9 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
         <p className=" text-[18px]">Lý do nộp: {billReceipt.bill_name}</p>
         <p className=" text-[18px]">
           Số tiền:{" "}
-          {billReceipt.nowMoney ? numberWithCommas(billReceipt.nowMoney) : ""}{" "}
+          {billReceipt.nowMoney
+            ? numberWithCommas(billReceipt.nowMoney, config)
+            : ""}{" "}
           đồng
         </p>
         <p className=" text-[18px]">
@@ -692,12 +700,13 @@ const SecondPrintComponent = async (data, revenueGroup) => {
 // }
 
 const RowTable = ({ data }) => {
+  const { config } = useContext(listContext);
   return (
     <tr className="hover">
       <td>{data.receipt_code}</td>
       <td>{data.code}</td>
       <td>{`${data.student.first_name} ${data.student.last_name}`}</td>
-      <td>{numberWithCommas(data.amount_collected)}</td>
+      <td>{numberWithCommas(data.amount_collected, config)}</td>
       <td>{moment.unix(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
       <td>{data.canceled && "✓"}</td>
       <td></td>

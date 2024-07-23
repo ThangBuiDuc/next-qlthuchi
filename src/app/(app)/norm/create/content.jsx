@@ -37,6 +37,7 @@ const Content = ({
   listRevenue,
   calculationUnit,
   permission,
+  config,
 }) => {
   const [selected, setSelected] = useState();
   const selectPresent = useMemo(
@@ -84,6 +85,7 @@ const Content = ({
           calculationUnit,
           selectPresent,
           permission,
+          config,
         }}
       >
         <div className="flex flex-col gap-[15px] h-full">

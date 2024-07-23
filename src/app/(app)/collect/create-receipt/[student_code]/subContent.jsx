@@ -63,7 +63,6 @@ export const priority = [
   { index: 30, code: "HP", name: "Học phí" },
 ];
 
-
 function mergeSort(arr, priority) {
   if (arr.length <= 1) {
     return arr;
@@ -73,11 +72,7 @@ function mergeSort(arr, priority) {
   const left = arr.slice(0, middle);
   const right = arr.slice(middle);
 
-  return merge(
-    mergeSort(left, priority),
-    mergeSort(right, priority),
-    priority
-  );
+  return merge(mergeSort(left, priority), mergeSort(right, priority), priority);
 }
 
 function merge(left, right, priority) {
@@ -86,8 +81,11 @@ function merge(left, right, priority) {
   let rightIndex = 0;
 
   while (leftIndex < left.length && rightIndex < right.length) {
-    const priorityA = priority.find(p => p.code === left[leftIndex].code)?.index || Infinity;
-    const priorityB = priority.find(p => p.code === right[rightIndex].code)?.index || Infinity;
+    const priorityA =
+      priority.find((p) => p.code === left[leftIndex].code)?.index || Infinity;
+    const priorityB =
+      priority.find((p) => p.code === right[rightIndex].code)?.index ||
+      Infinity;
 
     if (priorityA < priorityB) {
       result.push(left[leftIndex]);
@@ -101,7 +99,6 @@ function merge(left, right, priority) {
   return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
 }
 
-
 const times = localFont({ src: "../../../../times.ttf" });
 
 function createCode(lastCount) {
@@ -111,8 +108,13 @@ function createCode(lastCount) {
   ).slice(-4)}`;
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 const Skeleton = () => {
@@ -135,7 +137,8 @@ const Skeleton = () => {
 
 const Modal = ({ data, modalRef }) => {
   const ref = useRef();
-  const { selectPresent, preReceipt, student } = useContext(listContext);
+  const { selectPresent, preReceipt, student, config, receipt } =
+    useContext(listContext);
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const { user } = useUser();
@@ -144,9 +147,11 @@ const Modal = ({ data, modalRef }) => {
     label: preReceipt.formality[1].name,
     value: preReceipt.formality[1].id,
   });
-  const middleIndex = Math.round(data.length / 2);
-  const firstPart = data.slice(0, middleIndex);
-  const secondPart = data.slice(middleIndex);
+
+  console.log(receipt);
+  // const middleIndex = Math.round(data.length / 2);
+  // const firstPart = data.slice(0, middleIndex);
+  // const secondPart = data.slice(middleIndex);
 
   const [mutating, setMutating] = useState(false);
   const handlePrint = useReactToPrint({
@@ -219,13 +224,15 @@ const Modal = ({ data, modalRef }) => {
       code:
         (formality.value === 2 &&
           `BM${createCode(
-            preReceipt.count_receipt.find((item) => item.id === formality.value)
-              .count
+            receipt.count_receipt.find(
+              (item) => item.formality_id === formality.value
+            ).count
           )}`) ||
         (formality.value === 1 &&
           `BK${createCode(
-            preReceipt.count_receipt.find((item) => item.id === formality.value)
-              .count
+            receipt.count_receipt.find(
+              (item) => item.formality_id === formality.value
+            ).count
           )}`),
       created_by: user.id,
       formality_id: formality.value,
@@ -287,8 +294,8 @@ const Modal = ({ data, modalRef }) => {
                 (formality.value === 2 && "BM") ||
                 (formality.value === 1 && "BK")
               }${createCode(
-                preReceipt.count_receipt.find(
-                  (item) => item.id === formality.value
+                receipt.count_receipt.find(
+                  (item) => item.formality_id === formality.value
                 ).count
               )}`}
             </p>
@@ -313,7 +320,7 @@ const Modal = ({ data, modalRef }) => {
                   Mã học sinh: {student.code}
                 </p>
               </div>
-              <div className="pl-1   w-[50%]">
+              <div className="pl-1 w-[50%]">
                 <p className="font-semibold text-[14px]">
                   Ngày sinh:{" "}
                   {student.date_of_birth.split("-").reverse().join("/")}
@@ -324,7 +331,18 @@ const Modal = ({ data, modalRef }) => {
                 </p>
               </div>
             </div>
-            <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+            <div className="col-span-2">
+              {data.map((item, index) => (
+                <p
+                  key={item.name}
+                  className="pl-1 pr-1 flex justify-between text-[14px]"
+                >
+                  {index + 1}. {item.name}:{" "}
+                  <span>{numberWithCommas(item.nowMoney, config)} ₫</span>
+                </p>
+              ))}
+            </div>
+            {/* <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
               <div className="flex flex-col divide-y divide-black">
                 {firstPart.map((item, index) => (
                   <p
@@ -347,12 +365,13 @@ const Modal = ({ data, modalRef }) => {
                   </p>
                 ))}
               </div>
-            </div>
+            </div> */}
             <div className="flex flex-col col-span-2 p-2 gap-2">
               <p className=" flex justify-end gap-1 font-semibold  text-[14px]">
                 Tổng các khoản thu ={" "}
                 {numberWithCommas(
-                  data.reduce((total, item) => total + item.nowMoney, 0)
+                  data.reduce((total, item) => total + item.nowMoney, 0),
+                  config
                 )}{" "}
                 <span>₫</span>
               </p>
@@ -380,6 +399,9 @@ const Modal = ({ data, modalRef }) => {
             ref={ref}
             className={`flex flex-col relative justify-center items-center gap-1 mb-5 ${times.className}`}
           >
+            <style type="text/css" media="print">
+              {"@page {size: A4; margin: 10px;}"}
+            </style>
             <h5 className="text-center text-[16px]">
               {(formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
                 (formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
@@ -395,8 +417,8 @@ const Modal = ({ data, modalRef }) => {
                   (formality.value === 2 && "BM") ||
                   (formality.value === 1 && "BK")
                 }${createCode(
-                  preReceipt.count_receipt.find(
-                    (item) => item.id === formality.value
+                  receipt.count_receipt.find(
+                    (item) => item.formality_id === formality.value
                   ).count
                 )}`}
               </p>
@@ -432,7 +454,18 @@ const Modal = ({ data, modalRef }) => {
                   </p>
                 </div>
               </div>
-              <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+              <div className="col-span-2">
+                {data.map((item, index) => (
+                  <p
+                    key={item.name}
+                    className="pl-1 pr-1 flex justify-between text-[14px]"
+                  >
+                    {index + 1}. {item.name}:{" "}
+                    <span>{numberWithCommas(item.nowMoney, config)} ₫</span>
+                  </p>
+                ))}
+              </div>
+              {/* <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
                 <div className="flex flex-col divide-y divide-black">
                   {firstPart.map((item, index) => (
                     <p
@@ -455,12 +488,13 @@ const Modal = ({ data, modalRef }) => {
                     </p>
                   ))}
                 </div>
-              </div>
+              </div> */}
               <div className="flex flex-col col-span-2 p-2 gap-2">
                 <p className=" flex justify-end gap-1 font-semibold  text-[14px]">
                   Tổng các khoản thu ={" "}
                   {numberWithCommas(
-                    data.reduce((total, item) => total + item.nowMoney, 0)
+                    data.reduce((total, item) => total + item.nowMoney, 0),
+                    config
                   )}{" "}
                   <span>₫</span>
                 </p>
@@ -519,7 +553,7 @@ const Modal = ({ data, modalRef }) => {
 };
 
 const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
-  const { selectPresent, student } = useContext(listContext);
+  const { selectPresent, student, config } = useContext(listContext);
   const { getToken } = useAuth();
   const where = useMemo(
     () => ({
@@ -557,12 +591,12 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       </td>
       <td>{data.revenue.name}</td>
       <td>{revenue_type.name}</td>
-      <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
-      <td>{numberWithCommas(data.discount)} ₫</td>
-      <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
+      <td>{numberWithCommas(data.previous_batch_money, config)} ₫</td>
+      <td>{numberWithCommas(data.discount, config)} ₫</td>
+      <td>{numberWithCommas(data.actual_amount_collected, config)} ₫</td>
       {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
-      <td>{numberWithCommas(data.amount_edited)} ₫</td>
-      <td>{numberWithCommas(data.amount_spend)} ₫</td>
+      <td>{numberWithCommas(data.amount_edited, config)} ₫</td>
+      <td>{numberWithCommas(data.amount_spend, config)} ₫</td>
       <td>
         <>
           <input
@@ -597,6 +631,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
             autoComplete="off"
             intlConfig={{ locale: "vi-VN", currency: "VND" }}
             className={`input input-xs`}
+            groupSeparator={config.result[0].config.numberComma.value}
             value={Math.abs(data.nowMoney)}
             onValueChange={(value) =>
               setData((pre) =>
@@ -624,7 +659,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td onClick={() => amount_collected_ref.current.showModal()}>
         <>
           <div className="tooltip tooltip-left" data-tip="Xem lịch sử">
-            {numberWithCommas(data.amount_collected)} ₫
+            {numberWithCommas(data.amount_collected, config)} ₫
             <dialog ref={amount_collected_ref} className="modal">
               <div className="modal-box !max-w-2xl">
                 <form method="dialog">
@@ -676,7 +711,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
                               <td>{item.code}</td>
                               <td>
                                 {numberWithCommas(
-                                  item.receipt_details[0].amount_collected
+                                  item.receipt_details[0].amount_collected,
+                                  config
                                 )}{" "}
                                 ₫
                               </td>
@@ -706,7 +742,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
             data.actual_amount_collected +
             data.amount_edited -
             data.amount_collected -
-            data.nowMoney
+            data.nowMoney,
+          config
         )}{" "}
         ₫
       </td>
@@ -813,55 +850,54 @@ const SubContent = ({ student, selectPresent }) => {
 
   const allocateFunds = () => {
     if (!totalValue || totalValue <= 0) return;
-  
+
     // Tạo bản sao của dữ liệu để cập nhật
-    const updatedData = data.map(item => ({
+    const updatedData = data.map((item) => ({
       ...item,
-      expected_revenues: item.expected_revenues.map(revenue => ({
+      expected_revenues: item.expected_revenues.map((revenue) => ({
         ...revenue,
         nowMoney: 0, // Đặt nowMoney về 0 cho mỗi revenue
       })),
     }));
-  
+
     // Lấy tất cả các mục được chọn và sắp xếp theo thứ tự ưu tiên từ index nhỏ đến lớn
     const checkedItems = mergeSort(
       updatedData
-        .flatMap(item => item.expected_revenues)
-        .filter(revenue => revenue.isChecked),
+        .flatMap((item) => item.expected_revenues)
+        .filter((revenue) => revenue.isChecked),
       priority
     );
-    
-  
+
     let remainingAmount = totalValue;
-  
+
     // Phân bổ số tiền dựa trên số tiền còn lại và các mục đã chọn
     for (let i = 0; i < checkedItems.length; i++) {
       const revenue = checkedItems[i];
-      const allocatedAmount = Math.min(revenue.next_batch_money, remainingAmount);
+      const allocatedAmount = Math.min(
+        revenue.next_batch_money,
+        remainingAmount
+      );
       revenue.nowMoney = allocatedAmount;
       remainingAmount -= allocatedAmount;
       if (remainingAmount <= 0) break;
     }
-  
+
     // Nếu còn thừa tiền sau khi đã phân bổ hết, gộp vào mục cuối cùng
     if (remainingAmount > 0) {
       const lastItem = checkedItems[checkedItems.length - 1];
       lastItem.nowMoney += remainingAmount;
     }
-  
+
     // Cập nhật lại dữ liệu với số tiền đã phân bổ
     setData(updatedData);
-  
+
     // Console.log các phần tử đã sắp xếp và phân bổ
     console.log("Sorted and allocated items:", checkedItems);
-  };  
-  
+  };
 
   if (expectedRevenue.isError) {
     throw new Error();
   }
-
-  console.log(data)
 
   return (
     <div className="flex flex-col gap-4">

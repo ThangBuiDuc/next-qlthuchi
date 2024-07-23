@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import SubContent from "./subContent";
 import Filter from "@/app/_component/filter";
 import moment from "moment";
@@ -48,7 +48,7 @@ const conditionFilter = {
 // });
 
 export const listContext = createContext();
-const Content = ({ listSearch, preReceipt, permission }) => {
+const Content = ({ listSearch, preReceipt, permission, config }) => {
   const [selected, setSelected] = useState({});
   const [selectedConditionFilter, setSelectedConditionFilter] = useState({
     first: null,
@@ -56,7 +56,7 @@ const Content = ({ listSearch, preReceipt, permission }) => {
   });
   const [condition, setCondition] = useState([]);
 
-  const handleOnClick = () => {
+  useEffect(() => {
     const formality = `${
       selected.formality?.length
         ? `formality.id IN [${selected?.formality
@@ -170,7 +170,123 @@ const Content = ({ listSearch, preReceipt, permission }) => {
           []
         )
     );
-  };
+  }, [selected, selectedConditionFilter]);
+
+  // const handleOnClick = () => {
+  //   const formality = `${
+  //     selected.formality?.length
+  //       ? `formality.id IN [${selected?.formality
+  //           ?.map((item) => item.value)
+  //           .toString()}]`
+  //       : ""
+  //   }`;
+
+  //   const users = `${
+  //     selected.users?.length
+  //       ? `created_by IN [${selected?.users
+  //           ?.map((item) => item.value)
+  //           .toString()}]`
+  //       : ""
+  //   }`;
+
+  //   const year = selected.year ? `start_year = ${selected.year.year()}` : "";
+
+  //   const school_year = `${
+  //     selected.school_year?.length
+  //       ? `schoolyear_student.school_year_id IN [${selected?.school_year
+  //           ?.map((item) => item.value)
+  //           .toString()}]`
+  //       : ""
+  //   }`;
+
+  //   const batch = `${
+  //     !selected.batch?.length
+  //       ? `batch_id IN [${selected?.batch
+  //           ?.map((item) => item.value)
+  //           .toString()}]`
+  //       : ""
+  //   }`;
+
+  //   const fromDate = selected.fromDate
+  //     ? `start_date >= ${moment(selected.fromDate).unix()}`
+  //     : "";
+
+  //   const toDate = selected.toDate
+  //     ? `start_date <= ${moment(selected.toDate).unix()}`
+  //     : "";
+
+  //   const fromReceipt = selected.fromReceipt
+  //     ? selected.fromReceipt.includes("BM") ||
+  //       selected.fromReceipt.includes("BK")
+  //       ? `code_number >= ${selected.fromReceipt.substring(2)}`
+  //       : `code_number >= ${selected.fromReceipt}`
+  //     : "";
+
+  //   const toReceipt = selected.toReceipt
+  //     ? selected.toReceipt.includes("BM") || selected.toReceipt.includes("BK")
+  //       ? `code_number <= ${selected.toReceipt.substring(2)}`
+  //       : `code_number <= ${selected.toReceipt}`
+  //     : "";
+
+  //   const school_level = selected.school_level?.length
+  //     ? `schoolyear_student.class.school_level_code IN [${selected.school_level
+  //         .map((item) => item.code)
+  //         .toString()}]`
+  //     : "";
+
+  //   const class_level = selected.class_level?.length
+  //     ? `schoolyear_student.class.class_level_code IN [${selected.class_level
+  //         .map((item) => item.code)
+  //         .toString()}]`
+  //     : "";
+
+  //   const classes = selected.class?.length
+  //     ? `schoolyear_student.class_code IN [${selected.class
+  //         .map((item) => item.name)
+  //         .toString()}]`
+  //     : "";
+
+  //   const studentCode = selected.studentCode
+  //     ? `student.code = ${selected.studentCode}`
+  //     : "";
+
+  //   setCondition(
+  //     [
+  //       formality && formality,
+  //       users && users,
+  //       selectedConditionFilter.first
+  //         ? selectedConditionFilter.first.value === 1
+  //           ? year
+  //             ? year
+  //             : ""
+  //           : selectedConditionFilter.first.value === 2
+  //           ? [school_year && school_year, batch && batch].filter(
+  //               (item) => item
+  //             )
+  //           : ""
+  //         : "",
+  //       selectedConditionFilter.second
+  //         ? selectedConditionFilter.second.value === 1
+  //           ? [fromDate && fromDate, toDate && toDate].filter((item) => item)
+  //           : selectedConditionFilter.second.value === 2
+  //           ? [fromReceipt && fromReceipt, toReceipt && toReceipt].filter(
+  //               (item) => item
+  //             )
+  //           : ""
+  //         : "",
+  //       school_level && school_level,
+  //       class_level && class_level,
+  //       classes && classes,
+  //       studentCode && studentCode,
+  //     ]
+  //       .filter((item) => item)
+  //       .reduce(
+  //         (total, curr) =>
+  //           typeof curr !== "string" ? [...total, ...curr] : [...total, curr],
+  //         []
+  //       )
+  //   );
+  // };
 
   // console.log(moment(selected.fromDate).unix());
 
@@ -182,6 +298,7 @@ const Content = ({ listSearch, preReceipt, permission }) => {
           listSearch,
           selected,
           preReceipt,
+          config,
         }}
       >
         <div className="flex flex-col  gap-3">
@@ -199,13 +316,7 @@ const Content = ({ listSearch, preReceipt, permission }) => {
             setCondition={setCondition}
             // handleOnClick={handleOnClick}
             conditionFilter={conditionFilter}
-          >
-            <div className="flex items-end h-full">
-              <button className="btn w-fit" onClick={() => handleOnClick()}>
-                Tìm kiếm
-              </button>
-            </div>
-          </Filter>
+          />
           <SubContent condition={condition} permission={permission} />
         </div>
       </listContext.Provider>

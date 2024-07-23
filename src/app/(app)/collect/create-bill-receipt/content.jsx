@@ -6,6 +6,8 @@ import { getPreBill } from "@/utils/funtionApi";
 // import Main from "./_filter/main";
 import { useQuery } from "@tanstack/react-query";
 import Receipt from "./_receipt/receipt";
+import { useSubscription, gql } from "@apollo/client";
+import { Spinner } from "@nextui-org/spinner";
 
 // const options = [
 //   {
@@ -26,6 +28,7 @@ const Content = ({
   present,
   permission,
   revenueGroup,
+  config,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -38,6 +41,15 @@ const Content = ({
     staleTime: Infinity,
     initialData: () => InitialPreBill,
   });
+
+  const bill = useSubscription(gql`
+    subscription billReceipt {
+      count_bill {
+        bill_receipt
+      }
+    }
+  `);
+
   const [selected, setSelected] = useState();
   return (
     <>
@@ -49,6 +61,8 @@ const Content = ({
           selectPresent,
           permission,
           revenueGroup,
+          config,
+          bill: bill.data,
         }}
       >
         <div className="flex flex-col  gap-3">
@@ -75,8 +89,14 @@ const Content = ({
             />
           </div>
 
-          {selected?.value === 1 && <Other selected={selected} />}
-          {selected?.value === 2 && <Receipt selected={selected} />}
+          {bill.loading ? (
+            <Spinner />
+          ) : (
+            <>
+              {selected?.value === 1 && <Other selected={selected} />}
+              {selected?.value === 2 && <Receipt selected={selected} />}
+            </>
+          )}
         </div>
       </listContext.Provider>
     </>

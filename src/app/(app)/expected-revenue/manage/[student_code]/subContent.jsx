@@ -25,7 +25,7 @@ import { TbReload } from "react-icons/tb";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
-import Html2Pdf from "js-html2pdf";
+// import Html2Pdf from "js-html2pdf";
 
 const times = localFont({ src: "../../../../times.ttf" });
 
@@ -46,8 +46,13 @@ const getDiffArray = (a, b) => {
   );
 };
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 const Skeleton = () => {
@@ -70,7 +75,7 @@ const Skeleton = () => {
 
 const AddContent1 = ({ student, currentRef, existRevenue }) => {
   const queryClient = useQueryClient();
-  const { selectPresent, listRevenue, calculationUnit } =
+  const { selectPresent, listRevenue, calculationUnit, config } =
     useContext(listContext);
   const [norm, setNorm] = useState({
     group: null,
@@ -332,6 +337,7 @@ const AddContent1 = ({ student, currentRef, existRevenue }) => {
                 placeholder="Đơn giá"
                 value={norm.price ? norm.price : 0}
                 decimalsLimit={2}
+                groupSeparator={config.result[0].config.numberComma.value}
                 onValueChange={(value) => {
                   setNorm((pre) => ({
                     ...pre,
@@ -752,6 +758,7 @@ const AddContent2 = ({ student, currentRef }) => {
 };
 
 const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
+  const { config } = useContext(listContext);
   return (
     <tr className="hover">
       <td className={`${typeof i === "number" ? "text-right" : ""}`}>
@@ -759,8 +766,8 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       </td>
       <td>{data.revenue.name}</td>
       <td>{revenue_type.name}</td>
-      <td>{numberWithCommas(data.previous_batch_money)} ₫</td>
-      <td>{numberWithCommas(data.actual_amount_collected)} ₫</td>
+      <td>{numberWithCommas(data.previous_batch_money, config)} ₫</td>
+      <td>{numberWithCommas(data.actual_amount_collected, config)} ₫</td>
       {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
       <td>
         <>
@@ -790,14 +797,15 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
           />
         </>
       </td>
-      <td>{numberWithCommas(data.amount_collected)} ₫</td>
+      <td>{numberWithCommas(data.amount_collected, config)} ₫</td>
       <td>
         {numberWithCommas(
           data.previous_batch_money +
             data.actual_amount_collected +
             data.amount_edited -
             data.amount_collected +
-            data.amount_spend
+            data.amount_spend,
+          config
         )}{" "}
         ₫
       </td>
@@ -844,6 +852,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
 
 const ExportNotice = ({ student, selectPresent, data, school_year }) => {
   // console.log(student, selectPresent, data);
+  const { config } = useContext(listContext);
   const printRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
@@ -921,7 +930,7 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
           className={`flex flex-col relative justify-center items-center  mb-5 ${times.className} App`}
         >
           <style type="text/css" media="print">
-            {"@page {size: landscape; margin: 10px;}"}
+            {"@page {size: A4; margin: 20px;}"}
           </style>
           <div className="grid grid-cols-3">
             <p className="text-[8px]">
@@ -950,15 +959,39 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
           </div>
           <div className="p-1 w-full border-l border-r border-t border-black">
             <p className="text-[12px] font-semibold">
-              I. Công nợ đầu kỳ: {previous_batch_money} đồng
+              I. Công nợ đầu kỳ:{" "}
+              {numberWithCommas(previous_batch_money, config)} đồng
             </p>
           </div>
           <div className="p-1 w-full border-l border-r border-t border-black">
             <p className="text-[12px] font-semibold">
-              II. Số phải nộp kỳ này: {actual_amount_collected} đồng, chi tiết
+              II. Số phải nộp kỳ này:{" "}
+              {numberWithCommas(actual_amount_collected, config)} đồng, chi tiết
             </p>
           </div>
-          <div className="grid grid-cols-2 w-full border-b border-black">
+          <div className="w-full border-l border-r border-black">
+            {data.map((item, index) => (
+              <div
+                key={index}
+                className="flex justify-between p-1 border-dotted border-t "
+              >
+                <p className="text-[12px]">
+                  {item.position}. {item.name}
+                </p>
+                <p className="text-[12px]">
+                  {numberWithCommas(
+                    item.expected_revenues.reduce(
+                      (total, curr) => total + curr.actual_amount_collected,
+                      0
+                    ),
+                    config
+                  )}{" "}
+                  đ
+                </p>
+              </div>
+            ))}
+          </div>
+          {/* <div className="grid grid-cols-2 w-full border-b border-black">
             <div className="flex flex-col border-l border-r border-black">
               {firstPart.map((item, index) => (
                 <div
@@ -969,9 +1002,12 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
                     {item.position}. {item.name}
                   </p>
                   <p className="text-[12px]">
-                    {item.expected_revenues.reduce(
-                      (total, curr) => total + curr.actual_amount_collected,
-                      0
+                    {numberWithCommas(
+                      item.expected_revenues.reduce(
+                        (total, curr) => total + curr.actual_amount_collected,
+                        0
+                      ),
+                      config
                     )}{" "}
                     đ
                   </p>
@@ -988,27 +1024,32 @@ const ExportNotice = ({ student, selectPresent, data, school_year }) => {
                     {item.position}. {item.name}
                   </p>
                   <p className="text-[12px]">
-                    {item.expected_revenues.reduce(
-                      (total, curr) => total + curr.actual_amount_collected,
-                      0
+                    {numberWithCommas(
+                      item.expected_revenues.reduce(
+                        (total, curr) => total + curr.actual_amount_collected,
+                        0
+                      ),
+                      config
                     )}{" "}
                     đ
                   </p>
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
           <div className="p-1 w-full border-l border-r border-black">
             <p className="text-[12px] font-semibold">
-              III. Số đã nộp trong kỳ: {amount_collected} đồng
+              III. Số đã nộp trong kỳ:{" "}
+              {numberWithCommas(amount_collected, config)} đồng
             </p>
           </div>
           <div className="p-1 w-full border border-black">
             <p className="text-[12px] font-semibold">
-              IV. Công nợ còn phải nộp: {next_batch_money} đồng
+              IV. Công nợ còn phải nộp:{" "}
+              {numberWithCommas(next_batch_money, config)} đồng
             </p>
           </div>
-          <div className="grid grid-cols-2 w-full">
+          <div className="grid grid-cols-2 w-full mt-5">
             <p className="text-[12px] font-semibold text-center">Người lập</p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import {
   getPermission,
   getListRevenue,
   getCalculationUnit,
+  getConfig,
 } from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
@@ -40,13 +41,19 @@ const Page = async () => {
     );
   }
 
-  const [apiListRevenue, apiListSearch, present, apiCalculationUnit] =
-    await Promise.all([
-      getListRevenue(),
-      getListSearch(),
-      getSchoolYear({ is_active: { _eq: true } }),
-      getCalculationUnit(),
-    ]);
+  const [
+    apiListRevenue,
+    apiListSearch,
+    present,
+    apiCalculationUnit,
+    apiConfig,
+  ] = await Promise.all([
+    getListRevenue(),
+    getListSearch(),
+    getSchoolYear({ is_active: { _eq: true } }),
+    getCalculationUnit(),
+    getConfig(),
+  ]);
   // const apiListRevenue = await getListRevenue();
 
   // const apiListSearch = await getListSearch();
@@ -59,7 +66,8 @@ const Page = async () => {
     apiListSearch.status !== 200 ||
     present.status !== 200 ||
     apiListRevenue.status !== 200 ||
-    apiCalculationUnit.status !== 200
+    apiCalculationUnit.status !== 200 ||
+    apiConfig.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -70,6 +78,7 @@ const Page = async () => {
       listRevenue={apiListRevenue.data}
       calculationUnit={apiCalculationUnit.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
     />
   );
 };

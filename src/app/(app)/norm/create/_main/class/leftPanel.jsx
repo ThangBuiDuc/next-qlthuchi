@@ -12,7 +12,7 @@ import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, config } = useContext(listContext);
 
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
@@ -191,6 +191,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 intlConfig={{ locale: "vi-VN", currency: "VND" }}
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
                 placeholder="Đơn giá"
+                groupSeparator={config.result[0].config.numberComma.value}
                 value={norm.price ? norm.price : 0}
                 decimalsLimit={2}
                 onValueChange={(value) => {
@@ -217,6 +218,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
                 placeholder="Đơn giá"
                 value={typeof norm.total === "number" ? norm.total : "NaN"}
+                groupSeparator={config.result[0].config.numberComma.value}
                 decimalsLimit={2}
                 onValueChange={(value) =>
                   setNorm((pre) => ({ ...pre, total: value }))
@@ -252,6 +254,8 @@ const LeftPanel = ({ selected }) => {
   const [mutating, setMutating] = useState(false);
   const { getToken } = useAuth();
   const { user } = useUser();
+
+  console.log(user);
 
   useEffect(() => {
     if (selected)

@@ -60,7 +60,7 @@ const Item = ({
                     pre.map((item) =>
                       item.position === ticketCount.position &&
                       item.student_code === data.student_code
-                        ? { ...item, ticket_count: e.target.value }
+                        ? { ...item, ticket_count: Number(e.target.value) }
                         : item
                     )
                   )
@@ -82,6 +82,7 @@ const Content = ({ present, student, permission }) => {
   const { getToken, userId } = useAuth();
   const [mutating, setMutating] = useState(false);
   const [ticketData, setTicketData] = useState();
+  const [error, setError] = useState([]);
   // const { user } = useUser();
 
   const selectPresent = useMemo(
@@ -102,6 +103,23 @@ const Content = ({ present, student, permission }) => {
       ),
     queryKey: ["ticket_student", student.code],
   });
+
+  useEffect(() => {
+    if (data?.data?.results.length && ticketData) {
+      setError(
+        data.data.results.reduce(
+          (total, curr) =>
+            curr.amount <
+            ticketData
+              .filter((item) => item.student_code === curr.student_code)
+              .reduce((t, c) => t + c.ticket_count, 0)
+              ? [...total, curr.student_code]
+              : total,
+          []
+        )
+      );
+    }
+  }, [ticketData]);
 
   useEffect(() => {
     if (data?.data?.results.length)
@@ -249,7 +267,11 @@ const Content = ({ present, student, permission }) => {
             </tbody>
           </table>
         </div>
-        {!isFetching || !isRefetching ? (
+        {error.length ? (
+          <p className="text-red-500 font-semibold text-center">
+            Số vé ăn lớn hơn tổng số vé đã đóng!
+          </p>
+        ) : !isFetching || !isRefetching ? (
           mutating ? (
             <LoadingCustom style={"loading-xs"} />
           ) : permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (

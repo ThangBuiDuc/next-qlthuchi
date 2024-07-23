@@ -25,11 +25,12 @@ function numberWithCommas(x) {
 }
 
 const PrintComponent = ({ printRef, billReceipt, preBill }) => {
+  const { bill } = useContext(listContext);
   return (
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={printRef}>
         <style type="text/css" media="print">
-          {"@page { size: A5 landscape; margin: 10px;}"}
+          {"@page { size: A4; margin: 10px;}"}
         </style>
         <p className="text-[13px]">
           TRƯỜNG TIỂU HỌC VÀ TRUNG HỌC CƠ SỞ HỮU NGHỊ QUỐC TẾ
@@ -46,7 +47,7 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
           {moment().year()}
         </p>
         <p className=" text-[18px] text-end">
-          Số: {`PT${createCode(preBill.count_bill[0].bill_receipt)}`}
+          Số: {`PT${createCode(bill.count_bill[0].bill_receipt)}`}
         </p>
         <p className=" text-[18px]">
           Họ tên người nộp tiền: {billReceipt.payer}
@@ -94,7 +95,7 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
 };
 
 const Other = ({ selected }) => {
-  const { preBill, selectPresent, permission } = useContext(listContext);
+  const { preBill, selectPresent, permission, bill } = useContext(listContext);
   const [billReceipt, setBillReceipt] = useState({
     payer: "",
     location: "",
@@ -154,7 +155,7 @@ const Other = ({ selected }) => {
     const objects = {
       amount_collected: parseInt(billReceipt.nowMoney),
       batch_id: selectPresent.id,
-      code: `PT${createCode(preBill.count_bill[0].bill_receipt)}`,
+      code: `PT${createCode(bill.count_bill[0].bill_receipt)}`,
       created_by: user.id,
       name: billReceipt.bill_name,
       location: billReceipt.location,
@@ -173,7 +174,7 @@ const Other = ({ selected }) => {
         <p className="col-span-2">
           Phiếu thu số:{" "}
           <span className="font-semibold">{`PT${createCode(
-            preBill.count_bill[0].bill_receipt
+            bill.count_bill[0].bill_receipt
           )}`}</span>
         </p>
         <div className="flex gap-2 items-center">

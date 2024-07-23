@@ -4,6 +4,7 @@ import {
   getListSearch,
   getSchoolYear,
   getPermission,
+  getConfig,
 } from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
@@ -30,6 +31,8 @@ const Page = async () => {
   });
 
   const permission = await getPermission(token, pathName);
+
+  // console.log(permission.data);
 
   if (permission.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -60,17 +63,20 @@ const Page = async () => {
 
   // const apiCountStudentPromise = getCountStudent();
 
-  const [present, apiCatalogStudent, apiListSearch] = await Promise.all([
-    getSchoolYear({ is_active: { _eq: true } }),
-    getCatalogStudent(),
-    getListSearch(),
-  ]);
+  const [present, apiCatalogStudent, apiListSearch, apiConfig] =
+    await Promise.all([
+      getSchoolYear({ is_active: { _eq: true } }),
+      getCatalogStudent(),
+      getListSearch(),
+      getConfig(),
+    ]);
 
   if (
     apiCatalogStudent.status !== 200 ||
     // apiCountStudent.status !== 200 ||
     apiListSearch.status !== 200 ||
-    present.status !== 200
+    present.status !== 200 ||
+    apiConfig.status != 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -78,6 +84,7 @@ const Page = async () => {
     <Content
       catalogStudent={apiCatalogStudent.data}
       // countStudent={apiCountStudent.data}
+      config={apiConfig.data}
       present={present.data}
       listSearch={apiListSearch.data}
       permission={permission.data.result[0]?.permission.id.toString()}

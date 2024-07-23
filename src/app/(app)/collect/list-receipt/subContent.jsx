@@ -36,8 +36,13 @@ function findIndexInArray(arrayOfArrays, targetObject) {
   return -1;
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 function sumDuplicated(arr) {
@@ -68,7 +73,7 @@ const ModalPrint = ({ data }) => {
     () => sumDuplicated(data.receipt_details),
     []
   );
-  const { preReceipt } = useContext(listContext);
+  const { preReceipt, config } = useContext(listContext);
   // console.log(receipt_details);
   const ref = useRef();
   const middleIndex = Math.round(receipt_details.length / 2);
@@ -79,6 +84,8 @@ const ModalPrint = ({ data }) => {
     content: () => ref.current,
   });
 
+  // console.log(data);
+
   return (
     <div className="flex flex-col p-2 gap-2">
       <h6 className="col-span-3 text-center">In lại biên lai thu</h6>
@@ -86,12 +93,12 @@ const ModalPrint = ({ data }) => {
         {/* <div className="border border-black p-1"> */}
         <div className="flex flex-col relative justify-center items-center gap-1 mb-5">
           <h5 className="text-center">
-            {(data.formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
-              (data.formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+            {(data.formality.id === 2 && "BIÊN LAI THU TIỀN MẶT") ||
+              (data.formality.id === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
           </h5>
           <div className="flex justify-center gap-4">
             <p>Số BL: {data.code}</p>
-            {data.formality.value === 1 && (
+            {data.formality.id === 1 && (
               <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
             )}
           </div>
@@ -121,7 +128,21 @@ const ModalPrint = ({ data }) => {
                 </p>
               </div>
             </div>
-            <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+            <div className="col-span-2">
+              {receipt_details.map((item, index) => (
+                <p
+                  key={item.index}
+                  className="pl-1 pr-1 flex justify-between text-[14px]"
+                >
+                  {index + 1}.{" "}
+                  {item.expected_revenue.revenue.revenue_group.name}:{" "}
+                  <span>
+                    {numberWithCommas(item.amount_collected, config)} ₫
+                  </span>
+                </p>
+              ))}
+            </div>
+            {/* <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
               <div className="flex flex-col divide-y divide-black">
                 {firstPart.map((item, index) => (
                   <p
@@ -146,7 +167,7 @@ const ModalPrint = ({ data }) => {
                   </p>
                 ))}
               </div>
-            </div>
+            </div> */}
             <div className="flex flex-col col-span-2 p-2 gap-2">
               <p className=" flex justify-end gap-1 font-semibold">
                 Tổng các khoản thu ={" "}
@@ -154,7 +175,8 @@ const ModalPrint = ({ data }) => {
                   receipt_details.reduce(
                     (total, item) => total + item.amount_collected,
                     0
-                  )
+                  ),
+                  config
                 )}{" "}
                 <span>₫</span>
               </p>
@@ -182,18 +204,18 @@ const ModalPrint = ({ data }) => {
           </div>
           {/* <div
             className={`grid ${
-              (formality.value === 2 && "grid-cols-3") ||
-              (formality.value === 1 && "grid-cols-2")
+              (formality.id === 2 && "grid-cols-3") ||
+              (formality.id === 1 && "grid-cols-2")
             } auto-rows-auto w-full hidden`}
           >
             <p className="text-center font-semibold ">Người lập</p>
-            {formality.value === 2 && (
+            {formality.id === 2 && (
               <>
                 <p className="text-center font-semibold">Người nộp tiền</p>
                 <p className="text-center font-semibold">Người thu tiền</p>
               </>
             )}
-            {formality.value === 1 && (
+            {formality.id === 1 && (
               <>
                 <p className="text-center font-semibold">Ngân hàng thu</p>
               </>
@@ -208,15 +230,15 @@ const ModalPrint = ({ data }) => {
             className={`flex flex-col relative justify-center items-center gap-1 mb-5 ${times.className}`}
           >
             <style type="text/css" media="print">
-              {"@page {size: 8.5in 11in;size: landscape; margin: 10px;}"}
+              {"@page {size: A4; margin: 10px;}"}
             </style>
             <h5 className="text-center">
-              {(data.formality.value === 2 && "BIÊN LAI THU TIỀN MẶT") ||
-                (data.formality.value === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
+              {(data.formality.id === 2 && "BIÊN LAI THU TIỀN MẶT") ||
+                (data.formality.id === 1 && "BIÊN LAI THU CHUYỂN KHOẢN")}
             </h5>
             <div className="flex justify-center gap-4">
               <p>Số BL: {data.code}</p>
-              {data.formality.value === 1 && (
+              {data.formality.id === 1 && (
                 <p>Ngân hàng thu: {preReceipt.schools[0].bank_name}</p>
               )}
             </div>
@@ -246,7 +268,21 @@ const ModalPrint = ({ data }) => {
                   </p>
                 </div>
               </div>
-              <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
+              <div className="col-span-2">
+                {receipt_details.map((item, index) => (
+                  <p
+                    key={item.index}
+                    className="pl-1 pr-1 flex justify-between text-[14px]"
+                  >
+                    {index + 1}.{" "}
+                    {item.expected_revenue.revenue.revenue_group.name}:{" "}
+                    <span>
+                      {numberWithCommas(item.amount_collected, config)} ₫
+                    </span>
+                  </p>
+                ))}
+              </div>
+              {/* <div className="col-span-2 grid grid-cols-2 auto-rows-auto divide-x divide-black">
                 <div className="flex flex-col divide-y divide-black">
                   {firstPart.map((item, index) => (
                     <p
@@ -271,7 +307,7 @@ const ModalPrint = ({ data }) => {
                     </p>
                   ))}
                 </div>
-              </div>
+              </div> */}
               <div className="flex flex-col col-span-2 p-2 gap-2">
                 <p className=" flex justify-end gap-1 font-semibold">
                   Tổng các khoản thu ={" "}
@@ -279,7 +315,8 @@ const ModalPrint = ({ data }) => {
                     receipt_details.reduce(
                       (total, item) => total + item.amount_collected,
                       0
-                    )
+                    ),
+                    config
                   )}{" "}
                   <span>₫</span>
                 </p>
@@ -307,18 +344,18 @@ const ModalPrint = ({ data }) => {
             </div>
             <div
               className={`grid ${
-                (data.formality.value === 2 && "grid-cols-3") ||
-                (data.formality.value === 1 && "grid-cols-2")
+                (data.formality.id === 2 && "grid-cols-3") ||
+                (data.formality.id === 1 && "grid-cols-2")
               } auto-rows-auto w-full`}
             >
               <p className="text-center font-semibold ">Người lập</p>
-              {data.formality.value === 2 && (
+              {data.formality.id === 2 && (
                 <>
                   <p className="text-center font-semibold">Người nộp tiền</p>
                   <p className="text-center font-semibold">Người thu tiền</p>
                 </>
               )}
-              {data.formality.value === 1 && (
+              {data.formality.id === 1 && (
                 <>
                   <p className="text-center font-semibold">Ngân hàng thu</p>
                 </>
@@ -422,6 +459,7 @@ const CancelModal = ({ receipt_code, cancelRef }) => {
 };
 
 const RowTable = ({ data, isRefetching, permission }) => {
+  const { config } = useContext(listContext);
   const printRef = useRef();
   const cancelRef = useRef();
   return (
@@ -434,7 +472,8 @@ const RowTable = ({ data, isRefetching, permission }) => {
           data.receipt_details.reduce(
             (total, curr) => total + curr.amount_collected,
             0
-          )
+          ),
+          config
         )}
       </td>
       <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
@@ -524,7 +563,7 @@ const SubContent = ({ condition, permission }) => {
   // });
 
   const { data, error, status, isRefetching, refetch } = useQuery({
-    queryKey: [`searchReceipt`, condition],
+    queryKey: [`searchListReceipt`, condition],
     queryFn: async () =>
       meilisearchReceiptGet(condition, await meilisearchGetToken()),
   });

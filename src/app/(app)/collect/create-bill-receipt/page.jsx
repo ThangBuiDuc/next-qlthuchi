@@ -5,6 +5,7 @@ import {
   getSchoolYear,
   getPermission,
   getRevenueGroup,
+  getConfig,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -39,12 +40,13 @@ const Page = async () => {
     );
   }
 
-  const [apiGetRevenueGroup, apiListSearch, apiPreBill, present] =
+  const [apiGetRevenueGroup, apiListSearch, apiPreBill, present, apiConfig] =
     await Promise.all([
       getRevenueGroup(),
       getListSearch(),
       getPreBill(),
       getSchoolYear({ is_active: { _eq: true } }),
+      getConfig(),
     ]);
 
   // const apiGetRevenueGroup = await getRevenueGroup();
@@ -55,7 +57,8 @@ const Page = async () => {
   if (
     apiListSearch.status !== 200 ||
     !apiPreBill ||
-    apiGetRevenueGroup.status !== 200
+    apiGetRevenueGroup.status !== 200 ||
+    apiConfig.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -66,6 +69,7 @@ const Page = async () => {
       InitialPreBill={apiPreBill}
       present={present.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
     />
   );
 };

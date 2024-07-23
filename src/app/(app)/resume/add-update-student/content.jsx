@@ -1,15 +1,9 @@
 "use client";
-import Link from "next/link";
 import Add from "./add";
 import AddExcel from "./addExcel";
 import { GoPersonAdd } from "react-icons/go";
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { CiCircleMore } from "react-icons/ci";
-import {
-  meilisearchGetToken,
-  meilisearchStudentSearch,
-} from "@/utils/funtionApi";
-import { useQuery } from "@tanstack/react-query";
 import { CiImport } from "react-icons/ci";
 import "react-toastify/dist/ReactToastify.css";
 import StudentFilter from "@/app/_component/studentFilter";
@@ -17,19 +11,9 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useSubscription, gql } from "@apollo/client";
 import { CiExport } from "react-icons/ci";
-import parse from "html-react-parser";
-
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-} from "@nextui-org/table";
-import { Pagination } from "@nextui-org/pagination";
 import { Spinner } from "@nextui-org/spinner";
-import { Tooltip } from "@nextui-org/tooltip";
+import Search from "@/app/_component/tableStudent";
+
 // const HitItem = ({ hit, isRefetching }) => {
 //   return (
 //     <>
@@ -102,124 +86,136 @@ import { Tooltip } from "@nextui-org/tooltip";
 //   );
 // };
 
-const Search = ({ queryObject }) => {
-  // const [result, setResult] = useState(null);
-  const { data, isRefetching, isLoading } = useQuery({
-    queryKey: [`search`, queryObject],
-    queryFn: async () =>
-      meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
-  });
+// const Search = ({ queryObject, config }) => {
+//   // const [result, setResult] = useState(null);
+//   const { data, isRefetching, isLoading } = useQuery({
+//     queryKey: [`search`, queryObject],
+//     queryFn: async () =>
+//       meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
+//   });
 
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 30;
+//   const [page, setPage] = useState(1);
+//   const rowsPerPage = Number(config.result[0].config.page.value);
 
-  const pages = Math.ceil(data?.hits?.length / rowsPerPage);
+//   const pages = Math.ceil(data?.hits?.length / rowsPerPage);
 
-  const items = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+//   const items = useMemo(() => {
+//     const start = (page - 1) * rowsPerPage;
+//     const end = start + rowsPerPage;
 
-    return data?.hits?.slice(start, end);
-  }, [page, data]);
+//     return data?.hits?.slice(start, end);
+//   }, [page, data]);
 
-  // useEffect(() => {
-  //   setResult(
-  //     data?.hits
-  //       .reduce((total, curr) => [...total, ...curr.hits], [])
-  //       .map((item) => ({ ...item, isOpen: false }))
-  //   );
-  // }, [data]);
+//   useEffect(() => {
+//     setPage(1);
+//   }, [queryObject]);
 
-  return (
-    <Table
-      aria-label="Student Table"
-      removeWrapper
-      isHeaderSticky
-      bottomContent={
-        !isLoading && (
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              // showShadow
-              // color="secondary"
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        )
-      }
-    >
-      <TableHeader>
-        <TableColumn>Mã học sinh</TableColumn>
-        <TableColumn>Họ tên</TableColumn>
-        <TableColumn>Lớp</TableColumn>
-        <TableColumn></TableColumn>
-      </TableHeader>
+//   // useEffect(() => {
+//   //   setResult(
+//   //     data?.hits
+//   //       .reduce((total, curr) => [...total, ...curr.hits], [])
+//   //       .map((item) => ({ ...item, isOpen: false }))
+//   //   );
+//   // }, [data]);
 
-      <TableBody
-        emptyContent={"Không tìm thấy kết quả"}
-        loadingContent={<Spinner />}
-        isLoading={isLoading}
-      >
-        {items?.map((el) => (
-          <TableRow key={el.code}>
-            <TableCell>
-              {/* <div
-                      dangerouslySetInnerHTML={{ __html: el._formatted.code }}
-                    /> */}
-              {parse(el._formatted.code)}
-            </TableCell>
-            <TableCell>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: `${el._formatted.first_name} ${el._formatted.last_name}`,
-                }}
-              />
-            </TableCell>
-            <TableCell>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: el._formatted.class_name,
-                }}
-              />
-            </TableCell>
-            <TableCell>
-              <p className="self-center">
-                {isRefetching ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <>
-                    {/* <div className="tooltip" data-tip="Cập nhật">
-                      <Link href={`add-update-student/${el.code}`}>
-                        <CiCircleMore size={25} />
-                      </Link>
-                    </div> */}
+//   return (
+//     <Table
+//       aria-label="Student Table"
+//       removeWrapper
+//       isStriped
+//       isHeaderSticky
+//       bottomContent={
+//         !isLoading && (
+//           <div className="flex w-full justify-center">
+//             <Pagination
+//               isCompact
+//               showControls
+//               // showShadow
+//               // color="secondary"
+//               page={page}
+//               total={pages}
+//               onChange={(page) => setPage(page)}
+//             />
+//           </div>
+//         )
+//       }
+//     >
+//       <TableHeader>
+//         <TableColumn>STT</TableColumn>
+//         <TableColumn>Mã học sinh</TableColumn>
+//         <TableColumn>Họ tên</TableColumn>
+//         <TableColumn>Lớp</TableColumn>
+//         <TableColumn></TableColumn>
+//       </TableHeader>
 
-                    <Tooltip content="Cập nhật" showArrow>
-                      <Link
-                        className="flex w-fit"
-                        href={`add-update-student/${el.code}`}
-                      >
-                        <CiCircleMore size={25} />
-                      </Link>
-                    </Tooltip>
-                  </>
-                )}
-              </p>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-};
+//       <TableBody
+//         emptyContent={"Không tìm thấy kết quả"}
+//         loadingContent={<Spinner />}
+//         isLoading={isLoading}
+//       >
+//         {items?.map((el, index) => (
+//           <TableRow key={el.code}>
+//             <TableCell>
+//               {/* <div
+//                       dangerouslySetInnerHTML={{ __html: el._formatted.code }}
+//                     /> */}
+//               {index + 1}
+//             </TableCell>
+//             <TableCell>
+//               {/* <div
+//                       dangerouslySetInnerHTML={{ __html: el._formatted.code }}
+//                     /> */}
+//               {parse(el._formatted.code)}
+//             </TableCell>
+//             <TableCell>
+//               <div
+//                 dangerouslySetInnerHTML={{
+//                   __html: `${el._formatted.first_name} ${el._formatted.last_name}`,
+//                 }}
+//               />
+//             </TableCell>
+//             <TableCell>
+//               <div
+//                 dangerouslySetInnerHTML={{
+//                   __html: el._formatted.class_name,
+//                 }}
+//               />
+//             </TableCell>
+//             <TableCell>
+//               <p className="self-center">
+//                 {isRefetching ? (
+//                   <Spinner size="sm" />
+//                 ) : (
+//                   <>
+//                     {/* <div className="tooltip" data-tip="Cập nhật">
+//                       <Link href={`add-update-student/${el.code}`}>
+//                         <CiCircleMore size={25} />
+//                       </Link>
+//                     </div> */}
+
+//                     <Tooltip content="Cập nhật" showArrow>
+//                       <Link
+//                         className="flex w-fit"
+//                         href={`add-update-student/${el.code}`}
+//                       >
+//                         <CiCircleMore size={25} />
+//                       </Link>
+//                     </Tooltip>
+//                   </>
+//                 )}
+//               </p>
+//             </TableCell>
+//           </TableRow>
+//         ))}
+//       </TableBody>
+//     </Table>
+//   );
+// };
 
 const Content = (props) => {
   const countStudent = useSubscription(
     gql`
-      subscription MySubscription {
+      subscription student_count {
         result: count_student {
           count
           school_level_code
@@ -360,7 +356,14 @@ const Content = (props) => {
           setSelected={setSelected}
           listSearch={props.listSearch}
         />
-        <Search queryObject={selected} />
+        <Search
+          queryObject={selected}
+          config={props.config}
+          redirect={"add-update-student"}
+          dataTip={"Cập nhật"}
+        >
+          <CiCircleMore size={25} />
+        </Search>
         {/* <div className="flex flex-col p-[20px]">
           <Update query={query} selected={selected} />
         </div> */}

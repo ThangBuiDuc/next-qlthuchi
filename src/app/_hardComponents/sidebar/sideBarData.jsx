@@ -111,6 +111,7 @@ export const sideBarData = [
       { title: "Giảm giá", path: "/expected-revenue/voucher" },
       { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
       { title: "Vé ăn", path: "/expected-revenue/ticket" },
+      { title: "Xuất giấy báo đóng tiền", path: "/expected-revenue/notice" },
     ],
   },
 
@@ -121,6 +122,7 @@ export const sideBarData = [
     subNav: [
       { title: "Lập biên lai thu", path: "/collect/create-receipt" },
       { title: "Quản lý biên lai thu", path: "/collect/list-receipt" },
+      { title: "Bảng kê biên lai thu", path: "/collect/report-receipt" },
       { title: "Lập phiếu thu tiền mặt", path: "/collect/create-bill-receipt" },
       {
         title: "Quản lý phiếu thu tiền mặt",
@@ -133,8 +135,8 @@ export const sideBarData = [
     title: "Chi",
     path: "/spend",
     subNav: [
-      { title: "Hoàn trả tiền thừa", path: "/spend/refund" },
-      { title: "Hoàn trả tiền thừa vé ăn", path: "/spend/refund-ticket" },
+      { title: "Bảng kê hoàn trả tiền thừa", path: "/spend/report-refund" },
+      // { title: "Hoàn trả tiền thừa vé ăn", path: "/spend/refund-ticket" },
       { title: "Lập phiếu chi tiền mặt", path: "/spend/create-bill-refund" },
       {
         title: "Quản lý phiếu chi tiền mặt",
@@ -173,6 +175,10 @@ export const sideBarData = [
       {
         title: "Các khoản đã hoàn trả theo nhiều học sinh",
         path: "/report/total-refund",
+      },
+      {
+        title: "Danh sách học sinh được ưu đãi, miễn giảm học phí",
+        path: "/report/reduction",
       },
     ],
   },

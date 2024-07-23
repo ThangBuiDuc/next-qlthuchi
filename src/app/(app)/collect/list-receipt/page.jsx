@@ -3,6 +3,7 @@ import {
   getListSearch,
   getPreReceipt,
   getPermission,
+  getConfig,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -37,14 +38,19 @@ const Page = async () => {
     );
   }
 
-  const [apiListSearch, apiPreReceipt] = await Promise.all([
+  const [apiListSearch, apiPreReceipt, apiConfig] = await Promise.all([
     getListSearch(),
     getPreReceipt(),
+    getConfig(),
   ]);
   // const apiListSearch = await getListSearch();
   // const apiPreReceipt = await getPreReceipt();
 
-  if (apiListSearch.status !== 200 || !apiPreReceipt)
+  if (
+    apiListSearch.status !== 200 ||
+    !apiPreReceipt ||
+    apiConfig.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
@@ -52,6 +58,7 @@ const Page = async () => {
       listSearch={apiListSearch.data}
       preReceipt={apiPreReceipt}
       permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
     />
   );
 };

@@ -1,32 +1,54 @@
-"use client";
 import {
-  // meilisearchRefundGet,
-  // updateReceipt,
-  meilisearchGetToken,
-  createBillRefund,
-  meilisearchReportRefundOneGet,
-} from "@/utils/funtionApi";
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { listContext } from "../content";
-// import { useState, useContext, useRef, useMemo } from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { TbReload } from "react-icons/tb";
-import { useEffect, useContext, useCallback, useRef } from "react";
-import { useReactToPrint } from "react-to-print";
-import localFont from "next/font/local";
-import { getText } from "number-to-text-vietnamese";
+import CurrencyInput from "react-currency-input-field";
+import {
+  createBillRefund,
+  meilisearchGetToken,
+  meilisearchListRefundGet,
+} from "@/utils/funtionApi";
+import StudentFilter from "@/app/_component/studentFilter";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Pagination } from "@nextui-org/pagination";
+import { Spinner } from "@nextui-org/spinner";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { getText } from "number-to-text-vietnamese";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { useReactToPrint } from "react-to-print";
+import localFont from "next/font/local";
 const times = localFont({ src: "../../../../times.ttf" });
+
 function createCode(lastCount) {
   return `${moment().year().toString().slice(-2)}${(
     "0000" +
     (lastCount + 1)
   ).slice(-4)}`;
+}
+
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 function sumArrayObjectsById(arr) {
@@ -40,7 +62,7 @@ function sumArrayObjectsById(arr) {
 
       // If the id is already in the sumMap, add the value to it
       if (sumMap.hasOwnProperty(id)) {
-        sumMap[id].amount_collected += obj.amount_collected; // Assuming the property to be summed is 'amount_collected'
+        sumMap[id].next_batch_money += obj.next_batch_money; // Assuming the property to be summed is 'amount_collected'
       } else {
         // If the id is not in the sumMap, create a new entry with the amount_collected
         sumMap[id] = { ...obj };
@@ -54,11 +76,7 @@ function sumArrayObjectsById(arr) {
   return result;
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-const PrintComponent = ({ printRef, billRefund, preBill }) => {
+const PrintComponent = ({ printRef, billRefund, config, bill }) => {
   return (
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={printRef}>
@@ -80,7 +98,7 @@ const PrintComponent = ({ printRef, billRefund, preBill }) => {
           {moment().year()}
         </p>
         <p className=" text-[18px] text-end">
-          Số: {`PT${createCode(preBill.count_bill[0].bill_refund)}`}
+          Số: {`PT${createCode(bill.count_bill[0].bill_refund)}`}
         </p>
         <p className=" text-[18px]">
           Họ tên người nộp tiền: {billRefund.receiver}
@@ -89,7 +107,9 @@ const PrintComponent = ({ printRef, billRefund, preBill }) => {
         <p className=" text-[18px]">Lý do chi: {billRefund.bill_name}</p>
         <p className=" text-[18px]">
           Số tiền:{" "}
-          {billRefund.nowMoney ? numberWithCommas(billRefund.nowMoney) : ""}{" "}
+          {billRefund.nowMoney
+            ? numberWithCommas(billRefund.nowMoney, config)
+            : ""}{" "}
           đồng
         </p>
         <p className=" text-[18px]">
@@ -127,13 +147,10 @@ const PrintComponent = ({ printRef, billRefund, preBill }) => {
   );
 };
 
-const SecondPrintComponent = async (data, revenueGroup) => {
-  // console.log(data);
-
+const handleExportExcel = async (listRefund, revenueGroup) => {
   const header = revenueGroup.result.sort((a, b) => a.position - b.position);
-
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("BẢNG HOÀN TRẢ TIỀN THỪA");
+  const worksheet = workbook.addWorksheet("BẢNG KÊ HOÀN TRẢ TIỀN THỪA");
 
   worksheet.mergeCells("B1:C1");
   const tentruong = worksheet.getCell("B1");
@@ -147,23 +164,29 @@ const SecondPrintComponent = async (data, revenueGroup) => {
 
   worksheet.mergeCells("C2:J2");
   const titleCell = worksheet.getCell("G2");
-  titleCell.value = "BẢNG HOÀN TRẢ TIỀN THỪA";
+  titleCell.value = "BẢNG KÊ HOÀN TRẢ TIỀN THỪA";
   titleCell.font = { name: "Times New Roman", size: 16, bold: true };
   titleCell.alignment = { vertical: "middle", horizontal: "center" };
 
   worksheet.mergeCells("C3:J3");
   const Ghichu = worksheet.getCell("G3");
-  Ghichu.value = "Hình thức thu: Tiền mặt";
-  Ghichu.font = { name: "Times New Roman", size: 14 };
+  Ghichu.value = "(Theo nhiều học sinh)";
+  Ghichu.font = {
+    name: "Times New Roman",
+    size: 14,
+    color: { argb: "FF0000" },
+  };
   Ghichu.alignment = { vertical: "middle", horizontal: "center" };
 
   worksheet.mergeCells("C4:J4");
   const Taingay = worksheet.getCell("G4");
-  Taingay.value = `Từ ngày ….. tháng ….. năm …. đến ngày …. tháng ….. năm ….`;
+  Taingay.value = `Tại ngày ${moment().date()} tháng ${
+    moment().month() + 1
+  } năm ${moment().year()}`;
   Taingay.font = {
     name: "Times New Roman",
     size: 14,
-    color: { argb: "FF0000" },
+    color: { argb: "#CC0000" },
   };
   Taingay.alignment = { vertical: "middle", horizontal: "center" };
   // Thêm dữ liệu vào bảng tính
@@ -196,52 +219,86 @@ const SecondPrintComponent = async (data, revenueGroup) => {
     { key: "col26", width: 20 },
     { key: "col27", width: 20 },
   ];
+  // worksheet.getCell(6, 1).value = "STT";
+  // worksheet.getCell(6, 2).value = "Mã học sinh";
+  // worksheet.getCell(6, 3).value = "Họ và tên học sinh";
+  // worksheet.getCell(6, 4).value = "Ngày tháng năm sinh";
+  // worksheet.getCell(6, 5).value = "Lớp";
+  // worksheet.getCell(6, 6).value = "Mã lớp";
+  // worksheet.getCell(6, 7).value = "Học phí thực thu";
+  // worksheet.getCell(6, 8).value = "Phí bán trú";
+  // worksheet.getCell(6, 9).value = "Phí dự tuyển";
+  // worksheet.getCell(6, 10).value = "Phí học liệu, học phẩm";
+  // worksheet.getCell(6, 11).value = "Phí bảo trì CSVC";
+  // worksheet.getCell(6, 12).value = "Học phí ôn thi tốt nghiệp";
+  // worksheet.getCell(6, 13).value = "Phí thi lại";
+  // worksheet.getCell(6, 14).value = "Phí đưa đón học sinh";
+  // worksheet.getCell(6, 15).value = "Phí quản lý HS ngoài giờ";
+  // worksheet.getCell(6, 16).value = "Phí học tập trải nghiệm, THTT";
+  // worksheet.getCell(6, 17).value = "Phí KSK, làm thẻ HS";
+  // worksheet.getCell(6, 18).value = "Phí/ học phí khác ";
 
+  // worksheet.getCell(6, 20).value = "Tiền ăn bán trú";
+  // worksheet.getCell(6, 21).value = "Bảo hiểm y tế";
+  // worksheet.getCell(6, 22).value = "Đồng phục";
+  // worksheet.getCell(6, 23).value = "Tiền sách, vở ghi";
+  // worksheet.getCell(6, 24).value = "Vé gửi xe";
+  // worksheet.getCell(6, 25).value = "Khoản thu hộ khác ";
+  // worksheet.getCell(6, 19).value = "Tổng tiền phí, học phí hoàn trả";
+  // worksheet.getCell(6, 26).value = "Tổng tiền thu hộ hoàn trả";
+  // worksheet.getCell(6, 27).value = "Tổng tiền hoàn trả";
   worksheet.addRow([]);
   worksheet.addRow([
     "STT",
     "Mã học sinh",
     "Họ và tên học sinh",
-    // "Số biên lai",
-    "Ngày hoàn trả",
+    "Ngày tháng năm sinh",
+    "Lớp",
+    "Mã lớp",
     ...header.map((item) => item.name),
     "Tổng tiền thu phí, học phí hoàn trả",
     "Tổng tiền thu hộ hoàn trả",
     "Tổng tiền hoàn trả",
   ]);
 
-  data.forEach((item, index) => {
+  listRefund.forEach((item, index) => {
     worksheet.addRow([
-      ++index,
-      item.student.student_code,
-      `${item.student.first_name} ${item.student.last_name}`,
-      // item.receipt_code,
-      moment.unix(item.start_at).format("DD-MM-yyyy"),
-      ...sumArrayObjectsById(item.refund_details)
+      index + 1,
+      item.student_code,
+      `${item.first_name} ${item.last_name}`,
+      `${item.date_of_birth.split("-").reverse().join("-")}`,
+      item.class_code[0],
+      item.class_code.substring(1),
+      ...sumArrayObjectsById(item.expected_revenues)
         .sort((a, b) => a.position - b.position)
-        .map((item) => (item.amount_spend != null ? item.amount_spend : 0)),
-      sumArrayObjectsById(item.refund_details)
-        .filter((item) => item.amount_spend != null)
+        .map((el) => el.next_batch_money * -1),
+      sumArrayObjectsById(item.expected_revenues)
+        .filter((el) => el.revenue_type_id === 1)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 1 ? total + curr.amount_spend : total,
+            curr.revenue_type_id === 1
+              ? total + curr.next_batch_money * -1
+              : total,
           0
         ),
-      sumArrayObjectsById(item.refund_details)
-        .filter((item) => item.amount_spend != null)
+      sumArrayObjectsById(item.expected_revenues)
+        .filter((el) => el.revenue_type_id === 2)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 2 ? total + curr.amount_spend : total,
+            curr.revenue_type_id === 2
+              ? total + curr.next_batch_money * -1
+              : total,
           0
         ),
-      item.amount_spend,
+
+      item.expected_revenues.reduce((t, c) => t + c.next_batch_money * -1, 0),
     ]);
   });
 
   let lastRow = new Array(worksheet.columnCount);
   lastRow[3] = "Cộng";
 
-  for (let i = 5; i <= worksheet.columnCount; i++) {
+  for (let i = 7; i <= worksheet.columnCount; i++) {
     let col = worksheet.getColumn(i);
     let sum = 0;
     col.eachCell((cell, rowNumber) => {
@@ -251,34 +308,24 @@ const SecondPrintComponent = async (data, revenueGroup) => {
   }
 
   worksheet.addRow(lastRow);
+  worksheet.addRow([]);
+  worksheet.addRow([]);
+  worksheet.addRow([
+    ...new Array(25).fill(""),
+    `Hải Phòng, ngày ${moment().date()} tháng ${
+      moment().month() + 1
+    } năm ${moment().year()}`,
+  ]);
 
-  // worksheet.getCell(6, 1).value = "STT";
-  // worksheet.getCell(6, 2).value = "Mã học sinh";
-  // worksheet.getCell(6, 3).value = "Họ và tên học sinh";
-  // worksheet.getCell(6, 4).value = "Số biên lai";
-  // worksheet.getCell(6, 5).value = "Ngày BL";
-  // worksheet.getCell(6, 6).value = "Học phí thực thu";
-  // worksheet.getCell(6, 7).value = "Phí bán trú";
-  // worksheet.getCell(6, 8).value = "Phí dự tuyển";
-  // worksheet.getCell(6, 9).value = "Phí học liệu, học phẩm";
-  // worksheet.getCell(6, 10).value = "Phí bảo trì CSVC";
-  // worksheet.getCell(6, 11).value = "Học phí ôn thi tốt nghiệp";
-  // worksheet.getCell(6, 12).value = "Phí thi lại";
-  // worksheet.getCell(6, 13).value = "Phí đưa đón học sinh";
-  // worksheet.getCell(6, 14).value = "Phí quản lý HS ngoài giờ";
-  // worksheet.getCell(6, 15).value = "Phí học tập trải nghiệm, THTT";
-  // worksheet.getCell(6, 16).value = "Phí KSK, làm thẻ HS";
-  // worksheet.getCell(6, 17).value = "Phí/ học phí khác ";
-  // worksheet.getCell(6, 18).value = "Tổng tiền thu phí, học phí ";
-  // worksheet.getCell(6, 19).value = "Số vé thu T… /202…";
-  // worksheet.getCell(6, 20).value = "Tiền ăn bán trú";
-  // worksheet.getCell(6, 21).value = "Bảo hiểm y tế";
-  // worksheet.getCell(6, 22).value = "Đồng phục";
-  // worksheet.getCell(6, 23).value = "Tiền sách, vở ghi";
-  // worksheet.getCell(6, 24).value = "Vé gửi xe";
-  // worksheet.getCell(6, 25).value = "Khoản thu hộ khác ";
-  // worksheet.getCell(6, 26).value = "Tổng tiền thu hộ";
-  // worksheet.getCell(6, 27).value = "Tổng các khoản tiền thu";
+  worksheet.addRow([
+    ...new Array(19).fill(""),
+    "Thủ trưởng",
+    "",
+    "",
+    "Kế toán trưởng",
+    "",
+    "Người lập",
+  ]);
 
   worksheet.getCell(6, 1).alignment = {
     wrapText: true,
@@ -582,16 +629,8 @@ const SecondPrintComponent = async (data, revenueGroup) => {
   worksheet.getCell(6, 1).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 2).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 3).font = { bold: true, name: "Times New Roman" };
-  worksheet.getCell(6, 4).font = {
-    bold: true,
-    name: "Times New Roman",
-    // color: { argb: "FF0000" },
-  };
-  worksheet.getCell(6, 5).font = {
-    bold: true,
-    name: "Times New Roman",
-    // color: { argb: "3366FF" },
-  };
+  worksheet.getCell(6, 4).font = { bold: true, name: "Times New Roman" };
+  worksheet.getCell(6, 5).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 6).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 7).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 8).font = { bold: true, name: "Times New Roman" };
@@ -599,28 +638,24 @@ const SecondPrintComponent = async (data, revenueGroup) => {
   worksheet.getCell(6, 10).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 11).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 12).font = { bold: true, name: "Times New Roman" };
-  worksheet.getCell(6, 13).font = {
-    bold: true,
-    name: "Times New Roman",
-    // color: { argb: "FF00FF" },
-  };
+  worksheet.getCell(6, 13).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 14).font = {
     bold: true,
     name: "Times New Roman",
-    // color: { argb: "FF00FF" },
+    color: { argb: "FF00FF" },
   };
-  worksheet.getCell(6, 15).font = { bold: true, name: "Times New Roman" };
-  worksheet.getCell(6, 16).font = { bold: true, name: "Times New Roman" };
-  worksheet.getCell(6, 17).font = { bold: true, name: "Times New Roman" };
-  worksheet.getCell(6, 18).font = {
+  worksheet.getCell(6, 15).font = {
     bold: true,
     name: "Times New Roman",
-    // color: { argb: "3366FF" },
+    color: { argb: "FF00FF" },
   };
+  worksheet.getCell(6, 16).font = { bold: true, name: "Times New Roman" };
+  worksheet.getCell(6, 17).font = { bold: true, name: "Times New Roman" };
+  worksheet.getCell(6, 18).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 19).font = {
     bold: true,
     name: "Times New Roman",
-    // color: { argb: "3366FF" },
+    color: { argb: "3366FF" },
   };
   worksheet.getCell(6, 20).font = { bold: true, name: "Times New Roman" };
   worksheet.getCell(6, 21).font = { bold: true, name: "Times New Roman" };
@@ -631,121 +666,147 @@ const SecondPrintComponent = async (data, revenueGroup) => {
   worksheet.getCell(6, 26).font = {
     bold: true,
     name: "Times New Roman",
-    // color: { argb: "3366FF" },
+    color: { argb: "3366FF" },
   };
   worksheet.getCell(6, 27).font = { bold: true, name: "Times New Roman" };
 
   const buf = await workbook.xlsx.writeBuffer();
 
   saveAs(new Blob([buf]), "Bang-ke-hoan-tra-tien-thua.xlsx");
-
-  // return (
-  //   <div className="hidden">
-  //     <div className={`flex flex-col ${times.className}`} ref={secondPrintRef}>
-  //       <style type="text/css" media="print">
-  //         {"@page { size: A4 landscape !important;  margin: 10px;}"}
-  //       </style>
-  //       <div className="flex flex-col">
-  //         {/* <p className="text-[12px]">TRƯỜNG TH&THCS HỮU NGHỊ QUỐC TẾ</p> */}
-  //         <p className="text-[24px] font-semibold text-center">
-  //           BẢNG KÊ BIÊN LAI THU TIỀN
-  //         </p>
-  //         <p className="text-[16px]">Hình thức thu: Tiền mặt</p>
-  //         <p className="text-[16px]">
-  //           Từ ngày ….. tháng ….. năm …. đến ngày …. tháng ….. năm ….
-  //         </p>
-  //         <div className="mt-[4px]"></div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 };
 
-// function sumDuplicated(arr) {
-//   return arr.reduce((acc, curr) => {
-//     const objInAcc = acc.find(
-//       (o) =>
-//         o.expected_revenue.revenue.revenue_group.id ===
-//         curr.expected_revenue.revenue.revenue_group.id
-//     );
-//     if (objInAcc)
-//       return [
-//         ...acc.map((item) =>
-//           item.expected_revenue.revenue.revenue_group.id ===
-//           curr.expected_revenue.revenue.revenue_group.id
-//             ? {
-//                 ...item,
-//                 amount_spend: item.amount_spend + curr.amount_spend,
-//               }
-//             : item
-//         ),
-//       ];
-//     else return [...acc, curr];
-//   }, []);
-// }
+const TableView = ({
+  listRefund,
+  isLoading,
+  config,
+  selectedKeys,
+  setSelectedKeys,
+}) => {
+  const [page, setPage] = useState(1);
+  const rowsPerPage = Number(config?.result[0].config.page.value);
 
-const RowTable = ({ data }) => {
+  const pages = Math.ceil(listRefund?.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return listRefund?.slice(start, end);
+  }, [page, listRefund]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [listRefund]);
+
   return (
-    <tr className="hover">
-      <td>{data.id}</td>
-      {/* <td>{data.student.code}</td> */}
-      <td>{`${data.student.first_name} ${data.student.last_name}`}</td>
-      <td>
-        {numberWithCommas(
-          data.refund_details.reduce(
-            (total, curr) => total + curr.amount_spend,
-            0
-          )
-        )}
-      </td>
-      <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
-      <td>{data.canceled && "✓"}</td>
-      <td></td>
-    </tr>
+    <Table
+      aria-label="list refund table"
+      selectionMode="multiple"
+      className="max-h-[450px]"
+      // removeWrapper
+      isStriped
+      isHeaderSticky
+      color="primary"
+      selectedKeys={selectedKeys}
+      onSelectionChange={setSelectedKeys}
+      bottomContent={
+        !isLoading &&
+        items && (
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              // showShadow
+              color="primary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        )
+      }
+    >
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Mã học sinh</TableColumn>
+        <TableColumn>Họ và tên</TableColumn>
+        <TableColumn>Ngày sinh</TableColumn>
+        <TableColumn>Lớp</TableColumn>
+      </TableHeader>
+      <TableBody
+        emptyContent="Không tìm thấy kết quả tìm kiếm!"
+        loadingContent={<Spinner color="primary" />}
+        isLoading={isLoading}
+      >
+        {items?.map((item, index) => {
+          return (
+            <TableRow key={item.student_code}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.student_code}</TableCell>
+              <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+              <TableCell>
+                {item.date_of_birth.split("-").reverse().join("-")}
+              </TableCell>
+              <TableCell>{item.class_code}</TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 };
 
-const ListRefund = ({
-  billRefund,
-  condition,
-  setBillRefund,
-  mutating,
-  setMutating,
-  selected,
-}) => {
-  const queryClient = useQueryClient();
-  const { selectPresent, preBill, permission, revenueGroup } =
+const ListStudent = () => {
+  const { permission, bill, config, selectPresent, listSearch, revenueGroup } =
     useContext(listContext);
-  const { getToken } = useAuth();
   const { user } = useUser();
-  const printRef = useRef();
-
-  const { data, isFetching, isLoading, isRefetching } = useQuery({
-    queryKey: [`searchRefund`, condition],
-    queryFn: async () =>
-      meilisearchReportRefundOneGet(await meilisearchGetToken(), condition),
+  const [billRefund, setBillRefund] = useState({
+    receiver: "",
+    location: "",
+    nowMoney: null,
+    bill_name: "",
+    description: "",
   });
+  const [mutating, setMutating] = useState(false);
+  const printRef = useRef();
+  //   const [data, setData] = useState();
+  const queryClient = useQueryClient();
+  const { getToken } = useAuth();
+  const [selected, setSelected] = useState({
+    school: null,
+    class_level: null,
+    class: null,
+  });
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
 
-  useEffect(() => {
-    if (data?.results) {
-      setBillRefund((pre) => ({
-        ...pre,
-        nowMoney: data.results.reduce(
-          (total, curr) =>
-            total +
-            curr.refund_details.reduce(
-              (total, current) => total + current.amount_spend,
-              0
-            ),
-          0
-        ),
-      }));
-    }
-  }, [data]);
+  const {
+    data: listRefund,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["listRefund", selected],
+    queryFn: async () =>
+      meilisearchListRefundGet(await meilisearchGetToken(), {
+        ...selected,
+        present: selectPresent,
+      }),
+    // enabled: Object.values(selected).some((el) => el),
+  });
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
-    onAfterPrint: () => SecondPrintComponent(data.results, revenueGroup),
+    onAfterPrint: () =>
+      handleExportExcel(
+        selectedKeys === "all"
+          ? listRefund
+          : listRefund.reduce(
+              (total, curr) =>
+                selectedKeys.has(curr.student_code) ? [...total, curr] : total,
+              []
+            ),
+        revenueGroup
+      ),
   });
 
   const mutation = useMutation({
@@ -765,7 +826,7 @@ const ListRefund = ({
         bill_name: "",
         description: "",
       });
-      queryClient.invalidateQueries(["get_pre_bill"]);
+      queryClient.invalidateQueries(["listRefund", selected]);
       toast.success("Lập phiếu chi thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -789,114 +850,214 @@ const ListRefund = ({
     const objects = {
       amount_spend: parseInt(billRefund.nowMoney),
       batch_id: selectPresent.id,
-      code: `PC${createCode(preBill.count_bill[0].bill_refund)}`,
+      code: `PC${createCode(bill.count_bill[0].bill_refund)}`,
       created_by: user.id,
       name: billRefund.bill_name,
       description: billRefund.description.trim(),
       location: billRefund.location.trim(),
       start_at: moment().format(),
-      bill_formality_id: selected.value,
+      bill_formality_id: 2,
       receiver: billRefund.receiver,
       bill_refund_details: {
-        data: data.results.map((item) => ({
-          refund_id: item.id,
-          batch_id: selectPresent.id,
-          amount_spend: item.refund_details.reduce(
-            (total, current) => total + current.amount_spend,
-            0
-          ),
-          created_by: user.id,
-          start_at: moment().format(),
-        })),
+        data:
+          selectedKeys === "all"
+            ? listRefund.reduce(
+                (total, curr) => [
+                  ...total,
+                  ...curr.expected_revenues
+                    .filter((item) => item.expected_revenue_id)
+                    .map((el) => ({
+                      expected_revenue_id: el.expected_revenue_id,
+                      batch_id: selectPresent.id,
+                      amount_spend: el.next_batch_money * -1,
+                      created_by: user.id,
+                      start_at: moment().format(),
+                    })),
+                ],
+                []
+              )
+            : listRefund
+                .filter((item) => selectedKeys.has(item.student_code))
+                .reduce(
+                  (total, curr) => [
+                    ...total,
+                    ...curr.expected_revenues
+                      .filter((item) => item.expected_revenue_id)
+                      .map((el) => ({
+                        expected_revenue_id: el.expected_revenue_id,
+                        batch_id: selectPresent.id,
+                        amount_spend: el.next_batch_money * -1,
+                        created_by: user.id,
+                        start_at: moment().format(),
+                      })),
+                  ],
+                  []
+                ),
       },
     };
     setMutating(true);
     mutation.mutate(objects);
-  }, [billRefund, data]);
+  }, [billRefund, selectedKeys]);
 
-  return isFetching && isLoading ? (
-    <span className="loading loading-spinner loading-lg self-center"></span>
-  ) : (
+  useEffect(() => {
+    if (listRefund?.length > 0) {
+      setBillRefund((pre) => ({
+        ...pre,
+        nowMoney:
+          selectedKeys === "all"
+            ? listRefund.reduce(
+                (total, curr) =>
+                  total +
+                  curr.expected_revenues.reduce(
+                    (t, c) => t + c.next_batch_money * -1,
+                    0
+                  ),
+                0
+              )
+            : listRefund
+                .filter((item) => selectedKeys.has(item.student_code))
+                .reduce(
+                  (total, curr) =>
+                    total +
+                    curr.expected_revenues.reduce(
+                      (t, c) => t + c.next_batch_money * -1,
+                      0
+                    ),
+                  0
+                ),
+      }));
+    }
+  }, [selectedKeys]);
+  return (
     <>
-      <div className="overflow-x-auto">
-        <table className="table">
-          {/* head */}
-          <thead>
-            <tr>
-              {/* <th></th> */}
-              <th>Mã biên lai</th>
-              {/* <th>Mã học sinh</th> */}
-              <th>Họ và tên học sinh</th>
-              <th>Số tiền chi</th>
-              <th>Ngày chi</th>
-              <th>Đã huỷ</th>
-              <th>
-                <>
-                  <div
-                    className="tooltip items-center flex cursor-pointer w-fit tooltip-left"
-                    data-tip="Tải lại danh sách tìm kiếm"
-                    onClick={() =>
-                      queryClient.invalidateQueries([`searchRefund`, condition])
-                    }
-                  >
-                    <TbReload size={30} />
-                  </div>
-                </>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.results.length === 0 ? (
-              <tr>
-                <td colSpan={6} className=" text-center">
-                  Không tìm thấy kết quả
-                </td>
-              </tr>
-            ) : (
-              data.results.map((item) => (
-                <RowTable
-                  key={item.code}
-                  data={item}
-                  isRefetching={isRefetching}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
-        billRefund.receiver.trim() &&
-        billRefund.location.trim() &&
-        billRefund.bill_name.trim() &&
-        billRefund.nowMoney &&
-        data.results.length ? (
-          mutating || isFetching ? (
-            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
-          ) : (
-            <button
-              className="btn w-fit self-center"
-              onClick={() => handleOnClick()}
-            >
-              Hoàn thành
-            </button>
-          )
-        ) : (
-          <></>
-        )
-      ) : (
-        <></>
-      )}
-      <PrintComponent
-        printRef={printRef}
-        billRefund={billRefund}
-        preBill={preBill}
-      />
+      <div className="grid grid-cols-2 items-center gap-2">
+        <p className="col-span-2">
+          Phiếu chi số:{" "}
+          <span className="font-semibold">{`PC${createCode(
+            bill.count_bill[0].bill_refund
+          )}`}</span>
+        </p>
+        <div className="flex gap-2 items-center">
+          <p>Họ tên người nhận tiền:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billRefund.receiver}
+            onChange={(e) =>
+              setBillRefund((pre) => ({ ...pre, receiver: e.target.value }))
+            }
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <p>Địa chỉ:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billRefund.location}
+            onChange={(e) =>
+              setBillRefund((pre) => ({ ...pre, location: e.target.value }))
+            }
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <p>Số tiền:</p>
+          <CurrencyInput
+            disabled
+            groupSeparator={config.result[0].config.numberComma.value}
+            className="input input-bordered min-w-[300px]"
+            intlConfig={{ locale: "vi-VN", currency: "VND" }}
+            value={billRefund.nowMoney}
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <p>Lý do chi:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billRefund.bill_name}
+            onChange={(e) =>
+              setBillRefund((pre) => ({ ...pre, bill_name: e.target.value }))
+            }
+          />
+        </div>
 
-      {/* <button onClick={() => SecondPrintComponent(data.results, revenueGroup)}>
-        test Excel
-      </button> */}
+        <p className="italic col-span-2">
+          Bằng chữ:{" "}
+          <span className="font-semibold">
+            {billRefund.nowMoney
+              ? getText(billRefund.nowMoney).charAt(0).toUpperCase() +
+                getText(billRefund.nowMoney).slice(1) +
+                " đồng"
+              : ""}
+          </span>
+        </p>
+        <div className="flex gap-2 items-center">
+          <p>Kèm theo:</p>
+          <input
+            type="text"
+            className="input input-bordered min-w-[300px]"
+            value={billRefund.description}
+            onChange={(e) =>
+              setBillRefund((pre) => ({ ...pre, description: e.target.value }))
+            }
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
+        <h6 className="text-center">Bảng kê hoàn trả tiền thừa</h6>
+        {isLoading || isFetching ? (
+          <Spinner color="primary" />
+        ) : (
+          <>
+            <div className="flex flex-col gap-5 justify-center">
+              <StudentFilter
+                selected={selected}
+                setSelected={setSelected}
+                listSearch={listSearch}
+                noQuery
+              />
+              <TableView
+                isLoading={(isLoading && isFetching) || isRefetching}
+                config={config}
+                listRefund={listRefund}
+                selectedKeys={selectedKeys}
+                setSelectedKeys={setSelectedKeys}
+              />
+            </div>
+            {/* </Scrollbars> */}
+            {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+              selectedKeys === "all" ||
+              listRefund.some((item) => selectedKeys.has(item.student_code)) ? (
+                <>
+                  {mutating ? (
+                    <Spinner color="primary" />
+                  ) : (
+                    <button
+                      className="flex justify-center btn w-fit self-center"
+                      onClick={() => handleOnClick()}
+                    >
+                      Lập phiếu chi
+                    </button>
+                  )}
+                </>
+              ) : (
+                <></>
+              )
+            ) : (
+              <></>
+            )}
+            <PrintComponent
+              printRef={printRef}
+              billRefund={billRefund}
+              config={config}
+              bill={bill}
+            />
+          </>
+        )}
+      </div>
     </>
   );
 };
 
-export default ListRefund;
+export default ListStudent;

@@ -537,11 +537,11 @@ export const getTicketStudent = async (token, where) => {
   return res;
 };
 
-
 //Lấy số tiền giảm trừ ngoài của 1 khoản thu
 export const getExternalDeduction = async (token, expected_revenue_id) => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_NEXT_PUBLIC_HASURA_GET_EXTERNAL_DEDUCTION,
+    url: process.env
+      .NEXT_PUBLIC_HASURA_NEXT_PUBLIC_HASURA_GET_EXTERNAL_DEDUCTION,
     method: "post",
     data: { expected_revenue_id },
     headers: {
@@ -552,7 +552,6 @@ export const getExternalDeduction = async (token, expected_revenue_id) => {
 
   return res;
 };
-
 
 //UPDATE---------------------------------------------------------------------
 
@@ -966,15 +965,12 @@ export const createExpectedRevenueDiscount = async (
 };
 
 //Thêm / sửa mã giảm giá cho khoản thu bản 2
-export const createExpectedRevenueDiscount2 = async (
-  token,
-  objects
-) => {
+export const createExpectedRevenueDiscount2 = async (token, objects) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_UPSERT_EXPECTED_REVENUE_DISCOUNT,
     method: "POST",
     data: {
-      objects: objects
+      objects: objects,
     },
     headers: {
       "content-type": "Application/json",
@@ -986,15 +982,12 @@ export const createExpectedRevenueDiscount2 = async (
 };
 
 //Thêm mới số tiền giảm trừ ngoài
-export const createExternalDeduction = async (
-  token,
-  objects
-) => {
+export const createExternalDeduction = async (token, objects) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_EXTERNAL_DEDUCTION,
     method: "POST",
     data: {
-      objects: objects
+      objects: objects,
     },
     headers: {
       "content-type": "Application/json",
@@ -1004,7 +997,6 @@ export const createExternalDeduction = async (
 
   return res;
 };
-
 
 //DELETE---------------------------------------------------------------------
 
@@ -1290,15 +1282,18 @@ export const meilisearchReportRefundOneGet = async (token, data) => {
 //Lấy thông tin học sinh qua Meilisearch
 export const meilisearchStudentGet = async (student_code) => {
   const res = await axios({
-    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}?filter=year_active=true`,
-    method: "get",
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/fetch`,
+    method: "post",
+    data: {
+      filter: `code = ${student_code} AND year_active=true`,
+    },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${process.env.MEILISEARCH_SECRET_KEY}`,
     },
   });
 
-  return res.data;
+  return res.data.results[0];
 };
 
 //Lấy thông tin kết chuyển công nợ
@@ -1352,4 +1347,100 @@ export const upgrade = async (objects) => {
   });
 
   return res;
+};
+
+//Lấy thiết thông tin thiết lập hệ thống
+export const getConfig = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CONFIG,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Cập nhật thiết lập hệ thống
+export const updateConfig = async (_set, where, token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_CONFIG,
+    method: "put",
+    data: {
+      _set,
+      where,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin giấy báo đóng tiền
+export const meilisearchNoticeGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_notice/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data.results.filter((item) =>
+    item.expected_revenues.some((el) => el.next_batch_money > 0)
+  );
+};
+
+//Lấy bảng kê hoàn trả tiền thừa
+export const meilisearchListRefundGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_list_refund/documents/fetch`,
+    method: "post",
+    data: {
+      filter: `batch_id = ${data.present.batch} ${
+        data.school ? `AND school_level_code= ${data.school.code}` : ""
+      } ${
+        data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""
+      } ${data.class ? `AND class_code= ${data.class.label}` : ""}`,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data.results.filter((item) =>
+    item.expected_revenues.some((el) => el.next_batch_money < 0)
+  );
+};
+
+//Lấy thông tin báo cáo ưu đãi giảm giá
+export const meilisearchReductionGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_reduction/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
 };

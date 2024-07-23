@@ -154,7 +154,7 @@ const Content = ({ listSearch }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="text-center">Các khoản đã thu theo một học sinh</h5>
+      <h5 className="text-center">Công nợ theo một học sinh</h5>
       <h6>Tìm kiếm học sinh:</h6>
       <div className="grid grid-cols-3 auto-rows-auto gap-2">
         <Select
