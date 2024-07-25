@@ -186,7 +186,7 @@ const Parent = ({ student_code, studentRaw, catalogStudent }) => {
 const Content = ({
   student_code,
   initialStudent,
-  // present,
+  present,
   catalogStudent,
   permission,
 }) => {
@@ -247,6 +247,8 @@ const Content = ({
             studentRaw={studentRaw}
             setStudentRaw={setStudentRaw}
             student_code={student_code}
+            present={present}
+            student={student.data.data}
           />
         )}
         {studentRaw && studentRaw?.student_parents.length ? (

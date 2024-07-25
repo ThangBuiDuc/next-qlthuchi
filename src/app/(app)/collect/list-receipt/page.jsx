@@ -36,8 +36,13 @@ const Page = async () => {
       </div>
     );
   }
-  const apiListSearch = await getListSearch();
-  const apiPreReceipt = await getPreReceipt();
+
+  const [apiListSearch, apiPreReceipt] = await Promise.all([
+    getListSearch(),
+    getPreReceipt(),
+  ]);
+  // const apiListSearch = await getListSearch();
+  // const apiPreReceipt = await getPreReceipt();
 
   if (apiListSearch.status !== 200 || !apiPreReceipt)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

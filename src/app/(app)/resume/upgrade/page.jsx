@@ -1,24 +1,31 @@
 import Content from "./content";
 import {
-  getCalculationUnit,
-  getListRevenue,
   getListSearch,
   getSchoolYear,
   getPermission,
+  getUpgrade,
+  getListSearchSchoolYear,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/norm/manage";
+  const pathName = "/resume/upgrade";
   const { getToken } = auth();
 
   const token = await getToken({
     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
   });
 
-  const permission = await getPermission(token, pathName);
+  // const permission = await getPermission(token, pathName);
 
-  if (permission.status !== 200)
+  const [permission, apiUpgrade] = await Promise.all([
+    getPermission(token, pathName),
+    getUpgrade(),
+  ]);
+
+  // console.log(permission.data, apiUpgrade.data);
+
+  if (permission.status !== 200 || apiUpgrade.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   if (permission.data.result.length === 0)
@@ -39,15 +46,20 @@ const Page = async () => {
     );
   }
 
-  const [apiListSearch, present, apiListRevenue, apiCalculationUnit] =
-    await Promise.all([
-      getListSearch(),
-      getSchoolYear({ is_active: { _eq: true } }),
-      getListRevenue(),
-      getCalculationUnit(),
-    ]);
+  if (!apiUpgrade.data.result[0].previous_school_year_id) {
+    return (
+      <div className="flex justify-center">
+        <h3>Hiện tại chưa có thông tin năm học trước!</h3>
+      </div>
+    );
+  }
 
-  // const apiListSearch = await getListSearch();
+  const [apiListSearchSchoolYear, present] = await Promise.all([
+    getListSearchSchoolYear(apiUpgrade.data.result[0].previous_school_year_id),
+    getSchoolYear({ is_active: { _eq: true } }),
+  ]);
+
+  // const apiListSearchSchoolYear = await getListSearch();
 
   // const present = await getSchoolYear({ is_active: { _eq: true } });
 
@@ -55,23 +67,21 @@ const Page = async () => {
 
   // const apiCalculationUnit = await getCalculationUnit();
 
-  if (
-    apiListSearch.status !== 200 ||
-    present.status !== 200 ||
-    apiListRevenue.status !== 200 ||
-    apiCalculationUnit.status !== 200
-  )
+  // console.log(process.env.NEXT_PUBLIC_HASURA_GET_CALCULATION_UNIT)
+
+  if (apiListSearchSchoolYear.status !== 200 || present.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
-      listSearch={apiListSearch.data}
+      listSearchSchoolYear={apiListSearchSchoolYear.data}
       present={present.data}
-      listRevenue={apiListRevenue.data}
-      calculationUnit={apiCalculationUnit.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      upgrade={apiUpgrade.data}
     />
   );
+
+  // return <p>1</p>
 };
 
 export default Page;

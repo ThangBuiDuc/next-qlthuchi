@@ -39,13 +39,21 @@ const Page = async () => {
     );
   }
 
-  const apiListSearch = await getListSearch();
+  const [apiListSearch, present, apiListRevenue, apiCalculationUnit] =
+    await Promise.all([
+      getListSearch(),
+      getSchoolYear({ is_active: { _eq: true } }),
+      getListRevenue(),
+      getCalculationUnit(),
+    ]);
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  // const apiListSearch = await getListSearch();
 
-  const apiListRevenue = await getListRevenue();
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCalculationUnit = await getCalculationUnit();
+  // const apiListRevenue = await getListRevenue();
+
+  // const apiCalculationUnit = await getCalculationUnit();
 
   // console.log(process.env.NEXT_PUBLIC_HASURA_GET_CALCULATION_UNIT)
 

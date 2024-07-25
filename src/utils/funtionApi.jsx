@@ -1033,7 +1033,7 @@ export const meilisearchStudentSearch = async (data, token, pageParam) => {
     method: "post",
     data: {
       q: data.query,
-      hitsPerPage: 15,
+      hitsPerPage: 10000,
       page: pageParam ? pageParam : 1,
       filter: `year_active=true AND status_id = 1 ${
         data.school ? `AND school_level_code= ${data.school.code}` : ""
@@ -1282,7 +1282,7 @@ export const meilisearchReportRefundOneGet = async (token, data) => {
 //Lấy thông tin học sinh qua Meilisearch
 export const meilisearchStudentGet = async (student_code) => {
   const res = await axios({
-    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}`,
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}?filter=year_active=true`,
     method: "get",
     headers: {
       "content-type": "Application/json",
@@ -1293,13 +1293,49 @@ export const meilisearchStudentGet = async (student_code) => {
   return res.data;
 };
 
-//Thêm mới loại giảm giá
-export const createDiscountType = async (token, objects) => {
+//Lấy thông tin kết chuyển công nợ
+export const getUpgrade = async () => {
   const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_CREATE_DISCOUNT_TYPE,
-    method: "POST",
+    url: process.env.NEXT_PUBLIC_HASURA_GET_UPGRADE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin danh mục cấp, khối, lớp phục vụ tìm kiếm học sinh theo năm học
+export const getListSearchSchoolYear = async (id) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_HASURA_GET_LIST_SEARCH_SCHOOL_YEAR}/${id}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Tiến hành lên lớp
+export const upgradeAPI = async (data) => {
+  const res = await axios({
+    url: "/api/upgrade",
+    method: "PUT",
+    data,
+  });
+
+  return res;
+};
+
+export const upgrade = async (objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPGRADE,
+    method: "PUT",
     data: {
-      objects: objects,
+      objects,
     },
     headers: {
       "content-type": "Application/json",
@@ -1307,46 +1343,5 @@ export const createDiscountType = async (token, objects) => {
     },
   });
 
-  return res;
-};
-
-//Lấy đơn giá 1 tháng BHYT
-export const getInsuranceUnitPrice = async () => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_UNIT_PRICE,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-    },
-  });
-
-  return res;
-};
-
-//Lấy danh sách luật tính số tháng BHYT
-export const getInsuranceRules = async () => {
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_RULES,
-    method: "get",
-    headers: {
-      "content-type": "Application/json",
-    },
-  });
-
-  return res;
-};
-
-//Thêm đơn giá tháng BHYT
-export const createInsuaranceUnitPrice = async (token, unit_price) => {
-  // console.log(unit_price)
-  const res = await axios({
-    url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_UNIT_PRICE,
-    method: "post",
-    data: {unit_price},
-    headers: {
-      "content-type": "Application/json",
-      authorization: `Bearer ${token}`,
-    },
-  });
   return res;
 };

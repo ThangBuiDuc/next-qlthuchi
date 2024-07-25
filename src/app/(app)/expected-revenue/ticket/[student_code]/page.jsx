@@ -41,9 +41,14 @@ const Page = async ({ params }) => {
 
   //   const apiListSearch = await getListSearch();
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const [present, student] = await Promise.all([
+    getSchoolYear({ is_active: { _eq: true } }),
+    meilisearchStudentGet(params.student_code),
+  ]);
 
-  const student = await meilisearchStudentGet(params.student_code);
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  // const student = await meilisearchStudentGet(params.student_code);
 
   //   if (apiListSearch.status !== 200 || present.status !== 200)
   //     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

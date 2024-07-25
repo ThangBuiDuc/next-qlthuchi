@@ -40,13 +40,21 @@ const Page = async ({ params }) => {
     );
   }
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const [present, apiListRevenue, apiCalculationUnit, student] =
+    await Promise.all([
+      getSchoolYear({ is_active: { _eq: true } }),
+      getListRevenue(),
+      getCalculationUnit(),
+      meilisearchStudentGet(params.student_code),
+    ]);
 
-  const apiListRevenue = await getListRevenue();
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  const apiCalculationUnit = await getCalculationUnit();
+  // const apiListRevenue = await getListRevenue();
 
-  const student = await meilisearchStudentGet(params.student_code);
+  // const apiCalculationUnit = await getCalculationUnit();
+
+  // const student = await meilisearchStudentGet(params.student_code);
 
   console.log("hoc sinh",student)
 

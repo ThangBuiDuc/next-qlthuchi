@@ -39,13 +39,21 @@ const Page = async () => {
       </div>
     );
   }
-  const apiListRevenue = await getListRevenue();
 
-  const apiListSearch = await getListSearch();
+  const [apiListRevenue, apiListSearch, present, apiCalculationUnit] =
+    await Promise.all([
+      getListRevenue(),
+      getListSearch(),
+      getSchoolYear({ is_active: { _eq: true } }),
+      getCalculationUnit(),
+    ]);
+  // const apiListRevenue = await getListRevenue();
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  // const apiListSearch = await getListSearch();
 
-  const apiCalculationUnit = await getCalculationUnit();
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  // const apiCalculationUnit = await getCalculationUnit();
 
   if (
     apiListSearch.status !== 200 ||

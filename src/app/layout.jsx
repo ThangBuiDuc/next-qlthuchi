@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { viVN } from "@clerk/localizations";
 import ReactQueryProvider from "./ReactQueryProvider";
 import localFont from "next/font/local";
+import { NextUIProvider } from "@nextui-org/system";
 
 const montserrat = localFont({
   src: [
@@ -30,7 +31,9 @@ export default function RootLayout({ children }) {
     <ClerkProvider localization={viVN}>
       <html lang="vi">
         <body className={`${montserrat.className} bg-white`}>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <NextUIProvider>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </NextUIProvider>
         </body>
       </html>
     </ClerkProvider>

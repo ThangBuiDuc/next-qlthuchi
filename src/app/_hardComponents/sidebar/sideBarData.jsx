@@ -13,6 +13,10 @@ export const sideBarData = [
     path: "/system",
     subNav: [
       {
+        title: "Thiết lập hệ thống",
+        path: "/system/setting",
+      },
+      {
         title: "Người dùng",
         path: "/system/users",
       },
@@ -83,9 +87,13 @@ export const sideBarData = [
         title: "Thêm mới/ Cập nhật",
         path: "/resume/add-update-student",
       },
+      // {
+      //   title: "Biến động học sinh",
+      //   path: "/resume/dynamic-student",
+      // },
       {
-        title: "Biến động học sinh",
-        path: "/resume/dynamic-student",
+        title: "Lên lớp",
+        path: "/resume/upgrade",
       },
     ],
   },
