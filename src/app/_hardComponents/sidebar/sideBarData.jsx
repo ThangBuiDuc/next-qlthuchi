@@ -32,6 +32,10 @@ export const sideBarData = [
         title: "Năm học/ học kỳ",
         path: "/system/year-batch",
       },
+      {
+        title: "BHYT",
+        path: "/system/insurance_rules",
+      },
     ],
   },
 

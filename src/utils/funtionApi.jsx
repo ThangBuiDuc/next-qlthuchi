@@ -1309,3 +1309,44 @@ export const createDiscountType = async (token, objects) => {
 
   return res;
 };
+
+//Lấy đơn giá 1 tháng BHYT
+export const getInsuranceUnitPrice = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_UNIT_PRICE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách luật tính số tháng BHYT
+export const getInsuranceRules = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_RULES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Thêm đơn giá tháng BHYT
+export const createInsuaranceUnitPrice = async (token, unit_price) => {
+  // console.log(unit_price)
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_UNIT_PRICE,
+    method: "post",
+    data: {unit_price},
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+  return res;
+};
