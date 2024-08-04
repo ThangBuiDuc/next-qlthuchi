@@ -29,6 +29,8 @@ import { ReActivatedIcon } from "@/app/_component/reActivatedIcon";
 import { FaCircle } from "react-icons/fa";
 import Select from "react-select";
 import DeleteModal from "./delete";
+import ReActivateModal from "./reActive";
+import EditModal from "./edit";
 
 const DateInput = ({ day, setDay, month, setMonth }) => {
   const handleDayChange = (e) => {
@@ -159,9 +161,17 @@ const Rules = ({ rules, class_levels }) => {
     mutation.mutate({ token, objects: objects });
   };
 
-  // Delete Modal State
+  // Vô hiệu hoá
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState(null);
+
+  // Khôi phục hoạt động
+  const [isReActivateModalOpen, setIsReActivateModalOpen] = useState(false);
+  const [ruleToReactivate, setRuleToReActivate] = useState(null);
+
+  //Sửa 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [ruleToEdit, setRuleToEdit] = useState(null);
 
   return (
     <div className="flex flex-col gap-5">
@@ -318,6 +328,10 @@ const Rules = ({ rules, class_levels }) => {
                         color="warning"
                         variant="ghost"
                         className="border-none"
+                        onClick={() => {
+                          setIsEditModalOpen(true);
+                          setRuleToEdit(el);
+                        }}
                       >
                         <EditIcon />
                       </Button>
@@ -341,9 +355,19 @@ const Rules = ({ rules, class_levels }) => {
                     </Tooltip>
                   ) : (
                     <Tooltip color="primary" content="Khôi phục">
-                      <span className="text-lg text-primary cursor-pointer active:opacity-50">
-                        <ReActivatedIcon />
-                      </span>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        className="border-none"
+                        onClick={() => {
+                          setIsReActivateModalOpen(true);
+                          setRuleToReActivate(el);
+                        }}
+                      >
+                        <span className="text-lg text-primary cursor-pointer active:opacity-50">
+                          <ReActivatedIcon />
+                        </span>
+                      </Button>
                     </Tooltip>
                   )}
                 </div>
@@ -358,6 +382,17 @@ const Rules = ({ rules, class_levels }) => {
         ruleToDelete={ruleToDelete}
         getToken={getToken}
         queryClient={queryClient}
+      />
+      <ReActivateModal
+        isOpen={isReActivateModalOpen}
+        onClose={() => setIsReActivateModalOpen(false)}
+        ruleToReactivate={ruleToReactivate}
+      />
+      <EditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        ruleToEdit={ruleToEdit}
+        class_levels={class_levels}
       />
     </div>
   );

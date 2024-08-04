@@ -1395,7 +1395,7 @@ export const createInsuaranceUnitPrice = async (token, unit_price) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_UNIT_PRICE,
     method: "post",
-    data: {unit_price},
+    data: { unit_price },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
@@ -1403,7 +1403,6 @@ export const createInsuaranceUnitPrice = async (token, unit_price) => {
   });
   return res;
 };
-
 
 //Lấy danh mục khối lớp
 export const getClassLevel = async () => {
@@ -1418,29 +1417,54 @@ export const getClassLevel = async () => {
   return res;
 };
 
-
 //Thêm luật BHYT
-export const createInsuaranceRule = async (token,objects) => {
+export const createInsuaranceRule = async (token, objects) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_RULE,
     method: "post",
-    data: {objects},
+    data: { objects },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
-  })
-}
+  });
+};
 
 //Vô hiệu hoá luật BHYT
-export const deleteInsuaranceRule = async (token,_eq) => {
+export const deleteInsuaranceRule = async (token, id) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_DELETE_INSURANCE_RULE,
     method: "patch",
-    data: {_eq},
+    data: { id },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${token}`,
     },
-  })
-}
+  });
+};
+
+//Huỷ vô hiệu hoá luật BHYT
+export const reactivateInsuranceRule = async (token, id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UN_DELETE_INSURANCE_RULE,
+    method: "patch",
+    data: { id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Chỉnh sửa luật BHYT
+export const updateInsuranceRule = async (token, id, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_INSURANCE_RULE,
+    method: "put",
+    data: { id, objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
