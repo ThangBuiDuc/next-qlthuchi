@@ -109,6 +109,7 @@ const Search = ({ queryObject }) => {
     queryFn: async () =>
       meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
   });
+  console.log(data)
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 30;

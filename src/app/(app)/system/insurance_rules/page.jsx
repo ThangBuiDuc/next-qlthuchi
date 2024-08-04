@@ -3,6 +3,7 @@ import {
   getPermission,
   getInsuranceUnitPrice,
   getInsuranceRules,
+  getClassLevel,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -42,9 +43,12 @@ const Page = async () => {
   
   const apiGetInsuranceRules = await getInsuranceRules();
 
+  const apiGetClassLevel = await getClassLevel();
+
   if (
     apiGetInsuranceUnitPrice.status !== 200 ||
-    apiGetInsuranceRules.status !== 200
+    apiGetInsuranceRules.status !== 200 ||
+    apiGetClassLevel.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
@@ -52,6 +56,7 @@ const Page = async () => {
     <Content
       permission={permission.data.result[0]?.permission.id.toString()}
       rules={apiGetInsuranceRules.data}
+      class_levels = {apiGetClassLevel.data.result}
       price={apiGetInsuranceUnitPrice.data.result[0].unit_price}
     />
   );

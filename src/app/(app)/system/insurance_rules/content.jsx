@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "react-toastify";
@@ -10,34 +10,9 @@ import {
   getInsuranceRules,
 } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
-import Item from "./item";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@nextui-org/react";
+import Rules from "./rules";
 
-const Skeleton = () => {
-  return (
-    <>
-      {[...Array(3)].map((_, i) => (
-        <tr key={i}>
-          {[...Array(5)].map((_, ii) => (
-            <td key={ii}>
-              <>
-                <div className="skeleton h-4 w-full"></div>
-              </>
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
-  );
-};
-
-const Content = ({ permission, rules, price }) => {
-  const ruleData = useQuery({
-    queryKey: ["get_rules"],
-    queryFn: async () => await getInsuranceRules(),
-    initialData: () => ({ data: rules }),
-  });
-
+const Content = ({ permission, rules, price, class_levels }) => {
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -96,6 +71,7 @@ const Content = ({ permission, rules, price }) => {
   };
 
   // console.log(unitPrice)
+  // console.log(ruleData);
 
   return (
     <div className="flex flex-col gap-10 px-10 py-5">
@@ -143,81 +119,7 @@ const Content = ({ permission, rules, price }) => {
           )}
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows ">
-          <thead className="">
-            <tr>
-              {/* <th rowSpan="2"></th> */}
-              <th
-                rowSpan="2"
-                className="border-separate border border-slate-400"
-              >
-                Khối lớp
-              </th>
-              <th
-                colSpan="2"
-                className="border-separate border border-slate-400"
-              >
-                Ngày sinh
-              </th>
-              <th
-                rowSpan="2"
-                className="border-separate border border-slate-400"
-              >
-                Số tháng
-              </th>
-              <th rowSpan="2"></th>
-              <th rowSpan="2"></th>
-            </tr>
-            <tr>
-              <th className="border-separate border border-slate-400">Từ</th>
-              <th className="border-separate border border-slate-400">Đến</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ruleData.isFetching || ruleData.isLoading ? (
-              <Skeleton />
-            ) : ruleData?.data?.data?.length === 0 ? (
-              <p>Không có kết quả!</p>
-            ) : ruleData ? (
-              ruleData?.data?.data.result.map((item, index) => (
-                <Item key={item.id} data={item} index={index} />
-              ))
-            ) : (
-              <></>
-            )}
-          </tbody>
-        </table>
-      </div>
-      <Table isStriped aria-label="Example static collection table">
-        <TableHeader>
-          <TableColumn>NAME</TableColumn>
-          <TableColumn>ROLE</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-        </TableHeader>
-        <TableBody>
-          <TableRow key="1">
-            <TableCell>Tony Reichert</TableCell>
-            <TableCell>CEO</TableCell>
-            <TableCell>Active</TableCell>
-          </TableRow>
-          <TableRow key="2">
-            <TableCell>Zoey Lang</TableCell>
-            <TableCell>Technical Lead</TableCell>
-            <TableCell>Paused</TableCell>
-          </TableRow>
-          <TableRow key="3">
-            <TableCell>Jane Fisher</TableCell>
-            <TableCell>Senior Developer</TableCell>
-            <TableCell>Active</TableCell>
-          </TableRow>
-          <TableRow key="4">
-            <TableCell>William Howard</TableCell>
-            <TableCell>Community Manager</TableCell>
-            <TableCell>Vacation</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <Rules rules={rules} class_levels= {class_levels}/>
     </div>
   );
 };
