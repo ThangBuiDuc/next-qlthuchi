@@ -1462,3 +1462,109 @@ export const createDiscountType = async (token, objects) => {
 
   return res;
 };
+
+//Lấy đơn giá 1 tháng BHYT
+export const getInsuranceUnitPrice = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_UNIT_PRICE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Lấy danh sách luật tính số tháng BHYT
+export const getInsuranceRules = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_INSURANCE_RULES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Thêm đơn giá tháng BHYT
+export const createInsuaranceUnitPrice = async (token, unit_price) => {
+  // console.log(unit_price)
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_UNIT_PRICE,
+    method: "post",
+    data: { unit_price },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+  return res;
+};
+
+//Lấy danh mục khối lớp
+export const getClassLevel = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CLASS_LEVEL,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Thêm luật BHYT
+export const createInsuaranceRule = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_INSURANCE_RULE,
+    method: "post",
+    data: { objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Vô hiệu hoá luật BHYT
+export const deleteInsuaranceRule = async (token, id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_DELETE_INSURANCE_RULE,
+    method: "patch",
+    data: { id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Huỷ vô hiệu hoá luật BHYT
+export const reactivateInsuranceRule = async (token, id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UN_DELETE_INSURANCE_RULE,
+    method: "patch",
+    data: { id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+//Chỉnh sửa luật BHYT
+export const updateInsuranceRule = async (token, id, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_INSURANCE_RULE,
+    method: "put",
+    data: { id, objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};

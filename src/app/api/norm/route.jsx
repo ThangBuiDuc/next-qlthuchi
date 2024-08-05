@@ -4,7 +4,8 @@ const _ = require("lodash");
 import { auth } from "@clerk/nextjs";
 import { createRevenueNorm } from "@/utils/funtionApi";
 
-const UNIT_PRICE = 56700;
+// const UNIT_PRICE = 56700;
+
 const CALCULATION_UNIT_ID = 3;
 
 // Lập định mức thu BHYT
@@ -17,6 +18,8 @@ export async function PUT(req) {
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
   });
+
+  
 
   const isDateInRange = (date, startMonth, startDay, endMonth, endDay) => {
     const month = date.getMonth() + 1;
@@ -32,6 +35,10 @@ export async function PUT(req) {
     const { batch_id, time, class_level } = await req.json();
 
     await client.connect();
+
+    const unit_price = await client.query(
+      `SELECT unit_price FROM insurance_unit_price WHERE is_actived = true;`
+    );
 
     const sql_bhyt = await client.query(
       `SELECT code, revenue_group_id FROM revenue WHERE code = 'BHYT';`
@@ -71,7 +78,7 @@ export async function PUT(req) {
             // class_level_code: level,
             student_code: student.code,
             amount: rule.months,
-            unit_price: UNIT_PRICE,
+            unit_price: unit_price.rows[0].unit_price,
             created_by: userId,
             start_at: time,
           });
