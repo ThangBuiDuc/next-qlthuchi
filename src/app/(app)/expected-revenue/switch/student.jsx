@@ -1,16 +1,6 @@
 "use client";
-import Link from "next/link";
-import Select from "react-select";
-import { Fragment, useState, useEffect } from "react";
-import {
-  meilisearchGetToken,
-  meilisearchStudentSearch,
-} from "@/utils/funtionApi";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
-import "react-toastify/dist/ReactToastify.css";
-import "moment/locale/vi";
-import { TbReload } from "react-icons/tb";
+import { useContext, useState } from "react";
+import { listContext } from "./content";
 import { CiCircleMore } from "react-icons/ci";
 import StudentFilter from "@/app/_component/studentFilter";
 import Search from "@/app/_component/tableStudent";
@@ -39,7 +29,7 @@ import Search from "@/app/_component/tableStudent";
 //           ) : (
 //             <>
 //               <div className="tooltip" data-tip="Chi tiết">
-//                 <Link href={`one-receipt/${hit.code}`}>
+//                 <Link href={`manage/${hit.code}`}>
 //                   <CiCircleMore size={25} />
 //                 </Link>
 //               </div>
@@ -144,9 +134,8 @@ import Search from "@/app/_component/tableStudent";
 //   );
 // };
 
-const Content = ({ listSearch, config }) => {
-  // const queryClient = useQueryClient();
-
+const Student = () => {
+  const { listSearch, config } = useContext(listContext);
   const [selected, setSelected] = useState({
     school: null,
     class_level: null,
@@ -156,7 +145,7 @@ const Content = ({ listSearch, config }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="text-center">Các khoản đã thu theo một học sinh</h5>
+      <h6>Tìm kiếm học sinh:</h6>
       <StudentFilter
         selected={selected}
         setSelected={setSelected}
@@ -164,8 +153,8 @@ const Content = ({ listSearch, config }) => {
       />
       <Search
         queryObject={selected}
+        redirect={"switch"}
         config={config}
-        redirect={"one-receipt"}
         dataTip={"Chi tiết"}
       >
         <CiCircleMore size={25} />
@@ -174,4 +163,4 @@ const Content = ({ listSearch, config }) => {
   );
 };
 
-export default Content;
+export default Student;

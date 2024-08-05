@@ -57,6 +57,8 @@ const Filter = (props) => {
     conditionFilter,
     bill,
     refund,
+    noStudent,
+    reportReceipt,
   } = props;
 
   // console.log(listSearch);
@@ -64,58 +66,62 @@ const Filter = (props) => {
   return (
     <>
       <div className="grid grid-cols-2 gap-2 auto-rows-auto">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs">Hình thức {refund ? "chi" : "thu"}:</p>
-          <Select
-            className="text-black text-sm"
-            classNames={{
-              control: () => "!rounded-[5px]",
-              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-              valueContainer: () => "!p-[0_8px]",
-              menu: () => "!z-[11]",
-            }}
-            placeholder={`Hình thức ${refund ? "chi" : "thu"}`}
-            isMulti
-            isDisabled={!bill && formality === 2}
-            options={
-              bill
-                ? listSearch.bill_formality.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                  }))
-                : listSearch.formality.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                  }))
-            }
-            value={selected.formality}
-            onChange={(e) => {
-              setSelected((pre) => ({ ...pre, formality: e }));
-            }}
-          />
-        </div>
+        {!reportReceipt && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs">Hình thức {refund ? "chi" : "thu"}:</p>
+            <Select
+              className="text-black text-sm"
+              classNames={{
+                control: () => "!rounded-[5px]",
+                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                valueContainer: () => "!p-[0_8px]",
+                menu: () => "!z-[11]",
+              }}
+              placeholder={`Hình thức ${refund ? "chi" : "thu"}`}
+              isMulti
+              isDisabled={!bill && formality === 2}
+              options={
+                bill
+                  ? listSearch.bill_formality.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                    }))
+                  : listSearch.formality.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                    }))
+              }
+              value={selected.formality}
+              onChange={(e) => {
+                setSelected((pre) => ({ ...pre, formality: e }));
+              }}
+            />
+          </div>
+        )}
 
-        <div className="flex flex-col gap-1">
-          <p className="text-xs">Người {refund ? "chi" : "thu"}:</p>
-          <Select
-            className="text-black text-sm"
-            classNames={{
-              control: () => "!rounded-[5px]",
-              input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-              valueContainer: () => "!p-[0_8px]",
-              menu: () => "!z-[11]",
-            }}
-            placeholder={`Người ${refund ? "chi" : "thu"}`}
-            isMulti
-            options={listSearch.users.map((item) => ({
-              ...item,
-              value: item.clerk_user_id,
-              label: `${item.first_name} ${item.last_name}`,
-            }))}
-            value={selected.users}
-            onChange={(e) => setSelected((pre) => ({ ...pre, users: e }))}
-          />
-        </div>
+        {!reportReceipt && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs">Người {refund ? "chi" : "thu"}:</p>
+            <Select
+              className="text-black text-sm"
+              classNames={{
+                control: () => "!rounded-[5px]",
+                input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                valueContainer: () => "!p-[0_8px]",
+                menu: () => "!z-[11]",
+              }}
+              placeholder={`Người ${refund ? "chi" : "thu"}`}
+              isMulti
+              options={listSearch.users.map((item) => ({
+                ...item,
+                value: item.clerk_user_id,
+                label: `${item.first_name} ${item.last_name}`,
+              }))}
+              value={selected.users}
+              onChange={(e) => setSelected((pre) => ({ ...pre, users: e }))}
+            />
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-2 items-center">
         <div className="flex flex-col gap-1">
@@ -365,7 +371,7 @@ const Filter = (props) => {
         )}
       </div>
 
-      {!bill && (
+      {!bill || noStudent ? (
         <div className="grid grid-cols-5 gap-2 items-center ">
           <div className="flex flex-col gap-1">
             <p className="text-xs">Cấp học:</p>
@@ -468,6 +474,8 @@ const Filter = (props) => {
         </div> */}
           {props.children}
         </div>
+      ) : (
+        <></>
       )}
     </>
   );

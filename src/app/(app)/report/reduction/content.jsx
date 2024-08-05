@@ -431,11 +431,11 @@ const Content = ({ present, config }) => {
     isLoading,
     isFetching,
   } = useQuery({
-    queryKey: ["reduction", selectPresent.batch],
+    queryKey: ["reduction", selectPresent.id],
     queryFn: async () =>
       meilisearchReductionGet(
         await meilisearchGetToken(),
-        `batch_id = ${selectPresent.batch} AND (ud_ratio > 0 OR cs_ratio > 0 OR tt_ratio > 0)`
+        `batch_id = ${selectPresent.id} AND (ud_ratio > 0 OR cs_ratio > 0 OR tt_ratio > 0)`
       ),
   });
 

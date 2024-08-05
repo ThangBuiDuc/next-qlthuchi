@@ -1,12 +1,10 @@
 "use client";
-
+import { Spinner } from "@nextui-org/spinner";
 const LoadingCustom = ({ style }) => {
   return (
-    <span
-      className={`loading loading-spinner ${
-        style ? style : "loading-lg"
-      } self-center`}
-    ></span>
+    <div className="flex justify-center">
+      <Spinner color="primary" />
+    </div>
   );
 };
 

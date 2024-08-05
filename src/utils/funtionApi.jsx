@@ -1165,12 +1165,13 @@ export const meilisearchReportReceiptGet = async (token) => {
 };
 
 //Lấy thông tin báo cáo khoản đã thu một học sinh
-export const meilisearchReportReceiptOneGet = async (token, data) => {
+export const meilisearchReportReceiptOneGet = async (token, data, fields) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt_one/documents/fetch`,
     method: "post",
     data: {
       filter: data,
+      fields,
       limit: 10000,
       offset: 0,
     },
@@ -1407,7 +1408,7 @@ export const meilisearchListRefundGet = async (token, data) => {
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_list_refund/documents/fetch`,
     method: "post",
     data: {
-      filter: `batch_id = ${data.present.batch} ${
+      filter: `batch_id = ${data.present.id} ${
         data.school ? `AND school_level_code= ${data.school.code}` : ""
       } ${
         data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""

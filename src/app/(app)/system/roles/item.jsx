@@ -168,7 +168,11 @@ const Item = ({ data, listPermissionFunction, permission, isRefetching }) => {
     // </>
     <>
       <div className="flex p-2">
-        <Table aria-label="Permission Table" isHeaderSticky>
+        <Table
+          aria-label="Permission Table"
+          isHeaderSticky
+          className="max-h-[450px]"
+        >
           <TableHeader>
             <TableColumn></TableColumn>
             <TableColumn>Chức năng</TableColumn>

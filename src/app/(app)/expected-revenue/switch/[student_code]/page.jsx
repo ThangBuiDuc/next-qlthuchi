@@ -1,14 +1,18 @@
 import {
+  getCalculationUnit,
+  getListRevenue,
   getListSearch,
-  getRevenueGroup,
+  getSchoolYear,
   meilisearchStudentGet,
+  getPermission,
+  getConfig,
 } from "@/utils/funtionApi";
-import Content from "./content";
 import { auth } from "@clerk/nextjs";
-import { getPermission } from "@/utils/funtionApi";
+
+import Content from "./content";
 
 const Page = async ({ params }) => {
-  const pathName = "/report/one-receipt";
+  const pathName = "/expected-revenue/switch";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -38,24 +42,50 @@ const Page = async ({ params }) => {
     );
   }
 
-  const [apiListSearch, apiGetRevenueGroup, student] = await Promise.all([
+  const [
+    apiListSearch,
+    present,
+    apiListRevenue,
+    apiCalculationUnit,
+    student,
+    apiConfig,
+  ] = await Promise.all([
     getListSearch(),
-    getRevenueGroup(),
+    getSchoolYear({ is_active: { _eq: true } }),
+    getListRevenue(),
+    getCalculationUnit(),
     meilisearchStudentGet(params.student_code),
+    getConfig(),
   ]);
 
+  // const apiListSearch = await getListSearch();
+
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  // const apiListRevenue = await getListRevenue();
+
+  // const apiCalculationUnit = await getCalculationUnit();
+
+  // const student = await meilisearchStudentGet(params.student_code);
+
   if (
-    (apiGetRevenueGroup.status !== 200 || !student,
-    apiListSearch.status !== 200)
-  ) {
+    apiListSearch.status !== 200 ||
+    present.status !== 200 ||
+    apiListRevenue.status !== 200 ||
+    apiCalculationUnit.status !== 200 ||
+    apiConfig.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
-  }
+
   return (
     <Content
-      revenueGroup={apiGetRevenueGroup.data.result}
-      student_code={params.student_code}
+      config={apiConfig.data}
       student={student}
       listSearch={apiListSearch.data}
+      present={present.data}
+      listRevenue={apiListRevenue.data}
+      calculationUnit={apiCalculationUnit.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
     />
   );
 };

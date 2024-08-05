@@ -6,11 +6,28 @@ import moment from "moment";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Pagination } from "@nextui-org/pagination";
+import { Spinner } from "@nextui-org/spinner";
+import { useEffect, useMemo, useState } from "react";
+
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
-const ExportExcel = ({ data, query }) => {
+const ExportExcel = ({ data, query, config }) => {
   const handleExport = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("BÁO CÁO QUỸ TIỀN MẶT");
@@ -39,13 +56,13 @@ const ExportExcel = ({ data, query }) => {
 
     worksheet.mergeCells("C4:E4");
     const Taingay = worksheet.getCell("C4");
-    // Taingay.value = `Từ ngày ${query.start_date?.spilt("-")[2]} tháng ${
-    //   query.start_date?.spilt("-")[1]
-    // } năm ${query.start_date?.spilt("-")[0]} đến ngày ${
-    //   query.end_date?.spilt("-")[2]
-    // } tháng ${query.end_date?.spilt("-")[1]} năm ${
-    //   query.end_date?.spilt("-")[0]
-    // }`;
+    Taingay.value = `Từ ngày ${
+      query.start_date && query.start_date?.spilt("-")[2]
+    } tháng ${query.start_date && query.start_date?.spilt("-")[1]} năm ${
+      query.start_date && query.start_date?.spilt("-")[0]
+    } đến ngày ${query.end_date && query.end_date?.spilt("-")[2]} tháng ${
+      query.end_date && query.end_date?.spilt("-")[1]
+    } năm ${query.end_date && query.end_date?.spilt("-")[0]}`;
     Taingay.font = {
       name: "Times New Roman",
       size: 12,
@@ -250,7 +267,7 @@ const ExportExcel = ({ data, query }) => {
       "",
       "",
       "",
-      `Tồn quỹ đầu ngày ${numberWithCommas(data[0].old_data.fund)}`,
+      `Tồn quỹ đầu ngày ${numberWithCommas(data[0].old_data.fund, config)}`,
     ]);
 
     data.forEach((element) => {
@@ -260,9 +277,9 @@ const ExportExcel = ({ data, query }) => {
           element.new_data.note_json.code,
           "",
           element.new_data.note_json.name,
-          numberWithCommas(element.new_data.note_json.amount_collected),
+          numberWithCommas(element.new_data.note_json.amount_collected, config),
           "",
-          numberWithCommas(element.new_data.fund),
+          numberWithCommas(element.new_data.fund, config),
         ]);
 
       if (element.new_data.note === "bill_refund")
@@ -271,9 +288,9 @@ const ExportExcel = ({ data, query }) => {
           element.new_data.note_json.code,
           "",
           element.new_data.note_json.name,
-          numberWithCommas(element.new_data.note_json.amount_spend),
+          numberWithCommas(element.new_data.note_json.amount_spend, config),
           "",
-          numberWithCommas(element.new_data.fund),
+          numberWithCommas(element.new_data.fund, config),
         ]);
     });
 
@@ -282,7 +299,8 @@ const ExportExcel = ({ data, query }) => {
       "",
       "",
       `Tồn quỹ cuối ngày ${numberWithCommas(
-        data[data.length - 1].new_data.fund
+        data[data.length - 1].new_data.fund,
+        config
       )}`,
     ]);
 
@@ -297,9 +315,136 @@ const ExportExcel = ({ data, query }) => {
   );
 };
 
-const SubContent = ({ query }) => {
+const TableView = ({ data, query, isLoading, config }) => {
+  const [page, setPage] = useState(1);
+  const rowsPerPage = Number(config.result[0].config.page.value);
+
+  const pages = Math.ceil(data.data?.results.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return data.data?.results.slice(start, end);
+  }, [page, data]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
+
+  return (
+    <Table
+      aria-label="Cash Fund Table"
+      className="max-h-[450px]"
+      isStriped
+      isHeaderSticky
+      bottomContent={
+        !isLoading && (
+          <div className="flex w-full justify-center">
+            <Pagination
+              color="primary"
+              isCompact
+              showControls
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        )
+      }
+    >
+      {/* head */}
+      <TableHeader>
+        <TableColumn>Ngày tháng chứng từ</TableColumn>
+        <TableColumn>Số hiệu thu</TableColumn>
+        <TableColumn>Số hiệu chi</TableColumn>
+        <TableColumn>Diễn giải</TableColumn>
+        <TableColumn>Số tiền thu</TableColumn>
+        <TableColumn>Số tiền chi</TableColumn>
+        <TableColumn>Số tiền tồn</TableColumn>
+      </TableHeader>
+      <TableBody
+        emptyContent={"Không tìm thấy kết quả"}
+        loadingContent={<Spinner color="primary" />}
+        isLoading={isLoading}
+      >
+        {items?.map((el) => {
+          if (el.new_data.note === "bill_receipt")
+            return (
+              <TableRow key={el.id}>
+                <TableCell>{el.date.split("-").reverse().join("-")}</TableCell>
+                <TableCell>{el.new_data.note_json.code}</TableCell>
+                <TableCell></TableCell>
+                <TableCell>{el.new_data.note_json.name}</TableCell>
+                <TableCell>
+                  {numberWithCommas(
+                    el.new_data.note_json.amount_collected,
+                    config
+                  )}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell>
+                  {numberWithCommas(el.new_data.fund, config)}
+                </TableCell>
+              </TableRow>
+            );
+          if (el.new_data.note === "bill_refund")
+            return (
+              <TableRow key={el.id}>
+                <TableCell>{el.date.split("-").reverse().join("-")}</TableCell>
+                <TableCell>{el.new_data.note_json.code}</TableCell>
+                <TableCell></TableCell>
+                <TableCell>{el.new_data.note_json.name}</TableCell>
+                <TableCell>
+                  {numberWithCommas(el.new_data.note_json.amount_spend, config)}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell>
+                  {numberWithCommas(el.new_data.fund, config)}
+                </TableCell>
+              </TableRow>
+            );
+        })}
+
+        {/* // {data.data.results.map((item) => {
+        //   if (item.new_data.note === "bill_receipt")
+        //     return (
+        //       <tr key={item.id}>
+        //         <td>{item.date.split("-").reverse().join("-")}</td>
+        //         <td>{item.new_data.note_json.code}</td>
+        //         <td></td>
+        //         <td>{item.new_data.note_json.name}</td>
+        //         <td>
+        //           {numberWithCommas(item.new_data.note_json.amount_collected)}
+        //         </td>
+        //         <td></td>
+        //         <td>{numberWithCommas(item.new_data.fund)}</td>
+        //       </tr>
+        //     );
+
+        //   if (item.new_data.note === "bill_refund")
+        //     return (
+        //       <tr key={item.id}>
+        //         <td>{item.date.split("-").reverse().join("-")}</td>
+        //         <td>{item.new_data.note_json.code}</td>
+        //         <td></td>
+        //         <td>{item.new_data.note_json.name}</td>
+        //         <td>
+        //           {numberWithCommas(item.new_data.note_json.amount_spend)}
+        //         </td>
+        //         <td></td>
+        //         <td>{numberWithCommas(item.new_data.fund)}</td>
+        //       </tr>
+        //     );
+        // })} */}
+      </TableBody>
+    </Table>
+  );
+};
+
+const SubContent = ({ query, config }) => {
   const { getToken } = useAuth();
-  const { data, isFetching } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryFn: async () =>
       getReportCashFund(
         await getToken({
@@ -343,69 +488,25 @@ const SubContent = ({ query }) => {
 
   return (
     <div className="flex flex-col gap-2 p-2">
-      <ExportExcel data={data.data.results} query={query} />
+      <ExportExcel data={data.data.results} query={query} config={config} />
       <h6 className="text-center">
-        Tồn quỹ đầu ngày: {numberWithCommas(data.data.results[0].old_data.fund)}{" "}
-        đồng
+        Tồn quỹ đầu ngày:{" "}
+        {numberWithCommas(data.data.results[0].old_data.fund, config)} đồng
       </h6>
       <h6 className="text-center">
         Tồn quỹ cuối ngày:{" "}
         {numberWithCommas(
-          data.data.results[data.data.results.length - 1].new_data.fund
+          data.data.results[data.data.results.length - 1].new_data.fund,
+          config
         )}{" "}
         đồng
       </h6>
-      <div className="overflow-x-auto">
-        <table className="table">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>Ngày tháng chứng từ</th>
-              <th>Số hiệu thu</th>
-              <th>Số hiệu chi</th>
-              <th>Diễn giải</th>
-              <th>Số tiền thu</th>
-              <th>Số tiền chi</th>
-              <th>Số tiền tồn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.data.results.map((item) => {
-              if (item.new_data.note === "bill_receipt")
-                return (
-                  <tr key={item.id}>
-                    <td>{item.date.split("-").reverse().join("-")}</td>
-                    <td>{item.new_data.note_json.code}</td>
-                    <td></td>
-                    <td>{item.new_data.note_json.name}</td>
-                    <td>
-                      {numberWithCommas(
-                        item.new_data.note_json.amount_collected
-                      )}
-                    </td>
-                    <td></td>
-                    <td>{numberWithCommas(item.new_data.fund)}</td>
-                  </tr>
-                );
-
-              if (item.new_data.note === "bill_refund")
-                return (
-                  <tr key={item.id}>
-                    <td>{item.date.split("-").reverse().join("-")}</td>
-                    <td>{item.new_data.note_json.code}</td>
-                    <td></td>
-                    <td>{item.new_data.note_json.name}</td>
-                    <td>
-                      {numberWithCommas(item.new_data.note_json.amount_spend)}
-                    </td>
-                    <td></td>
-                    <td>{numberWithCommas(item.new_data.fund)}</td>
-                  </tr>
-                );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <TableView
+        data={data}
+        query={query}
+        isLoading={isLoading && isFetching}
+        config={config}
+      />
     </div>
   );
 };

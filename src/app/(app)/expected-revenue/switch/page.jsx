@@ -1,9 +1,14 @@
 import Content from "./content";
-import { getConfig, getListSearch } from "@/utils/funtionApi";
+import {
+  getListSearch,
+  getSchoolYear,
+  getPermission,
+  getConfig,
+} from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
-import { getPermission } from "@/utils/funtionApi";
+
 const Page = async () => {
-  const pathName = "/report/one-debt";
+  const pathName = "/expected-revenue/switch";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -33,19 +38,30 @@ const Page = async () => {
     );
   }
 
-  // const apiListSearch = await getListSearch();
-
-  const [apiListSearch, apiCofig] = await Promise.all([
+  const [apiListSearch, present, apiConfig] = await Promise.all([
     getListSearch(),
+    getSchoolYear({ is_active: { _eq: true } }),
     getConfig(),
   ]);
 
-  //   const present = await getSchoolYear({ is_active: { _eq: true } });
+  // const apiListSearch = await getListSearch();
 
-  if (apiListSearch.status !== 200 || apiCofig.status !== 200)
+  // const present = await getSchoolYear({ is_active: { _eq: true } });
+
+  if (
+    apiListSearch.status !== 200 ||
+    present.status !== 200 ||
+    apiConfig.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  return <Content listSearch={apiListSearch.data} config={apiCofig.data} />;
+  return (
+    <Content
+      listSearch={apiListSearch.data}
+      present={present.data}
+      config={apiConfig.data}
+    />
+  );
 };
 
 export default Page;

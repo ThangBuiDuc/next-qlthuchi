@@ -71,7 +71,7 @@ const Search = ({
               isCompact
               showControls
               // showShadow
-              // color="secondary"
+              color="primary"
               page={page}
               total={pages}
               onChange={(page) => setPage(page)}
@@ -90,7 +90,7 @@ const Search = ({
 
       <TableBody
         emptyContent={"Không tìm thấy kết quả"}
-        loadingContent={<Spinner />}
+        loadingContent={<Spinner color="primary" />}
         isLoading={isLoading}
       >
         {items?.map((el, index) => (
