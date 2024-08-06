@@ -4,11 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  getInsuranceRules,
-  createInsuaranceRule,
-  deleteInsuaranceRule,
-} from "@/utils/funtionApi";
+import { getInsuranceRules, createInsuaranceRule } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table,
@@ -84,7 +80,7 @@ const DateInput = ({ day, setDay, month, setMonth }) => {
   );
 };
 
-const Rules = ({ rules, class_levels }) => {
+const Rules = ({ rules, class_levels, permission }) => {
   const { getToken } = useAuth();
   const [mutating, setMutating] = useState(false);
   const queryClient = useQueryClient();
@@ -169,7 +165,7 @@ const Rules = ({ rules, class_levels }) => {
   const [isReActivateModalOpen, setIsReActivateModalOpen] = useState(false);
   const [ruleToReactivate, setRuleToReActivate] = useState(null);
 
-  //Sửa 
+  //Sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [ruleToEdit, setRuleToEdit] = useState(null);
 
@@ -182,14 +178,26 @@ const Rules = ({ rules, class_levels }) => {
         >
           Luật tính số tháng BHYT
         </label>
-        {allowAdd ? (
-          <Button color="default" size="sm" onClick={() => setAllowAdd(false)}>
-            Huỷ
-          </Button>
-        ) : (
-          <Button color="primary" size="sm" onClick={() => setAllowAdd(true)}>
-            Thêm mới
-          </Button>
+        {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
+          <>
+            {allowAdd ? (
+              <Button
+                color="default"
+                size="sm"
+                onClick={() => setAllowAdd(false)}
+              >
+                Huỷ
+              </Button>
+            ) : (
+              <Button
+                color="primary"
+                size="sm"
+                onClick={() => setAllowAdd(true)}
+              >
+                Thêm mới
+              </Button>
+            )}
+          </>
         )}
       </div>
 
@@ -376,24 +384,30 @@ const Rules = ({ rules, class_levels }) => {
           ))}
         </TableBody>
       </Table>
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        ruleToDelete={ruleToDelete}
-        getToken={getToken}
-        queryClient={queryClient}
-      />
-      <ReActivateModal
-        isOpen={isReActivateModalOpen}
-        onClose={() => setIsReActivateModalOpen(false)}
-        ruleToReactivate={ruleToReactivate}
-      />
-      <EditModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        ruleToEdit={ruleToEdit}
-        class_levels={class_levels}
-      />
+      {isDeleteModalOpen && (
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          ruleToDelete={ruleToDelete}
+          getToken={getToken}
+          queryClient={queryClient}
+        />
+      )}
+      {isReActivateModalOpen && (
+        <ReActivateModal
+          isOpen={isReActivateModalOpen}
+          onClose={() => setIsReActivateModalOpen(false)}
+          ruleToReactivate={ruleToReactivate}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          ruleToEdit={ruleToEdit}
+          class_levels={class_levels}
+        />
+      )}
     </div>
   );
 };

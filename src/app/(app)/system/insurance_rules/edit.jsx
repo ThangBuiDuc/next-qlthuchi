@@ -63,7 +63,7 @@ const DateInput = ({ day, setDay, month, setMonth, label }) => {
   };
 
 const EditModal = ({ isOpen, onClose, ruleToEdit, class_levels }) => {
-  if (!isOpen) return null;
+  // if (!isOpen) return null;
 
   const { getToken } = useAuth();
   const [mutating, setMutating] = useState(false);
