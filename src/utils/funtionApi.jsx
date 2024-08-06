@@ -1262,11 +1262,12 @@ export const meilisearchReportRefundGet = async (token) => {
 };
 
 //Lấy thông tin báo cáo khoản đã hoàn một học sinh
-export const meilisearchReportRefundOneGet = async (token, data) => {
+export const meilisearchReportRefundOneGet = async (token, data, fields) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund_one/documents/fetch`,
     method: "post",
     data: {
+      fields,
       filter: data,
       limit: 10000,
       offset: 0,

@@ -99,7 +99,7 @@ const Content = ({ revenueGroup, listSearch, config }) => {
         setCondition={setCondition}
         conditionFilter={conditionFilter}
         reportReceipt
-        noStudent
+        noStudent={false}
       />
       <SubContent
         condition={condition}

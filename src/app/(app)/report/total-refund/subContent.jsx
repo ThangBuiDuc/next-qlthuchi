@@ -2,6 +2,7 @@
 import {
   meilisearchGetToken,
   meilisearchReportReceiptOneGet,
+  meilisearchReportRefundOneGet,
 } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,6 +17,43 @@ import {
   TableCell,
 } from "@nextui-org/table";
 import { Spinner } from "@nextui-org/spinner";
+import moment from "moment";
+
+function mergeElementArray1(arr) {
+  // console.log(arr);
+  let arrReturn = [];
+  arr
+    ?.sort((a, b) => (a.start_at > b.start_at ? -1 : 1))
+    .forEach((item) => {
+      let index = arrReturn.findIndex((el) =>
+        moment.unix(el.start_at).isSame(moment.unix(item.start_at), "day")
+      );
+      if (index === -1) {
+        arrReturn.push(item);
+      } else {
+        arrReturn[index] = {
+          ...arrReturn[index],
+          amount_spend: arrReturn[index].amount_spend + item.amount_spend,
+          bill_refund_details: arrReturn[index].bill_refund_details.map(
+            (el1) => {
+              const el2 = item.bill_refund_details.find(
+                (el) => el.id === el1.id
+              );
+              return {
+                id: el1.id,
+                revenue_type_id: el1.revenue_type_id,
+                name: el1.name,
+                position: el1.position,
+                revenue_group_id: el1.revenue_group_id,
+                amount_spend: el1.amount_spend + el2.amount_spend,
+              };
+            }
+          ),
+        };
+      }
+    });
+  return arrReturn;
+}
 
 function mergeElementArray(arr) {
   // console.log(arr);
@@ -31,19 +69,22 @@ function mergeElementArray(arr) {
       } else {
         arrReturn[index] = {
           ...arrReturn[index],
-          amount_collected:
-            arrReturn[index].amount_collected + item.amount_collected,
-          receipt_details: arrReturn[index].receipt_details.map((el1) => {
-            const el2 = item.receipt_details.find((el) => el.id === el1.id);
-            return {
-              id: el1.id,
-              revenue_type_id: el1.revenue_type_id,
-              name: el1.name,
-              position: el1.position,
-              revenue_group_id: el1.revenue_group_id,
-              amount_collected: el1.amount_collected + el2.amount_collected,
-            };
-          }),
+          amount_spend: arrReturn[index].amount_spend + item.amount_spend,
+          bill_refund_details: arrReturn[index].bill_refund_details.map(
+            (el1) => {
+              const el2 = item.bill_refund_details.find(
+                (el) => el.id === el1.id
+              );
+              return {
+                id: el1.id,
+                revenue_type_id: el1.revenue_type_id,
+                name: el1.name,
+                position: el1.position,
+                revenue_group_id: el1.revenue_group_id,
+                amount_spend: el1.amount_spend + el2.amount_spend,
+              };
+            }
+          ),
         };
       }
     });
@@ -78,7 +119,7 @@ function sumArrayObjectsById(arr) {
 const TableView = ({ isLoading, data, revenueGroup }) => {
   return (
     <Table
-      aria-label="One Receipt Table"
+      aria-label="One Refund Table"
       //   removeWrapper
       className="max-h-[450px]"
       isStriped
@@ -112,10 +153,10 @@ const TableView = ({ isLoading, data, revenueGroup }) => {
             </TableCell>
             <TableCell>{item.student.class_level_code}</TableCell>
             <TableCell>{item.student.class_code}</TableCell>
-            {sumArrayObjectsById(item.receipt_details)
+            {sumArrayObjectsById(item.bill_refund_details)
               .sort((a, b) => a.position - b.position)
               .map((item) => (
-                <TableCell key={item.id}>{item.amount_collected}</TableCell>
+                <TableCell key={item.id}>{item.amount_spend}</TableCell>
               ))}
           </TableRow>
         ))}
@@ -126,7 +167,7 @@ const TableView = ({ isLoading, data, revenueGroup }) => {
 
 const handleExcel = async (selectedFilter, revenueGroup, data) => {
   const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("TH da thu nhieu hs", {
+  const sheet = workbook.addWorksheet("TH da hoan tra nhieu hs", {
     pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
@@ -138,7 +179,7 @@ const handleExcel = async (selectedFilter, revenueGroup, data) => {
 
   sheet.mergeCells("C2:J2");
   const titleCell = sheet.getCell("G2");
-  titleCell.value = "TỔNG HỢP CÁC KHOẢN ĐÃ THU";
+  titleCell.value = "TỔNG HỢP CÁC KHOẢN ĐÃ HOÀN TRẢ";
   titleCell.font = { name: "Times New Roman", size: 16, bold: true };
   titleCell.alignment = { vertical: "middle", horizontal: "center" };
 
@@ -172,9 +213,9 @@ const handleExcel = async (selectedFilter, revenueGroup, data) => {
     "lớp",
     "Mã lớp",
     ...header.map((item) => item.name),
-    "Tổng tiền phí, học phí thu",
-    "Tổng tiền thu hộ thu",
-    "Tổng tiền thu",
+    "Tổng tiền phí, học phí hoàn trả",
+    "Tổng tiền thu hộ hoàn trả",
+    "Tổng tiền hoàn trả",
   ]);
 
   // console.log(
@@ -185,7 +226,7 @@ const handleExcel = async (selectedFilter, revenueGroup, data) => {
 
   data.forEach((item, index) => {
     // console.log(item);
-    const receipts = item.receipt_details.map((el) =>
+    const refund = item.bill_refund_details.map((el) =>
       el.amount_spend === null ? { ...el, amount_spend: 0 } : el
     );
     sheet.addRow([
@@ -195,28 +236,26 @@ const handleExcel = async (selectedFilter, revenueGroup, data) => {
       `${item.student.dob.split("-").reverse().join("-")}`,
       item.student.class_level_code,
       item.student.class_code,
-      ...sumArrayObjectsById(receipts)
+      ...sumArrayObjectsById(refund)
         .sort((a, b) => a.position - b.position)
-        .map((item) =>
-          item.amount_collected != null ? item.amount_collected : 0
-        ),
-      sumArrayObjectsById(receipts)
-        .filter((item) => item.amount_collected != null)
+        .map((item) => (item.amount_spend != null ? item.amount_spend : 0)),
+      sumArrayObjectsById(refund)
+        .filter((item) => item.amount_spend != null)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 1 ? total + curr.amount_collected : total,
+            curr.revenue_type_id === 1 ? total + curr.amount_spend : total,
           0
         ),
-      sumArrayObjectsById(receipts)
-        .filter((item) => item.amount_collected != null)
+      sumArrayObjectsById(refund)
+        .filter((item) => item.amount_spend != null)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 2 ? total + curr.amount_collected : total,
+            curr.revenue_type_id === 2 ? total + curr.amount_spend : total,
           0
         ),
-      sumArrayObjectsById(receipts)
-        .filter((item) => item.amount_collected != null)
-        .reduce((total, curr) => total + curr.amount_collected, 0),
+      sumArrayObjectsById(refund)
+        .filter((item) => item.amount_spend != null)
+        .reduce((total, curr) => total + curr.amount_spend, 0),
     ]);
   });
 
@@ -621,18 +660,18 @@ const handleExcel = async (selectedFilter, revenueGroup, data) => {
 
   const buf = await workbook.xlsx.writeBuffer();
 
-  saveAs(new Blob([buf]), "Tong-hop-da-thu-nhieu-hs.xlsx");
+  saveAs(new Blob([buf]), "Tong-hop-da-hoan-tra-nhieu-hs.xlsx");
 };
 
 const SubContent = ({ revenueGroup, condition, config, selectedFilter }) => {
   //   console.log(revenueGroup);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["report_receipt_one", condition],
+    queryKey: ["report_refund_one", condition],
     queryFn: async () =>
-      meilisearchReportReceiptOneGet(await meilisearchGetToken(), condition, [
+      meilisearchReportRefundOneGet(await meilisearchGetToken(), condition, [
         "student",
-        "amount_collected",
-        "receipt_details",
+        "amount_spend",
+        "bill_refund_details",
       ]),
   });
 
@@ -645,7 +684,7 @@ const SubContent = ({ revenueGroup, condition, config, selectedFilter }) => {
           handleExcel(
             selectedFilter,
             revenueGroup,
-            mergeElementArray(data?.results)
+            mergeElementArray(mergeElementArray1(data?.results))
           )
         }
       >
@@ -653,7 +692,7 @@ const SubContent = ({ revenueGroup, condition, config, selectedFilter }) => {
       </button>
       <TableView
         isLoading={isLoading && isFetching}
-        data={mergeElementArray(data?.results)}
+        data={mergeElementArray(mergeElementArray1(data?.results))}
         revenueGroup={revenueGroup}
         config={config}
       />

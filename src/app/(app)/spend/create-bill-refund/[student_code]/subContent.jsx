@@ -1059,13 +1059,15 @@ const SubContent = ({ student, selectPresent }) => {
         data: data
           .filter((item) => item.expected_revenues.length > 0)
           .map((item) =>
-            item.expected_revenues.map((el) => ({
-              expected_revenue_id: el.id,
-              batch_id: selectPresent.id,
-              amount_spend: el.nowMoney,
-              created_by: user.id,
-              start_at: moment().format(),
-            }))
+            item.expected_revenues
+              .filter((e) => e.isChecked)
+              .map((el) => ({
+                expected_revenue_id: el.id,
+                batch_id: selectPresent.id,
+                amount_spend: el.nowMoney,
+                created_by: user.id,
+                start_at: moment().format(),
+              }))
           )
           .reduce((c, r) => [...c, ...r], []),
       },
@@ -1087,6 +1089,8 @@ const SubContent = ({ student, selectPresent }) => {
   if (expectedRevenue.isError) {
     throw new Error();
   }
+
+  console.log(data);
 
   return (
     <>

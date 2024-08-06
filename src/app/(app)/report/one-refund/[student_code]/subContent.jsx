@@ -1,6 +1,7 @@
 import {
   meilisearchGetToken,
   meilisearchReportReceiptOneGet,
+  meilisearchReportRefundOneGet,
 } from "@/utils/funtionApi";
 import { useQuery } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
@@ -15,6 +16,42 @@ import {
 } from "@nextui-org/table";
 import { Spinner } from "@nextui-org/spinner";
 import moment from "moment";
+
+function mergeElementArray(arr) {
+  // console.log(arr);
+  let arrReturn = [];
+  arr
+    ?.sort((a, b) => (a.start_at > b.start_at ? -1 : 1))
+    .forEach((item) => {
+      let index = arrReturn.findIndex((el) =>
+        moment.unix(el.start_at).isSame(moment.unix(item.start_at), "day")
+      );
+      if (index === -1) {
+        arrReturn.push(item);
+      } else {
+        arrReturn[index] = {
+          ...arrReturn[index],
+          amount_spend: arrReturn[index].amount_spend + item.amount_spend,
+          bill_refund_details: arrReturn[index].bill_refund_details.map(
+            (el1) => {
+              const el2 = item.bill_refund_details.find(
+                (el) => el.id === el1.id
+              );
+              return {
+                id: el1.id,
+                revenue_type_id: el1.revenue_type_id,
+                name: el1.name,
+                position: el1.position,
+                revenue_group_id: el1.revenue_group_id,
+                amount_spend: el1.amount_spend + el2.amount_spend,
+              };
+            }
+          ),
+        };
+      }
+    });
+  return arrReturn;
+}
 
 function sumArrayObjectsById(arr) {
   const sumMap = {};
@@ -43,25 +80,11 @@ function sumArrayObjectsById(arr) {
 
 const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
   const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("TH da thu mot hs", {
+  const sheet = workbook.addWorksheet("TH da thu hoan tra hs", {
     pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const header = revenueGroup.sort((a, b) => a.position - b.position);
-
-  // sheet.addRow([]);
-  // sheet.addRow(["Tổng hợp các khoản đã thu"]);
-  // sheet.addRow(["(Theo 1 học sinh)"]);
-  // sheet.addRow([
-  //   `Mã học sinh: ${student.code}`,
-  //   `Họ tên học sinh: ${student.first_name} ${student.last_name}`,
-  //   `Ngày sinh: ${student.date_of_birth.split("-").reverse().join("-")}`,
-  //   `Lớp: ${student.class_level_code}`,
-  //   `Mã lớp: ${student.class_code}`,
-  // ]);
-  // sheet.addRow([
-  //   "Từ ngày ... tháng ... năm ... đến ngày ... tháng ... năm ...",
-  // ]);
 
   sheet.mergeCells("B1:C1");
   const tentruong = sheet.getCell("B1");
@@ -71,20 +94,19 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
 
   sheet.mergeCells("C2:J2");
   const titleCell = sheet.getCell("G2");
-  titleCell.value = "TỔNG HỢP CÁC KHOẢN ĐÃ THU";
+  titleCell.value = "TỔNG HỢP CÁC KHOẢN ĐÃ HOÀN TRẢ";
   titleCell.font = { name: "Times New Roman", size: 16, bold: true };
   titleCell.alignment = { vertical: "middle", horizontal: "center" };
 
   sheet.mergeCells("C3:J3");
   const Ghichu = sheet.getCell("G3");
-  Ghichu.value = "(Theo học sinh)";
+  Ghichu.value = "(Theo một học sinh)";
   Ghichu.font = {
     name: "Times New Roman",
     size: 14,
     color: { argb: "FF0000" },
   };
   Ghichu.alignment = { vertical: "middle", horizontal: "center" };
-
   sheet.mergeCells("C4:J4");
   const tths = sheet.getCell("G4");
   tths.value = `Mã học sinh: ${student.code}      Họ tên học sinh: ${
@@ -111,43 +133,42 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
     color: { argb: "#CC0000" },
   };
   Taingay.alignment = { vertical: "middle", horizontal: "center" };
-  // Thêm dữ liệu vào bảng tính
+
   sheet.addRow([]);
+
   sheet.addRow([
     "STT",
-    "Số biên lai",
-    "Ngày BL",
+    "Ngày thao tác hoàn trả",
+    "Nội dung hoàn trả",
     ...header.map((item) => item.name),
-    "Tổng tiền phí, học phí thu",
-    "Tổng tiền thu hộ thu",
-    "Tổng tiền thu",
+    "Tổng tiền phí, học phí hoàn trả",
+    "Tổng tiền thu hộ hoàn trả",
+    "Tổng tiền hoàn trả",
   ]);
 
-  data?.results.forEach((item, index) => {
+  data?.forEach((item, index) => {
     sheet.addRow([
       ++index,
-      item.receipt_code,
       moment.unix(item.start_at).format("DD-MM-yyyy"),
-      ...sumArrayObjectsById(item.receipt_details)
+      "",
+      ...sumArrayObjectsById(item.bill_refund_details)
         .sort((a, b) => a.position - b.position)
-        .map((item) =>
-          item.amount_collected != null ? item.amount_collected : 0
-        ),
-      sumArrayObjectsById(item.receipt_details)
-        .filter((item) => item.amount_collected != null)
+        .map((item) => (item.amount_spend != null ? item.amount_spend : 0)),
+      sumArrayObjectsById(item.bill_refund_details)
+        .filter((item) => item.amount_spend != null)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 1 ? total + curr.amount_collected : total,
+            curr.revenue_type_id === 1 ? total + curr.amount_spend : total,
           0
         ),
-      sumArrayObjectsById(item.receipt_details)
-        .filter((item) => item.amount_collected != null)
+      sumArrayObjectsById(item.bill_refund_details)
+        .filter((item) => item.amount_spend != null)
         .reduce(
           (total, curr) =>
-            curr.revenue_type_id === 2 ? total + curr.amount_collected : total,
+            curr.revenue_type_id === 2 ? total + curr.amount_spend : total,
           0
         ),
-      item.amount_collected,
+      item.amount_spend,
     ]);
   });
 
@@ -190,6 +211,9 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
     { key: "col22", width: 20 },
     { key: "col23", width: 20 },
     { key: "col24", width: 20 },
+    { key: "col25", width: 20 },
+    { key: "col26", width: 20 },
+    { key: "col27", width: 20 },
   ];
 
   sheet.getCell(7, 1).alignment = {
@@ -312,6 +336,18 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
     vertical: "middle",
     horizontal: "center",
   };
+  sheet.getCell(7, 25).alignment = {
+    wrapText: true,
+    vertical: "middle",
+    horizontal: "center",
+  };
+
+  // sheet.getCell('A5').border = {
+  //   top: {style:'thin'},
+  //   left: {style:'thin'},
+  //   bottom: {style:'thin'},
+  //   right: {style:'thin'}
+  // };
 
   sheet.getCell(7, 1).border = {
     top: { style: "thin" },
@@ -457,6 +493,12 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
     bottom: { style: "thin" },
     right: { style: "thin" },
   };
+  sheet.getCell(7, 25).border = {
+    top: { style: "thin" },
+    left: { style: "thin" },
+    bottom: { style: "thin" },
+    right: { style: "thin" },
+  };
 
   sheet.getCell(7, 1).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 2).font = { bold: true, name: "Times New Roman" };
@@ -468,46 +510,39 @@ const handleExcel = async (selectedFilter, data, revenueGroup, student) => {
   sheet.getCell(7, 8).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 9).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 10).font = { bold: true, name: "Times New Roman" };
-  sheet.getCell(7, 11).font = {
-    bold: true,
-    name: "Times New Roman",
-    color: { argb: "FF00FF" },
-  };
-  sheet.getCell(7, 12).font = {
-    bold: true,
-    name: "Times New Roman",
-    color: { argb: "FF00FF" },
-  };
+  sheet.getCell(7, 11).font = { bold: true, name: "Times New Roman" };
+  sheet.getCell(7, 12).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 13).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 14).font = { bold: true, name: "Times New Roman" };
-  sheet.getCell(7, 15).font = { bold: true, name: "Times New Roman" };
-  sheet.getCell(7, 16).font = {
+  sheet.getCell(7, 15).font = {
     bold: true,
     name: "Times New Roman",
     color: { argb: "3366FF" },
   };
+  sheet.getCell(7, 16).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 17).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 18).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 19).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 20).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 21).font = { bold: true, name: "Times New Roman" };
   sheet.getCell(7, 22).font = { bold: true, name: "Times New Roman" };
-  sheet.getCell(7, 23).font = {
+  sheet.getCell(7, 23).font = { bold: true, name: "Times New Roman" };
+  sheet.getCell(7, 24).font = {
     bold: true,
     name: "Times New Roman",
     color: { argb: "3366FF" },
   };
-  sheet.getCell(7, 24).font = { bold: true, name: "Times New Roman" };
+  sheet.getCell(7, 25).font = { bold: true, name: "Times New Roman" };
 
   const buf = await workbook.xlsx.writeBuffer();
 
-  saveAs(new Blob([buf]), "Tong-hop-da-thu-mot-hs.xlsx");
+  saveAs(new Blob([buf]), "Tong-hop-da-hoan-tra-mot-hs.xlsx");
 };
 
 const TableView = ({ isLoading, data, revenueGroup }) => {
   return (
     <Table
-      aria-label="One Receipt Table"
+      aria-label="One Refund Table"
       //   removeWrapper
       className="max-h-[450px]"
       isStriped
@@ -515,8 +550,8 @@ const TableView = ({ isLoading, data, revenueGroup }) => {
     >
       <TableHeader>
         <TableColumn>STT</TableColumn>
-        <TableColumn>Số biên lai</TableColumn>
-        <TableColumn>Ngày biên lai</TableColumn>
+        <TableColumn>Ngày thao tác thu</TableColumn>
+        <TableColumn>Nội dung hoàn trả</TableColumn>
         {revenueGroup
           .sort((a, b) => a.position - b.position)
           .map((item) => (
@@ -528,18 +563,18 @@ const TableView = ({ isLoading, data, revenueGroup }) => {
         loadingContent={<Spinner color="primary" />}
         isLoading={isLoading}
       >
-        {data?.results.map((item, index) => (
+        {mergeElementArray(data?.results).map((item, index) => (
           <TableRow key={index}>
             <TableCell>{++index}</TableCell>
-            <TableCell>{item.receipt_code}</TableCell>
-            <TableCell className="whitespace-nowrap">
+            <TableCell>
               {moment.unix(item.start_at).format("DD-MM-yyyy")}
             </TableCell>
-            {sumArrayObjectsById(item.receipt_details)
+            <TableCell></TableCell>
+            {sumArrayObjectsById(item.bill_refund_details)
               .sort((a, b) => a.position - b.position)
               .map((item) => (
                 <TableCell key={item.id}>
-                  {item.amount_collected != null ? item.amount_collected : 0}
+                  {item.amount_spend != null ? item.amount_spend : 0}
                 </TableCell>
               ))}
           </TableRow>
@@ -558,9 +593,9 @@ const SubContent = ({
 }) => {
   //   console.log(revenueGroup);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["report_receipt_one", condition],
+    queryKey: ["report_refund_one", condition],
     queryFn: async () =>
-      meilisearchReportReceiptOneGet(await meilisearchGetToken(), condition),
+      meilisearchReportRefundOneGet(await meilisearchGetToken(), condition),
   });
 
   return (
@@ -568,7 +603,14 @@ const SubContent = ({
       <button
         disabled={data?.results.length === 0}
         className="self-end btn w-fit"
-        onClick={() => handleExcel(selectedFilter, data, revenueGroup, student)}
+        onClick={() =>
+          handleExcel(
+            selectedFilter,
+            mergeElementArray(data?.results),
+            revenueGroup,
+            student
+          )
+        }
       >
         Xuất Excel
       </button>

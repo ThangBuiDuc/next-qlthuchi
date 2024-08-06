@@ -61,8 +61,6 @@ const Filter = (props) => {
     reportReceipt,
   } = props;
 
-  // console.log(listSearch);
-
   return (
     <>
       <div className="grid grid-cols-2 gap-2 auto-rows-auto">
@@ -371,7 +369,7 @@ const Filter = (props) => {
         )}
       </div>
 
-      {!bill || noStudent ? (
+      {!noStudent ? (
         <div className="grid grid-cols-5 gap-2 items-center ">
           <div className="flex flex-col gap-1">
             <p className="text-xs">Cấp học:</p>
