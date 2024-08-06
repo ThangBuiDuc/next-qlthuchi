@@ -84,7 +84,7 @@ const Content = ({ permission, rules, price, class_levels }) => {
         </label>
         <div className="flex mt-2 gap-5">
           <input
-            type="text"
+            type="number"
             name="unit_price"
             className="block w-56 rounded-md py-1.5 px-2 ring-1 ring-inset ring-gray-400 focus:text-gray-800"
             disabled={disabled}
@@ -94,32 +94,36 @@ const Content = ({ permission, rules, price, class_levels }) => {
               setUnitPrice(e.target.value);
             }}
           />
-          {disabled ? (
-            <button
-              onClick={enableInput}
-              className="px-4 py-2 bg-gray-800 text-white rounded"
-            >
-              Sửa
-            </button>
-          ) : (
+          {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
             <>
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-gray-800 text-white rounded"
-              >
-                Lưu
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-800 text-white rounded"
-              >
-                Huỷ
-              </button>
+              {disabled ? (
+                <button
+                  onClick={enableInput}
+                  className="px-4 py-2 bg-gray-800 text-white rounded"
+                >
+                  Sửa
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-2 bg-gray-800 text-white rounded"
+                  >
+                    Lưu
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="px-4 py-2 bg-gray-800 text-white rounded"
+                  >
+                    Huỷ
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>
       </div>
-      <Rules rules={rules} class_levels= {class_levels}/>
+      <Rules rules={rules} class_levels={class_levels} permission = {permission}/>
     </div>
   );
 };

@@ -8,7 +8,7 @@ import { reactivateInsuranceRule } from "@/utils/funtionApi"; // Replace with th
 import "react-toastify/dist/ReactToastify.css";
 
 const ReActivateModal = ({ isOpen, onClose, ruleToReactivate }) => {
-  if (!isOpen) return null;
+  // if (!isOpen) return null;
 
   const { getToken } = useAuth();
   const [mutating, setMutating] = useState(false);
