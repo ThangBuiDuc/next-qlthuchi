@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMemo } from "react";
 import SubContent from "./subContent";
 
-const Content = ({ present }) => {
+const Content = ({ present, config }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -17,7 +17,11 @@ const Content = ({ present }) => {
           Học kỳ {selectPresent.batch} - Năm học {present.result[0].school_year}
         </h6>
       </div>
-      <SubContent present={selectPresent} />
+      <SubContent
+        present={selectPresent}
+        config={config}
+        school_year={present.result[0].school_year}
+      />
       {/* {selected && <SubContent selected={selected} />} */}
     </div>
   );

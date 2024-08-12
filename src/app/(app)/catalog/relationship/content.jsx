@@ -1,31 +1,40 @@
 "use client";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import Add from "./add";
-import { Fragment } from "react";
-import Item from "./item";
+// import { Fragment } from "react";
+// import Item from "./item";
 import { useQuery } from "@tanstack/react-query";
 import { getFamilyRalationship } from "@/utils/funtionApi";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
-const Skeleton = () => {
-  return (
-    <>
-      {[...Array(5)].map((_, i) => (
-        <tr key={i}>
-          {[...Array(3)].map((_, ii) => (
-            <td key={ii}>
-              <>
-                <div className="skeleton h-4 w-full"></div>
-              </>
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
-  );
-};
+// const Skeleton = () => {
+//   return (
+//     <>
+//       {[...Array(5)].map((_, i) => (
+//         <tr key={i}>
+//           {[...Array(3)].map((_, ii) => (
+//             <td key={ii}>
+//               <>
+//                 <div className="skeleton h-4 w-full"></div>
+//               </>
+//             </td>
+//           ))}
+//         </tr>
+//       ))}
+//     </>
+//   );
+// };
 
 const Content = ({ permission, relationshipData }) => {
-  console.log(relationshipData);
+  // console.log(relationshipData);
 
   const data = useQuery({
     queryKey: ["get_relationship"],
@@ -52,43 +61,38 @@ const Content = ({ permission, relationshipData }) => {
           <Item data={item} />
         ))}
       </div> */}
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows table-lg">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Mã</th>
-              <th>Quan hệ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {relationshipData?.result.map((item, index) => (
-              <Fragment key={item.id}>
-                <Item data={item} index={index} />
-              </Fragment>
-            ))} */}
-            {data.isFetching || data.isLoading ? (
-              <Skeleton />
-            ) : data?.data?.data?.length === 0 ? (
-              <p>Không có kết quả!</p>
-            ) : data ? (
-              data?.data?.data.result.map((item, index) => (
-                <Fragment key={item.id}>
-                  <Item data={item} index={index} />
-                </Fragment>
-              ))
-            ) : (
-              <></>
-            )}
-          </tbody>
-        </table>
-      </div>
+
+      <Table
+        className="max-h-[450px]"
+        aria-label="relationship table"
+        isHeaderSticky
+        isStriped
+      >
+        {/* head */}
+        <TableHeader>
+          <TableColumn>STT</TableColumn>
+          <TableColumn>Mã</TableColumn>
+          <TableColumn>Quan hệ</TableColumn>
+        </TableHeader>
+        <TableBody
+          isLoading={data.isFetching && data.isLoading}
+          loadingContent={<Spinner color="primary" />}
+          emptyContent="Không có kết quả!"
+        >
+          {data?.data?.data.result.map((item, index) => (
+            // <Fragment key={item.id}>
+            //   <Item data={item} index={index} />
+            // </Fragment>
+            <TableRow key={index}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.id}</TableCell>
+              <TableCell>{item.name}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
 
 export default Content;
-
-
-

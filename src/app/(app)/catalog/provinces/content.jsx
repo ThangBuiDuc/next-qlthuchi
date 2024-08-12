@@ -2,40 +2,49 @@
 import { CiCircleMore } from "react-icons/ci";
 
 import Link from "next/link";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
 
-const Content = async ({ provinces }) => {
+const Content = ({ provinces }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-zebra table-lg">
-        {/* head */}
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mã tỉnh</th>
-            <th>Cấp</th>
-            <th>Tên tỉnh</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {provinces.result.map((item, index) => (
-            <tr key={item.id}>
-              <th>{index + 1}</th>
-              <td>{item.code}</td>
-              <td>{item.level}</td>
-              <td>{item.name}</td>
-              <td>
-                <div className="tooltip" data-tip="Chi tiết">
-                  <Link href={`provinces/${item.code}`}>
-                    <CiCircleMore size={25} />
-                  </Link>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      className="max-h-[450px]"
+      aria-label="Provinces table"
+      isHeaderSticky
+      isStriped
+    >
+      {/* head */}
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Mã tỉnh</TableColumn>
+        <TableColumn>Cấp</TableColumn>
+        <TableColumn>Tên tỉnh</TableColumn>
+        <TableColumn></TableColumn>
+      </TableHeader>
+      <TableBody>
+        {provinces?.result.map((item, index) => (
+          <TableRow key={item.id}>
+            <TableCell>{index + 1}</TableCell>
+            <TableCell>{item.code}</TableCell>
+            <TableCell>{item.level}</TableCell>
+            <TableCell>{item.name}</TableCell>
+            <TableCell>
+              <div className="tooltip" data-tip="Chi tiết">
+                <Link href={`provinces/${item.code}`}>
+                  <CiCircleMore size={25} />
+                </Link>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

@@ -1,35 +1,43 @@
 "use client";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
 
-const Content = async ({ wards, permission }) => {
+const Content = ({ wards, permission }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-zebra">
-        {/* head */}
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mã phường, xã</th>
-            <th>Cấp</th>
-            <th>Tên phường, xã</th>
-            <th>Mã quận, huyện</th>
-            <th>Tên quận, huyện</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {wards.result.map((item, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{item.code}</td>
-              <td>{item.level}</td>
-              <td>{item.name}</td>
-              <td>{item.district_code}</td>
-              <td>{item.district_name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      className="max-h-[450px]"
+      aria-label="Wards table"
+      isHeaderSticky
+      isStriped
+    >
+      {/* head */}
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Mã phường, xã</TableColumn>
+        <TableColumn>Cấp</TableColumn>
+        <TableColumn>Tên phường, xã</TableColumn>
+        <TableColumn>Mã quận, huyện</TableColumn>
+        <TableColumn>Tên quận, huyện</TableColumn>
+      </TableHeader>
+      <TableBody>
+        {wards.result.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{index + 1}</TableCell>
+            <TableCell>{item.code}</TableCell>
+            <TableCell>{item.level}</TableCell>
+            <TableCell>{item.name}</TableCell>
+            <TableCell>{item.district_code}</TableCell>
+            <TableCell>{item.district_name}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

@@ -6,6 +6,7 @@ import {
   useRef,
   useLayoutEffect,
   useCallback,
+  Fragment,
 } from "react";
 import { listContext } from "../content";
 import CurrencyInput from "react-currency-input-field";
@@ -25,6 +26,9 @@ import { TbReload } from "react-icons/tb";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
+import { LiaEyeSolid } from "react-icons/lia";
+import { LiaEyeSlashSolid } from "react-icons/lia";
+
 // import Html2Pdf from "js-html2pdf";
 
 const times = localFont({ src: "../../../../times.ttf" });
@@ -1063,9 +1067,11 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
   const addContent2 = useRef();
   const { user } = useUser();
   const [mutating, setMutating] = useState(false);
+  const [isShow, setIsShow] = useState(true);
   const [data, setData] = useState();
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
+  // const { config } = useContext(listContext);
   const where = {
     batch_id: {
       _eq: selectPresent.id,
@@ -1259,6 +1265,7 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
         <></>
       )}
       {/* <Scrollbars universal autoHeight autoHeightMin={"450px"}> */}
+
       <div className="overflow-x-auto">
         <table className="table table-xs table-pin-rows">
           {/* head */}
@@ -1275,16 +1282,37 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
               <th>Công nợ cuối kỳ</th>
               <th>Căn cứ điều chỉnh</th>
               <th>
-                <div
-                  className="tooltip tooltip-left cursor-pointer"
-                  data-tip="Tải lại"
-                  onClick={() => {
-                    queryClient.invalidateQueries({
-                      queryKey: ["get_expected_revenue", student.code],
-                    });
-                  }}
-                >
-                  <TbReload size={30} />
+                <div className="flex gap-2">
+                  <div
+                    className="tooltip tooltip-left cursor-pointer"
+                    data-tip="Tải lại"
+                    onClick={() => {
+                      queryClient.invalidateQueries({
+                        queryKey: ["get_expected_revenue", student.code],
+                      });
+                    }}
+                  >
+                    <TbReload size={30} />
+                  </div>
+                  <div>
+                    <label className="swap swap-flip text-sm">
+                      {/* this hidden checkbox controls the state */}
+                      <input
+                        type="checkbox"
+                        checked={isShow}
+                        onChange={() => {
+                          setIsShow((pre) => !pre);
+                        }}
+                      />
+
+                      <div className="swap-on">
+                        <LiaEyeSolid size={30} />
+                      </div>
+                      <div className="swap-off">
+                        <LiaEyeSlashSolid size={30} />
+                      </div>
+                    </label>
+                  </div>
                 </div>
               </th>
             </tr>
@@ -1310,17 +1338,19 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
                   item.scope.some((el) => el === student.school_level_code)
                 )
                 .map((item, index) => {
-                  if (item.expected_revenues.length === 0) {
-                    return (
-                      <tr key={item.id} className="hover">
-                        <td>{index + 1}</td>
-                        <td>{item.name}</td>
-                        <td>{item.revenue_type.name}</td>
-                        <td className="text-center text-red-300" colSpan={8}>
-                          Chưa có dự kiến thu
-                        </td>
-                      </tr>
-                    );
+                  if (isShow) {
+                    if (item.expected_revenues.length === 0) {
+                      return (
+                        <tr key={item.id} className="hover">
+                          <td>{index + 1}</td>
+                          <td>{item.name}</td>
+                          <td>{item.revenue_type.name}</td>
+                          <td className="text-center text-red-300" colSpan={8}>
+                            Chưa có dự kiến thu
+                          </td>
+                        </tr>
+                      );
+                    }
                   }
                   if (item.expected_revenues.length === 1) {
                     return (
@@ -1382,6 +1412,7 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
           </tbody>
         </table>
       </div>
+
       {/* </Scrollbars> */}
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
         Array.isArray(data) &&

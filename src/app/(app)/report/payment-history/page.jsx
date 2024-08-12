@@ -1,6 +1,6 @@
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
-import { getPermission } from "@/utils/funtionApi";
+import { getConfig, getPermission } from "@/utils/funtionApi";
 
 const Page = async () => {
   const pathName = "/report/one-payment-history";
@@ -33,12 +33,17 @@ const Page = async () => {
     );
   }
 
+  const apiConfig = await getConfig();
+
+  if (apiConfig.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
   // const apiGetRevenueGroup = await getRevenueGroup();
 
   // if (apiGetRevenueGroup.status !== 200) {
   //   throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   // }
-  return <Content />;
+  return <Content config={apiConfig.data} />;
 };
 
 export default Page;

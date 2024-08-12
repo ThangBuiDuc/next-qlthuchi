@@ -7,12 +7,26 @@ import { useQuery } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment-timezone";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
-const Table = ({ data }) => {
+const TableView = ({ data, config, isLoading }) => {
   const header = [
     ...new Map(
       data.map((item) => [
@@ -34,69 +48,81 @@ const Table = ({ data }) => {
   }));
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-xs">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Nội dung</th>
-            <>
-              {header
-                .reduce(
-                  (total, curr) => [
-                    ...total,
-                    `Ưu đãi, miễn giảm kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Số phải nộp kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Đã điều chỉnh kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Đã hoàn trả kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Số đã nộp kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Công nợ cuối kỳ ${curr.batch} năm ${curr.school_year}`,
-                  ],
-                  []
-                )
-                .map((item, index) => (
-                  <th key={index}>{item}</th>
-                ))}
-            </>
-          </tr>
-        </thead>
-        <tbody>
-          {revenue_group
-            .sort((a, b) => a.position - b.position)
-            .map((element) => {
-              let rowData = [element.position, element.name];
-              header.forEach((el) => {
-                const batchData = data.find(
-                  (item) => item.batch_id === el.batch_id
-                );
-                const rawData = batchData.payment_history.find(
-                  (item) => item.id === element.id
-                );
-                rowData = [
-                  ...rowData,
-                  numberWithCommas(rawData.discount),
-                  numberWithCommas(rawData.actual_amount_collected),
-                  numberWithCommas(rawData.amount_edited),
-                  numberWithCommas(rawData.amount_spend),
-                  numberWithCommas(rawData.amount_collected),
-                  numberWithCommas(rawData.next_batch_money),
-                ];
-              });
-              return (
-                <tr key={element.id}>
-                  {rowData.map((item, index) => (
-                    <td key={index}>{item}</td>
-                  ))}
-                </tr>
+    // <div className="overflow-x-auto">
+    <Table
+      aria-label="one payment history Table"
+      className="max-h-[450px]"
+      isStriped
+      isHeaderSticky
+    >
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Nội dung</TableColumn>
+
+        {header
+          .reduce(
+            (total, curr) => [
+              ...total,
+              `Ưu đãi, miễn giảm kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Số phải nộp kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Đã điều chỉnh kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Đã hoàn trả kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Số đã nộp kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Công nợ cuối kỳ ${curr.batch} năm ${curr.school_year}`,
+            ],
+            []
+          )
+          .map((item, index) => (
+            <TableColumn key={index}>{item}</TableColumn>
+          ))}
+      </TableHeader>
+      <TableBody
+        isLoading={isLoading}
+        loadingContent={<Spinner color="primary" />}
+        emptyContent={"Không có dữ liệu!"}
+      >
+        {revenue_group
+          .sort((a, b) => a.position - b.position)
+          .map((element) => {
+            let rowData = [element.position, element.name];
+            header.forEach((el) => {
+              const batchData = data.find(
+                (item) => item.batch_id === el.batch_id
               );
-            })}
-        </tbody>
-      </table>
-    </div>
+              const rawData = batchData.payment_history.find(
+                (item) => item.id === element.id
+              );
+              rowData = [
+                ...rowData,
+                numberWithCommas(rawData.discount, config),
+                numberWithCommas(rawData.actual_amount_collected, config),
+                numberWithCommas(rawData.amount_edited, config),
+                numberWithCommas(rawData.amount_spend, config),
+                numberWithCommas(rawData.amount_collected, config),
+                numberWithCommas(rawData.next_batch_money, config),
+              ];
+            });
+            return (
+              <TableRow key={element.id}>
+                {rowData.map((item, index) => {
+                  if (index === 1)
+                    return (
+                      <TableCell key={index} className="whitespace-nowrap">
+                        {item}
+                      </TableCell>
+                    );
+                  return <TableCell key={index}>{item}</TableCell>;
+                })}
+              </TableRow>
+            );
+          })}
+      </TableBody>
+    </Table>
+    // </div>
   );
 };
 
-const Content = ({ student_code }) => {
+const Content = ({ student_code, config }) => {
   // const [filter, setFilter] = useState({ start_at: null, end_at: null });
   const data = useQuery({
     queryKey: ["report_payment_history_one"],
@@ -334,16 +360,18 @@ const Content = ({ student_code }) => {
       {/* <button className="self-end btn w-fit" onClick={() => handleExcel()}>
         Xuất Excel
       </button> */}
-      {data.data?.results?.length ? (
-        <>
-          <button className="self-end btn w-fit" onClick={() => handleExcel()}>
-            Xuất Excel
-          </button>
-          <Table data={data.data.results} />
-        </>
-      ) : (
-        <span className="loading loading-spinner loading-sm bg-primary self-end"></span>
-      )}
+      <button
+        className="self-end btn w-fit"
+        onClick={() => handleExcel()}
+        disabled={data.isLoading && data.isFetching}
+      >
+        Xuất Excel
+      </button>
+      <TableView
+        data={data.data.results}
+        config={config}
+        isLoading={data.isLoading && data.isFetching}
+      />
     </div>
   );
 };

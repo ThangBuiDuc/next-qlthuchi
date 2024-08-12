@@ -118,8 +118,7 @@ const TableView = ({
   );
 };
 
-const handleExportExcel = (data, present, school_year, config) => {
-  console.log(data[0]);
+const handleExportDoc = (data, present, school_year, config) => {
   const doc = new Document({
     sections: data.map((item) => ({
       properties: {
@@ -630,7 +629,7 @@ const Content = ({ listSearch, present, config, revenueGroup }) => {
         disabled={selectedKeys.size === 0}
         className="btn w-fit self-end"
         onClick={() =>
-          handleExportExcel(
+          handleExportDoc(
             selectedKeys === "all"
               ? notice
               : notice.reduce(

@@ -4,7 +4,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
-    "./node_modules/@nextui-org/theme/dist/components/(tooltip|popover|spinner|pagination|table|checkbox|spacer).js",
+    "./node_modules/@nextui-org/theme/dist/components/(accordion|button|input|modal|pagination|select|spinner|table|popover|divider|ripple|listbox|scroll-shadow|checkbox|spacer).js",
   ],
   theme: {
     extend: {

@@ -39,8 +39,6 @@ const Page = async () => {
   if (apiConfig.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  console.log(apiConfig.data);
-
   return <Content config={apiConfig.data} />;
 };
 

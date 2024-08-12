@@ -1,4 +1,8 @@
-import { meilisearchStudentGet, getSchoolYear } from "@/utils/funtionApi";
+import {
+  meilisearchStudentGet,
+  getSchoolYear,
+  getConfig,
+} from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
@@ -33,11 +37,14 @@ const Page = async ({ params }) => {
       </div>
     );
   }
-  const student = await meilisearchStudentGet(params.student_code);
 
-  const present = await getSchoolYear({ is_active: { _eq: true } });
+  const [student, present, apiConfig] = await Promise.all([
+    meilisearchStudentGet(params.student_code),
+    getSchoolYear({ is_active: { _eq: true } }),
+    getConfig(),
+  ]);
 
-  if (present.status !== 200 || !student) {
+  if (present.status !== 200 || !student || apiConfig.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
   return (
@@ -45,6 +52,7 @@ const Page = async ({ params }) => {
       student_code={params.student_code}
       student={student}
       present={present.data}
+      config={apiConfig.data}
     />
   );
 };

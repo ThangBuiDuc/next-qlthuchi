@@ -1035,7 +1035,7 @@ export const meilisearchStudentSearch = async (data, token, pageParam) => {
       q: data.query,
       hitsPerPage: 10000,
       page: pageParam ? pageParam : 1,
-      filter: `year_active=true AND status_id = 1 ${
+      filter: `year_active=true AND status_id IN [1,8] ${
         data.school ? `AND school_level_code= ${data.school.code}` : ""
       } ${
         data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""

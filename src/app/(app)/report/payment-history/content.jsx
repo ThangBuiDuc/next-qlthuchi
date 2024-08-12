@@ -7,15 +7,30 @@ import { useQuery } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment-timezone";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
+import { useMemo, useState } from "react";
+import { Pagination } from "@nextui-org/pagination";
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
-
-const Table = ({ data }) => {
+const TableView = ({ data, config, isLoading }) => {
   const header = [
     ...new Map(
-      data.map((item) => [
+      data?.map((item) => [
         item["batch_id"],
         {
           batch_id: item.batch_id,
@@ -28,7 +43,7 @@ const Table = ({ data }) => {
 
   const listStudent = [
     ...new Map(
-      data.map((item) => [
+      data?.map((item) => [
         item["student_code"],
         {
           student_code: item.student_code,
@@ -41,107 +56,115 @@ const Table = ({ data }) => {
     ).values(),
   ];
 
+  const [page, setPage] = useState(1);
+  const rowsPerPage = Number(config.result[0].config.page.value);
+
+  const pages = Math.ceil(listStudent.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return listStudent.slice(start, end);
+  }, [page, data]);
+
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-xs">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mã học sinh</th>
-            <th>Họ và tên</th>
-            <th>Ngày sinh</th>
-            <th>Lớp</th>
-            <th>Mã lớp</th>
-            <>
+    // <div className="overflow-x-auto">
+    <Table
+      aria-label="payment history Table"
+      className="max-h-[450px]"
+      isStriped
+      isHeaderSticky
+      bottomContent={
+        !isLoading && (
+          <div className="flex w-full justify-center">
+            <Pagination
+              color="primary"
+              isCompact
+              showControls
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        )
+      }
+    >
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Mã học sinh</TableColumn>
+        <TableColumn>Họ và tên</TableColumn>
+        <TableColumn>Ngày sinh</TableColumn>
+        <TableColumn>Lớp</TableColumn>
+        <TableColumn>Mã lớp</TableColumn>
+        {header
+          .reduce(
+            (total, curr) => [
+              ...total,
+              `Ưu đãi, miễn giảm kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Số phải nộp kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Đã điều chỉnh kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Đã hoàn trả kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Số đã nộp kỳ ${curr.batch} năm ${curr.school_year}`,
+              `Công nợ cuối kỳ ${curr.batch} năm ${curr.school_year}`,
+            ],
+            []
+          )
+          .map((item, index) => (
+            <TableColumn key={index}>{item}</TableColumn>
+          ))}
+      </TableHeader>
+      <TableBody
+        isLoading={isLoading}
+        loadingContent={<Spinner color="primary" />}
+        emptyContent={"Không có dữ liệu!"}
+      >
+        {items?.map((item, index) => {
+          return (
+            <TableRow key={item.student_code}>
+              <TableCell>{++index}</TableCell>
+              <TableCell>{item.student_code}</TableCell>
+              <TableCell className="whitespace-nowrap">{`${item.first_name} ${item.last_name}`}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.date_of_birth.split("-").reverse().join("-")}
+              </TableCell>
+              <TableCell>{item.class_code[0]}</TableCell>
+              <TableCell>{item.class_code.substring(1)}</TableCell>
               {header
-                .reduce(
-                  (total, curr) => [
-                    ...total,
-                    `Ưu đãi, miễn giảm kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Số phải nộp kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Đã điều chỉnh kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Đã hoàn trả kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Số đã nộp kỳ ${curr.batch} năm ${curr.school_year}`,
-                    `Công nợ cuối kỳ ${curr.batch} năm ${curr.school_year}`,
-                  ],
-                  []
-                )
+                .reduce((total, curr) => {
+                  const detail = data.find(
+                    (el) =>
+                      el.student_code === item.student_code &&
+                      el.batch_id === curr.batch_id
+                  );
+                  if (detail)
+                    return [
+                      ...total,
+                      detail?.discount,
+                      detail?.actual_amount_collected,
+                      detail?.amount_edited,
+                      detail?.amount_spend,
+                      detail?.amount_collected,
+                      detail?.next_batch_money,
+                    ];
+
+                  return [...total, 0, 0, 0, 0, 0, 0];
+                }, [])
                 .map((item, index) => (
-                  <th key={index}>{item}</th>
+                  <TableCell key={index}>
+                    {numberWithCommas(item, config)}
+                  </TableCell>
                 ))}
-            </>
-          </tr>
-        </thead>
-        <tbody>
-          {data.length ? (
-            listStudent
-              .sort((a, b) => a.student_code - b.student_code)
-              .map((item, index) => {
-                return (
-                  <tr key={item.student_code}>
-                    <td>{++index}</td>
-                    <td>{item.student_code}</td>
-                    <td>{`${item.first_name} ${item.last_name}`}</td>
-                    <td>{item.date_of_birth.split("-").reverse().join("-")}</td>
-                    <td>{item.class_code[0]}</td>
-                    <td>{item.class_code.substring(1)}</td>
-                    {header
-                      .reduce((total, curr) => {
-                        const detail = data.find(
-                          (el) =>
-                            el.student_code === item.student_code &&
-                            el.batch_id === curr.batch_id
-                        );
-                        return [
-                          ...total,
-                          detail.discount,
-                          detail.actual_amount_collected,
-                          detail.amount_edited,
-                          detail.amount_spend,
-                          detail.amount_collected,
-                          detail.next_batch_money,
-                        ];
-                      }, [])
-                      .map((item, index) => (
-                        <td key={index}>{numberWithCommas(item)}</td>
-                      ))}
-                  </tr>
-                );
-                // worksheet.addRow([
-                //   ++index,
-                //   item.student_code,
-                //   `${item.first_name} ${item.last_name}`,
-                //   item.date_of_birth.split("-").reverse().join("-"),
-                //   item.class_code[0],
-                //   item.class_code.substring(1),
-                //   ...header.reduce((total, curr) => {
-                //     const detail = data.data.results.find(
-                //       (el) =>
-                //         el.student_code === item.student_code &&
-                //         el.batch_id === curr.batch_id
-                //     );
-                //     return [
-                //       ...total,
-                //       detail.discount,
-                //       detail.actual_amount_collected,
-                //       detail.amount_edited,
-                //       detail.amount_spend,
-                //       detail.amount_collected,
-                //       detail.next_batch_money,
-                //     ];
-                //   }, []),
-                // ]);
-              })
-          ) : (
-            <></>
-          )}
-        </tbody>
-      </table>
-    </div>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+    // </div>
   );
 };
 
-const Content = () => {
+const Content = ({ config }) => {
   // const [filter, setFilter] = useState({ start_at: null, end_at: null });
   const data = useQuery({
     queryKey: ["report_payment_history"],
@@ -307,15 +330,18 @@ const Content = () => {
                 el.student_code === item.student_code &&
                 el.batch_id === curr.batch_id
             );
-            return [
-              ...total,
-              detail.discount,
-              detail.actual_amount_collected,
-              detail.amount_edited,
-              detail.amount_spend,
-              detail.amount_collected,
-              detail.next_batch_money,
-            ];
+            if (detail)
+              return [
+                ...total,
+                detail?.discount,
+                detail?.actual_amount_collected,
+                detail?.amount_edited,
+                detail?.amount_spend,
+                detail?.amount_collected,
+                detail?.next_batch_money,
+              ];
+
+            return [...total, 0, 0, 0, 0, 0, 0];
           }, []),
         ]);
       });
@@ -525,16 +551,19 @@ const Content = () => {
           Xuất Excel
         </button>
       )} */}
-      {data.data?.results?.length ? (
-        <>
-          <button className="self-end btn w-fit" onClick={() => handleExcel()}>
-            Xuất Excel
-          </button>
-          <Table data={data.data.results} />
-        </>
-      ) : (
-        <span className="loading loading-spinner loading-sm bg-primary self-end"></span>
-      )}
+
+      <button
+        className="self-end btn w-fit"
+        onClick={() => handleExcel()}
+        disabled={data.isLoading && data.isFetching}
+      >
+        Xuất Excel
+      </button>
+      <TableView
+        data={data.data?.results}
+        config={config}
+        isLoading={data.isLoading && data.isFetching}
+      />
     </div>
   );
 };
