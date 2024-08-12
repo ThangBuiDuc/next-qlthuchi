@@ -395,7 +395,7 @@ const SubContent = ({ student, selectPresent, permission, school_year }) => {
                         </TableRow>
                         {item.expected_revenues.map((el, i) => {
                           return (
-                            <TableRow>
+                            <TableRow key={item.id}>
                               <TableCell
                                 className={`${
                                   typeof i === "number" ? "text-right" : ""
