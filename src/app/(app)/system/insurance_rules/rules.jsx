@@ -168,6 +168,12 @@ const Rules = ({ rules, class_levels, permission }) => {
   //Sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [ruleToEdit, setRuleToEdit] = useState(null);
+  const addRowRef = useRef(null); // Reference for the added row
+  useEffect(() => {
+    if (allowAdd && addRowRef.current) {
+      addRowRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [allowAdd]);
 
   return (
     <div className="flex flex-col gap-5">
