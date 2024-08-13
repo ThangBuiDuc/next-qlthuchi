@@ -240,7 +240,7 @@ const Rules = ({ rules, class_levels, permission }) => {
           isLoading={ruleData.isLoading}
         >
           {allowAdd && (
-            <TableRow>
+            <TableRow ref={addRowRef}>
               <TableCell>
                 {/* <Select
                   isRequired
