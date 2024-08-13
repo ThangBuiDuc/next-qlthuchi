@@ -17,6 +17,15 @@ import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import CurrencyInput from "react-currency-input-field";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -445,66 +454,67 @@ const DeleteModal = ({ data, queryKey }) => {
   );
 };
 
-const Item = ({ data, isRefetching, queryKey }) => {
-  const { permission } = useContext(listContext);
-  return (
-    <tr className="hover">
-      <td>{data.revenue.code}</td>
-      <td>
-        {data.revenue.name}
-        <br />
-        <span className="badge badge-ghost badge-sm">
-          {data.revenue.revenue_group.name}
-        </span>
-      </td>
-      <td>
-        {data.amount}
-        <br />
-        <span className="badge badge-ghost badge-sm">
-          {data.calculation_unit.name}
-        </span>
-      </td>
-      <td>{numberWithCommas(data.unit_price) + "đ"}</td>
-      <td>{numberWithCommas(data.unit_price * data.amount)}đ</td>
-      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
-        <>
-          <th>
-            {isRefetching ? (
-              <span className="loading loading-spinner loading-md"></span>
-            ) : (
-              <>
-                <div className="flex gap-2">
-                  <label htmlFor={`modal_update_${data.id}`}>
-                    <div className="tooltip  cursor-pointer" data-tip="Sửa">
-                      <FaRegEdit size={30} />
-                    </div>
-                  </label>
+// const Item = ({ data, isRefetching, queryKey }) => {
+//   const { permission } = useContext(listContext);
+//   return (
+//     <tr className="hover">
+//       <td>{data.revenue.code}</td>
+//       <td>
+//         {data.revenue.name}
+//         <br />
+//         <span className="badge badge-ghost badge-sm">
+//           {data.revenue.revenue_group.name}
+//         </span>
+//       </td>
+//       <td>
+//         {data.amount}
+//         <br />
+//         <span className="badge badge-ghost badge-sm">
+//           {data.calculation_unit.name}
+//         </span>
+//       </td>
+//       <td>{numberWithCommas(data.unit_price) + "đ"}</td>
+//       <td>{numberWithCommas(data.unit_price * data.amount)}đ</td>
+//       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+//         <>
+//           <th>
+//             {isRefetching ? (
+//               <span className="loading loading-spinner loading-md"></span>
+//             ) : (
+//               <>
+//                 <div className="flex gap-2">
+//                   <label htmlFor={`modal_update_${data.id}`}>
+//                     <div className="tooltip  cursor-pointer" data-tip="Sửa">
+//                       <FaRegEdit size={30} />
+//                     </div>
+//                   </label>
 
-                  <label htmlFor={`modal_delete_${data.id}`}>
-                    <div className="tooltip  cursor-pointer" data-tip="Xoá">
-                      <IoTrashBinOutline size={30} />
-                    </div>
-                  </label>
-                </div>
-              </>
-            )}
-          </th>
-          <>
-            {" "}
-            {/* UPDATE MODAL */}
-            <UpdateModal data={data} queryKey={queryKey} />
-            {/* DELETE MODAL */}
-            <DeleteModal data={data} queryKey={queryKey} />
-          </>
-        </>
-      ) : (
-        <></>
-      )}
-    </tr>
-  );
-};
+//                   <label htmlFor={`modal_delete_${data.id}`}>
+//                     <div className="tooltip  cursor-pointer" data-tip="Xoá">
+//                       <IoTrashBinOutline size={30} />
+//                     </div>
+//                   </label>
+//                 </div>
+//               </>
+//             )}
+//           </th>
+//           <>
+//             {" "}
+//             {/* UPDATE MODAL */}
+//             <UpdateModal data={data} queryKey={queryKey} />
+//             {/* DELETE MODAL */}
+//             <DeleteModal data={data} queryKey={queryKey} />
+//           </>
+//         </>
+//       ) : (
+//         <></>
+//       )}
+//     </tr>
+//   );
+// };
 
 const Content = ({ queryKey, selectPresent }) => {
+  const { permission } = useContext(listContext);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const where = {
@@ -545,52 +555,90 @@ const Content = ({ queryKey, selectPresent }) => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
-        {/* head */}
-        <thead>
-          <tr>
-            {/* <th></th> */}
-            <th>Mã khoản thu</th>
-            <th>Khoản thu</th>
-            <th>Số lượng</th>
-            <th>Đơn giá</th>
-            <th>Thành tiền</th>
-            <th>
-              <div
-                className="tooltip tooltip-left cursor-pointer"
-                data-tip="Tải lại"
-                onClick={() => {
-                  queryClient.invalidateQueries({
-                    queryKey: ["get_revenue_norms", queryKey],
-                  });
-                }}
-              >
-                <TbReload size={30} />
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {revenueNorms.data.data.result.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="text-center">
-                Không có kết quả!
-              </td>
-            </tr>
-          ) : (
-            revenueNorms.data.data.result.map((item) => (
-              <Item
-                key={item.id}
-                data={item}
-                isRefetching={revenueNorms.isRefetching}
-                queryKey={queryKey}
-              />
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      className="max-h-[450px]"
+      aria-label="Manage norm school table"
+      isHeaderSticky
+      isStriped
+    >
+      {/* head */}
+      <TableHeader>
+        <TableColumn>Mã khoản thu</TableColumn>
+        <TableColumn>Khoản thu</TableColumn>
+        <TableColumn>Số lượng</TableColumn>
+        <TableColumn>Đơn giá</TableColumn>
+        <TableColumn>Thành tiền</TableColumn>
+        <TableColumn>
+          <div
+            className="tooltip tooltip-left cursor-pointer"
+            data-tip="Tải lại"
+            onClick={() => {
+              queryClient.invalidateQueries({
+                queryKey: ["get_revenue_norms", queryKey],
+              });
+            }}
+          >
+            <TbReload size={30} />
+          </div>
+        </TableColumn>
+      </TableHeader>
+      <TableBody
+        isLoading={revenueNorms.isFetching && revenueNorms.isLoading}
+        loadingContent={<Spinner color="primary" />}
+        emptyContent="Không có kết quả!"
+      >
+        {revenueNorms.data?.data.result.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{item.revenue.code}</TableCell>
+            <TableCell>
+              {item.revenue.name}
+              <br />
+              <span className="badge badge-ghost badge-sm">
+                {item.revenue.revenue_group.name}
+              </span>
+            </TableCell>
+            <TableCell>
+              {item.amount}
+              <br />
+              <span className="badge badge-ghost badge-sm">
+                {item.calculation_unit.name}
+              </span>
+            </TableCell>
+            <TableCell>{numberWithCommas(item.unit_price) + "đ"}</TableCell>
+            <TableCell>
+              {numberWithCommas(item.unit_price * item.amount)}đ
+            </TableCell>
+            {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+              <TableCell>
+                {revenueNorms.isRefetching ? (
+                  <span className="loading loading-spinner loading-md"></span>
+                ) : (
+                  <div className="flex gap-2">
+                    <label htmlFor={`modal_update_${item.id}`}>
+                      <div className="tooltip  cursor-pointer" data-tip="Sửa">
+                        <FaRegEdit size={30} />
+                      </div>
+                    </label>
+
+                    <label htmlFor={`modal_delete_${item.id}`}>
+                      <div className="tooltip  cursor-pointer" data-tip="Xoá">
+                        <IoTrashBinOutline size={30} />
+                      </div>
+                    </label>
+                    {/* UPDATE MODAL */}
+                    <UpdateModal data={item} queryKey={queryKey} />
+                    {/* DELETE MODAL */}
+                    <DeleteModal data={item} queryKey={queryKey} />
+                  </div>
+                )}
+              </TableCell>
+            ) : (
+              <TableCell></TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

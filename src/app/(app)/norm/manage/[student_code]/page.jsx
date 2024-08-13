@@ -56,7 +56,7 @@ const Page = async ({ params }) => {
 
   // const student = await meilisearchStudentGet(params.student_code);
 
-  console.log("hoc sinh",student)
+  // console.log("hoc sinh",student)
 
   if (
     present.status !== 200 ||

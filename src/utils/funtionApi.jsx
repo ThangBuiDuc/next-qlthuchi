@@ -1035,7 +1035,7 @@ export const meilisearchStudentSearch = async (data, token, pageParam) => {
       q: data.query,
       hitsPerPage: 10000,
       page: pageParam ? pageParam : 1,
-      filter: `year_active=true AND status_id = 1 ${
+      filter: `year_active=true AND status_id IN [1,8] ${
         data.school ? `AND school_level_code= ${data.school.code}` : ""
       } ${
         data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""
@@ -1165,12 +1165,13 @@ export const meilisearchReportReceiptGet = async (token) => {
 };
 
 //Lấy thông tin báo cáo khoản đã thu một học sinh
-export const meilisearchReportReceiptOneGet = async (token, data) => {
+export const meilisearchReportReceiptOneGet = async (token, data, fields) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_receipt_one/documents/fetch`,
     method: "post",
     data: {
       filter: data,
+      fields,
       limit: 10000,
       offset: 0,
     },
@@ -1261,11 +1262,12 @@ export const meilisearchReportRefundGet = async (token) => {
 };
 
 //Lấy thông tin báo cáo khoản đã hoàn một học sinh
-export const meilisearchReportRefundOneGet = async (token, data) => {
+export const meilisearchReportRefundOneGet = async (token, data, fields) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_report_refund_one/documents/fetch`,
     method: "post",
     data: {
+      fields,
       filter: data,
       limit: 10000,
       offset: 0,
@@ -1282,15 +1284,18 @@ export const meilisearchReportRefundOneGet = async (token, data) => {
 //Lấy thông tin học sinh qua Meilisearch
 export const meilisearchStudentGet = async (student_code) => {
   const res = await axios({
-    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/${student_code}?filter=year_active=true`,
-    method: "get",
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/fetch`,
+    method: "post",
+    data: {
+      filter: `code = ${student_code} AND year_active=true`,
+    },
     headers: {
       "content-type": "Application/json",
       authorization: `Bearer ${process.env.MEILISEARCH_SECRET_KEY}`,
     },
   });
 
-  return res.data;
+  return res.data.results[0];
 };
 
 //Lấy thông tin kết chuyển công nợ
@@ -1344,6 +1349,102 @@ export const upgrade = async (objects) => {
   });
 
   return res;
+};
+
+//Lấy thiết thông tin thiết lập hệ thống
+export const getConfig = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CONFIG,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Cập nhật thiết lập hệ thống
+export const updateConfig = async (_set, where, token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_CONFIG,
+    method: "put",
+    data: {
+      _set,
+      where,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin giấy báo đóng tiền
+export const meilisearchNoticeGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_notice/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data.results.filter((item) =>
+    item.expected_revenues.some((el) => el.next_batch_money > 0)
+  );
+};
+
+//Lấy bảng kê hoàn trả tiền thừa
+export const meilisearchListRefundGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_list_refund/documents/fetch`,
+    method: "post",
+    data: {
+      filter: `batch_id = ${data.present.id} ${
+        data.school ? `AND school_level_code= ${data.school.code}` : ""
+      } ${
+        data.class_level ? `AND class_level_code= ${data.class_level.code}` : ""
+      } ${data.class ? `AND class_code= ${data.class.label}` : ""}`,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data.results.filter((item) =>
+    item.expected_revenues.some((el) => el.next_batch_money < 0)
+  );
+};
+
+//Lấy thông tin báo cáo ưu đãi giảm giá
+export const meilisearchReductionGet = async (token, data) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_reduction/documents/fetch`,
+    method: "post",
+    data: {
+      filter: data,
+      limit: 10000,
+      offset: 0,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
 };
 
 //Thêm mới loại giảm giá

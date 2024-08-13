@@ -3,7 +3,7 @@
 import SubContent from "./subContent";
 import { useMemo } from "react";
 
-const Content = ({ student_code, student, present }) => {
+const Content = ({ student_code, student, present, config }) => {
   //  const [selected, setSelected] = useState(null);
 
   const selectPresent = useMemo(
@@ -24,6 +24,7 @@ const Content = ({ student_code, student, present }) => {
         school_year={present}
         student_code={student_code}
         student={student}
+        config={config}
       />
     </div>
   );

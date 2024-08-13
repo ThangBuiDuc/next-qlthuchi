@@ -1,5 +1,5 @@
 import Content from "./content";
-import { getListSearch } from "@/utils/funtionApi";
+import { getConfig, getListSearch } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
 
@@ -33,14 +33,18 @@ const Page = async () => {
       </div>
     );
   }
-  const apiListSearch = await getListSearch();
+
+  const [apiListSearch, apiConfig] = await Promise.all([
+    getListSearch(),
+    getConfig(),
+  ]);
 
   //   const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  if (apiListSearch.status !== 200)
+  if (apiListSearch.status !== 200 || apiConfig.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  return <Content listSearch={apiListSearch.data} />;
+  return <Content listSearch={apiListSearch.data} config={apiConfig.data} />;
 };
 
 export default Page;

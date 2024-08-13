@@ -1,13 +1,15 @@
 import Content from "./content";
 import {
+  getConfig,
   getListSearch,
-  getSchoolYear,
+  //   getPreReceipt,
   getPermission,
+  getRevenueGroup,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/spend/refund";
+  const pathName = "/collect/report-receipt";
   const { getToken } = auth();
 
   const token = await getToken({
@@ -37,19 +39,37 @@ const Page = async () => {
     );
   }
 
-  const [apiListSearch, present] = await Promise.all([
+  const [
+    apiGetRevenueGroup,
+    apiListSearch,
+    apiConfig,
+    // , apiPreReceipt
+  ] = await Promise.all([
+    getRevenueGroup(),
     getListSearch(),
-    getSchoolYear({ is_active: { _eq: true } }),
+    getConfig(),
+    // getPreReceipt(),
   ]);
-
   // const apiListSearch = await getListSearch();
+  // const apiPreReceipt = await getPreReceipt();
 
-  // const present = await getSchoolYear({ is_active: { _eq: true } });
-
-  if (apiListSearch.status !== 200 || present.status !== 200)
+  if (
+    apiListSearch.status !== 200 ||
+    apiGetRevenueGroup.status !== 200 ||
+    apiConfig.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  return <Content listSearch={apiListSearch.data} present={present.data} />;
+  return (
+    <Content
+      listSearch={apiListSearch.data}
+      revenueGroup={apiGetRevenueGroup.data}
+      //   preReceipt={apiPreReceipt}
+      permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
+    />
+    // <>page</>
+  );
 };
 
 export default Page;

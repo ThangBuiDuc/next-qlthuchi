@@ -5,6 +5,7 @@ import {
   getSchoolYear,
   meilisearchStudentGet,
   getPermission,
+  getConfig,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -41,14 +42,21 @@ const Page = async ({ params }) => {
     );
   }
 
-  const [apiListSearch, present, apiListRevenue, apiCalculationUnit, student] =
-    await Promise.all([
-      getListSearch(),
-      getSchoolYear({ is_active: { _eq: true } }),
-      getListRevenue(),
-      getCalculationUnit(),
-      meilisearchStudentGet(params.student_code),
-    ]);
+  const [
+    apiListSearch,
+    present,
+    apiListRevenue,
+    apiCalculationUnit,
+    student,
+    apiConfig,
+  ] = await Promise.all([
+    getListSearch(),
+    getSchoolYear({ is_active: { _eq: true } }),
+    getListRevenue(),
+    getCalculationUnit(),
+    meilisearchStudentGet(params.student_code),
+    getConfig(),
+  ]);
 
   // const apiListSearch = await getListSearch();
 
@@ -64,12 +72,14 @@ const Page = async ({ params }) => {
     apiListSearch.status !== 200 ||
     present.status !== 200 ||
     apiListRevenue.status !== 200 ||
-    apiCalculationUnit.status !== 200
+    apiCalculationUnit.status !== 200 ||
+    apiConfig.status !== 200
   )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
     <Content
+      config={apiConfig.data}
       student={student}
       listSearch={apiListSearch.data}
       present={present.data}

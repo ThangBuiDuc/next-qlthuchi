@@ -2,27 +2,18 @@
 import { IoMdAddCircleOutline } from "react-icons/io";
 import Add from "./add";
 import { Fragment } from "react";
-import Item from "./item";
+// import Item from "./item";
 import { useQuery } from "@tanstack/react-query";
 import { getStudyStatus } from "@/utils/funtionApi";
-
-const Skeleton = () => {
-  return (
-    <>
-      {[...Array(5)].map((_, i) => (
-        <tr key={i}>
-          {[...Array(3)].map((_, ii) => (
-            <td key={ii}>
-              <>
-                <div className="skeleton h-4 w-full"></div>
-              </>
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
-  );
-};
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
 const Content = ({ permission, statusData }) => {
   const data = useQuery({
@@ -50,37 +41,41 @@ const Content = ({ permission, statusData }) => {
           <Item data={item} />
         ))}
       </div> */}
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows table-lg">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Mã</th>
-              <th>Tình trạng</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {rawData.map((item, index) => (
+
+      <Table
+        className="max-h-[450px]"
+        aria-label="Study status table"
+        isHeaderSticky
+        isStriped
+      >
+        <TableHeader>
+          <TableColumn></TableColumn>
+          <TableColumn>Mã</TableColumn>
+          <TableColumn>Tình trạng</TableColumn>
+        </TableHeader>
+        <TableBody
+          isLoading={data.isFetching && data.isLoading}
+          loadingContent={<Spinner color="primary" />}
+          emptyContent="Không có kết quả!"
+        >
+          {/* {rawData.map((item, index) => (
               <Fragment key={item.id}>
                 <Item data={item} index={index} />
               </Fragment>
             ))} */}
-            {data.isFetching || data.isLoading ? (
-              <Skeleton />
-            ) : data?.data?.data?.length === 0 ? (
-              <p>Không có kết quả!</p>
-            ) : data ? (
-              data?.data?.data.result.map((item, index) => (
-                <Fragment key={item.id}>
-                  <Item data={item} index={index} />
-                </Fragment>
-              ))
-            ) : (
-              <></>
-            )}
-          </tbody>
-        </table>
-      </div>
+          {data?.data?.data.result.map((item, index) => (
+            // <Fragment key={item.id}>
+            //   <Item data={item} index={index} />
+            // </Fragment>
+
+            <TableRow key={index}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.id}</TableCell>
+              <TableCell>{item.name}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

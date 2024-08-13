@@ -1,4 +1,8 @@
-import { getRevenueGroup, meilisearchStudentGet } from "@/utils/funtionApi";
+import {
+  getListSearch,
+  getRevenueGroup,
+  meilisearchStudentGet,
+} from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
@@ -33,10 +37,17 @@ const Page = async ({ params }) => {
       </div>
     );
   }
-  const apiGetRevenueGroup = await getRevenueGroup();
-  const student = await meilisearchStudentGet(params.student_code);
 
-  if (apiGetRevenueGroup.status !== 200 || !student) {
+  const [apiListSearch, apiGetRevenueGroup, student] = await Promise.all([
+    getListSearch(),
+    getRevenueGroup(),
+    meilisearchStudentGet(params.student_code),
+  ]);
+
+  if (
+    (apiGetRevenueGroup.status !== 200 || !student,
+    apiListSearch.status !== 200)
+  ) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
   return (
@@ -44,6 +55,7 @@ const Page = async ({ params }) => {
       revenueGroup={apiGetRevenueGroup.data.result}
       student_code={params.student_code}
       student={student}
+      listSearch={apiListSearch.data}
     />
   );
 };

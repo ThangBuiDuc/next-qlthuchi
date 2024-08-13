@@ -7,12 +7,486 @@ import { useQuery } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import moment from "moment";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
+import { useMemo, useState } from "react";
+import { Pagination } from "@nextui-org/pagination";
+import {
+  AlignmentType,
+  Document,
+  Packer,
+  PageOrientation,
+  Paragraph,
+  SectionType,
+  TextRun,
+  Table as TableDoc,
+  TableRow as TableRowDoc,
+  TableCell as TableCellDoc,
+  WidthType,
+  BorderStyle,
+  VerticalAlign,
+} from "docx";
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+// const times = localFont({ src: "../../../../times.ttf" });
+
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
-const SubContent = ({ present }) => {
+const handleExportDoc = (data, present, school_year, config) => {
+  console.log(data);
+  const doc = new Document({
+    sections: data?.map((item) => ({
+      properties: {
+        type: SectionType.NEXT_PAGE,
+        page: {
+          size: {
+            orientation: PageOrientation.LANDSCAPE,
+            width: 8391.6, // 210mm in twips (1mm = 56.7 twips)
+            height: 11907, // 297mm in twips
+          },
+          margin: {
+            top: 340.2,
+            left: 340.2,
+            right: 340.2,
+            bottom: 567,
+          },
+        },
+      },
+      children: [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "giấy báo công nợ",
+              allCaps: true,
+              bold: true,
+              font: "Times New Roman",
+              size: 30,
+            }),
+            new TextRun({
+              text: `Học kỳ ${present.batch} năm học ${school_year}`,
+              break: 1,
+              size: 24,
+            }),
+            new TextRun({
+              text: `Tại ngày ${moment().date()} tháng ${
+                moment().month() + 1
+              } năm ${moment().year()}`,
+              break: 1,
+              size: 24,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: {
+            line: 1.5 * 240,
+          },
+        }),
+        new TableDoc({
+          rows: [
+            new TableRowDoc({
+              children: [
+                new TableCellDoc({
+                  verticalAlign: VerticalAlign.CENTER,
+                  width: {
+                    type: WidthType.PERCENTAGE,
+                    size: 50,
+                  },
+                  borders: {
+                    bottom: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    top: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    left: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    right: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `Họ và tên: ${item.first_name} ${item.last_name}`,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                        new TextRun({
+                          text: `Mã học sinh: ${item.code}`,
+                          font: "Times New Roman",
+                          size: 24,
+                          break: 1,
+                        }),
+                      ],
+                      spacing: {
+                        before: 40,
+                        after: 40,
+                      },
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: VerticalAlign.CENTER,
+                  width: {
+                    type: WidthType.PERCENTAGE,
+                    size: 50,
+                  },
+                  borders: {
+                    bottom: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    top: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    left: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    right: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                  },
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      spacing: {
+                        before: 40,
+                        after: 40,
+                      },
+                      children: [
+                        new TextRun({
+                          text: `Ngày sinh: ${item.date_of_birth
+                            .split("-")
+                            .reverse()
+                            .join("-")}`,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                        new TextRun({
+                          text: `Lớp ${item.class_code}`,
+                          font: "Times New Roman",
+                          size: 24,
+                          break: 1,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+          width: {
+            size: 100,
+            type: WidthType.PERCENTAGE,
+          },
+        }),
+        new TableDoc({
+          rows: [
+            new TableRowDoc({
+              children: [
+                new TableCellDoc({
+                  // verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `TT`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  // verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `Nội dung`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  // verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: `Số tiền (đồng)`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+          width: {
+            size: 100,
+            type: WidthType.PERCENTAGE,
+          },
+        }),
+      ],
+    })),
+  });
+  // data.forEach((el) => {
+  //   doc.addSection({
+  //     properties: {
+  //       type: SectionType.CONTINUOUS,
+  //       page: {
+  //         size: {
+  //           orientation: PageOrientation.PORTRAIT,
+  //           width: 11906, // 210mm in twips (1mm = 56.7 twips)
+  //           height: 16838, // 297mm in twips
+  //         },
+  //         margin: {
+  //           top: 340.2,
+  //           left: 340.2,
+  //           right: 340.2,
+  //           bottom: 567,
+  //         },
+  //       },
+  //     },
+  //     children: [
+  //       new Paragraph({
+  //         children: [
+  //           new TextRun({
+  //             text: "giấy báo đóng tiền",
+  //             allCaps: true,
+  //             bold: true,
+  //             font: "Times New Roman",
+  //             size: 30,
+  //           }),
+  //           new TextRun({
+  //             text: "Học kỳ ... năm học 202... - 202...",
+  //             break: 1,
+  //             size: 24,
+  //           }),
+  //         ],
+  //         alignment: AlignmentType.CENTER,
+  //         spacing: {
+  //           line: 1.5 * 240,
+  //         },
+  //       }),
+  //       new TableDoc({
+  //         rows: [
+  //           new TableRowDoc({
+  //             children: [
+  //               new TableCellDoc({
+  //                 children: [
+  //                   new TextRun({
+  //                     text: "Họ và tên học sinh ",
+  //                     bold: true,
+  //                     font: "Times New Roman",
+  //                     size: 24,
+  //                   }),
+  //                 ],
+  //               }),
+  //               new TableCellDoc({
+  //                 children: [
+  //                   new TextRun({
+  //                     text: "Ngày sinh ",
+  //                     bold: true,
+  //                     font: "Times New Roman",
+  //                     size: 24,
+  //                   }),
+  //                 ],
+  //               }),
+  //             ],
+  //           }),
+  //         ],
+  //         width: {
+  //           size: 100,
+  //           type: WidthType.PERCENTAGE,
+  //         },
+  //       }),
+  //     ],
+  //   });
+  // });
+
+  Packer.toBuffer(doc).then((buffer) => {
+    saveAs(new Blob([buffer]), "giay-bao-cong-no.docx");
+  });
+};
+
+const TableView = ({ data, config, isLoading }) => {
+  const [page, setPage] = useState(1);
+  const rowsPerPage = Number(config.result[0].config.page.value);
+
+  const pages = Math.ceil(data.data?.results.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return data.data?.results.slice(start, end);
+  }, [page, data]);
+
+  return (
+    <Table
+      aria-label="debt Table"
+      className="max-h-[450px]"
+      isStriped
+      isHeaderSticky
+      bottomContent={
+        !isLoading && (
+          <div className="flex w-full justify-center">
+            <Pagination
+              color="primary"
+              isCompact
+              showControls
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        )
+      }
+    >
+      <TableHeader>
+        <TableColumn>STT</TableColumn>
+        <TableColumn>Mã sinh viên</TableColumn>
+        <TableColumn>Họ tên sinh viên</TableColumn>
+        <TableColumn>Công nợ đầu kỳ</TableColumn>
+        <TableColumn>Ưu đãi miễn giảm</TableColumn>
+        <TableColumn>Số phải nộp</TableColumn>
+        <TableColumn>Đã điều chỉnh</TableColumn>
+        <TableColumn>Đã hoàn trả</TableColumn>
+        <TableColumn>Số đã nộp</TableColumn>
+        <TableColumn>Công nợ cuối kỳ</TableColumn>
+      </TableHeader>
+      <TableBody
+        isLoading={data.isFetching && data.isLoading}
+        loadingContent={<Spinner color="primary" />}
+        emptyContent={"Không có dữ liệu!"}
+      >
+        {items?.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{++index}</TableCell>
+            <TableCell>{item.code}</TableCell>
+            <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce(
+                  (total, curr) => total + curr.previous_batch_money,
+                  0
+                ),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce((total, curr) => total + curr.discount, 0),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce(
+                  (total, curr) => total + curr.actual_amount_collected,
+                  0
+                ),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce((total, curr) => total + curr.amount_edited, 0),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce((total, curr) => total + curr.amount_spend, 0),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce(
+                  (total, curr) => total + curr.amount_collected,
+                  0
+                ),
+                config
+              )}
+            </TableCell>
+            <TableCell>
+              {numberWithCommas(
+                item.sub.reduce(
+                  (total, curr) => total + curr.next_batch_money,
+                  0
+                ),
+                config
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+const SubContent = ({ present, config, school_year }) => {
   const data = useQuery({
     queryKey: ["report_debt", present],
     queryFn: async () =>
@@ -298,103 +772,33 @@ const SubContent = ({ present }) => {
   }
   return (
     <div className="flex flex-col gap-5 justify-center">
-      {data.data?.results?.length ? (
-        <>
-          <button className="self-end btn w-fit" onClick={() => handleExcel()}>
+      <>
+        <div className="flex justify-end gap-2">
+          <button
+            className="btn w-fit"
+            disabled={data.isFetching && data.isLoading}
+            onClick={() =>
+              handleExportDoc(data.data?.results, present, school_year, config)
+            }
+          >
+            Xuất Giấy báo
+          </button>
+          <button
+            className="btn w-fit"
+            onClick={() => handleExcel()}
+            disabled={data.isFetching && data.isLoading}
+          >
             Xuất Excel
           </button>
-          <div className="overflow-x-auto">
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Mã sinh viên</th>
-                  <th>Họ tên sinh viên</th>
-                  <th>Công nợ đầu kỳ</th>
-                  <th>Ưu đãi miễn giảm</th>
-                  <th>Số phải nộp</th>
-                  <th>Đã điều chỉnh</th>
-                  <th>Đã hoàn trả</th>
-                  <th>Số đã nộp</th>
-                  <th>Công nợ cuối kỳ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.results.length ? (
-                  data.data.results.map((item, index) => (
-                    <tr key={index}>
-                      <td>{++index}</td>
-                      <td>{item.code}</td>
-                      <td>{`${item.first_name} ${item.last_name}`}</td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.previous_batch_money,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.discount,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) =>
-                              total + curr.actual_amount_collected,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.amount_edited,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.amount_spend,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.amount_collected,
-                            0
-                          )
-                        )}
-                      </td>
-                      <td>
-                        {numberWithCommas(
-                          item.sub.reduce(
-                            (total, curr) => total + curr.next_batch_money,
-                            0
-                          )
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : (
-        <h6 className="text-center">Hiện tại chưa có dữ liệu!!</h6>
-      )}
+        </div>
+        {/* <div className="overflow-x-auto"> */}
+        {/* </div> */}
+        <TableView
+          data={data}
+          isLoading={data.isFetching && data.isLoading}
+          config={config}
+        />
+      </>
     </div>
   );
 };

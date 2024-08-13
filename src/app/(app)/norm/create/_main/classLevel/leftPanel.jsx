@@ -12,7 +12,7 @@ import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, config } = useContext(listContext);
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
   // }, [norm.group]);
@@ -193,6 +193,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 placeholder="Đơn giá"
                 value={norm.price ? norm.price : 0}
                 decimalsLimit={2}
+                groupSeparator={config.result[0].config.numberComma.value}
                 onValueChange={(value) => {
                   setNorm((pre) => ({
                     ...pre,
@@ -212,6 +213,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               <CurrencyInput
                 autoComplete="off"
                 disabled
+                groupSeparator={config.result[0].config.numberComma.value}
                 id={`total_${norm.id}`}
                 intlConfig={{ locale: "vi-VN", currency: "VND" }}
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}

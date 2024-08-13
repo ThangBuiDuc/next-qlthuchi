@@ -5,7 +5,7 @@ import {
   updateBillReceipt,
 } from "@/utils/funtionApi";
 // import { listContext } from "./content";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import moment from "moment";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { TbReload } from "react-icons/tb";
@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { listContext } from "./content";
 
 function findIndexInArray(arrayOfArrays, targetObject) {
   for (let i = 0; i < arrayOfArrays.length; i++) {
@@ -33,8 +34,13 @@ function findIndexInArray(arrayOfArrays, targetObject) {
   return -1;
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
 // function sumDuplicated(arr) {
@@ -419,6 +425,7 @@ const CancelModal = ({ bill_receipt_code, cancelRef, pageIndex, refetch }) => {
 const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
   const printRef = useRef();
   const cancelRef = useRef();
+  const { config } = useContext(listContext);
   return (
     <tr className="hover">
       <td>{data.bill_formality.name}</td>
@@ -426,7 +433,7 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
       <td>{data.payer}</td>
       <td>{data.name}</td>
       <td>{data.description}</td>
-      <td>{numberWithCommas(data.amount_collected)}</td>
+      <td>{numberWithCommas(data.amount_collected, config)}</td>
       <td>{moment(data.start_at).format("DD/MM/yyyy HH:mm:ss")}</td>
       <td>{data.canceled && "✓"}</td>
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
@@ -439,7 +446,7 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
             <>
               <div
                 className="tooltip items-center flex cursor-pointer w-fit"
-                data-tip="Huỷ biên lai"
+                data-tip="Huỷ phiếu thu"
                 onClick={() => cancelRef.current.showModal()}
               >
                 <IoTrashBinOutline size={25} />

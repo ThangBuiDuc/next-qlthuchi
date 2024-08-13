@@ -3,6 +3,7 @@ import {
   meilisearchStudentGet,
   getPreReceipt,
   getPermission,
+  getConfig,
 } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
@@ -39,10 +40,11 @@ const Page = async ({ params }) => {
     );
   }
 
-  const [present, student, apiPreReceipt] = await Promise.all([
+  const [present, student, apiPreReceipt, apiConfig] = await Promise.all([
     getSchoolYear({ is_active: { _eq: true } }),
     meilisearchStudentGet(params.student_code),
     getPreReceipt(),
+    getConfig(),
   ]);
 
   // const present = await getSchoolYear({ is_active: { _eq: true } });
@@ -51,7 +53,12 @@ const Page = async ({ params }) => {
 
   // const apiPreReceipt = await getPreReceipt();
 
-  if (present.status !== 200 || !student || !apiPreReceipt)
+  if (
+    present.status !== 200 ||
+    !student ||
+    !apiPreReceipt ||
+    apiConfig.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
   return (
@@ -60,6 +67,7 @@ const Page = async ({ params }) => {
       present={present.data}
       InitialPreReceipt={apiPreReceipt}
       permission={permission.data.result[0]?.permission.id.toString()}
+      config={apiConfig.data}
     />
   );
 };

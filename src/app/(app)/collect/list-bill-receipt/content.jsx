@@ -17,7 +17,7 @@ const conditionFilter = {
 };
 
 export const listContext = createContext();
-const Content = ({ listSearch, permission }) => {
+const Content = ({ listSearch, permission, config }) => {
   const [selected, setSelected] = useState({});
   const [selectedConditionFilter, setSelectedConditionFilter] = useState({
     first: null,
@@ -123,6 +123,7 @@ const Content = ({ listSearch, permission }) => {
       <listContext.Provider
         value={{
           listSearch,
+          config,
         }}
       >
         <div className="flex flex-col  gap-3">

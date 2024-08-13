@@ -57,12 +57,14 @@ const Page = async () => {
   // console.log(apiGetDiscounts.data);
   // console.log(apiGetDiscountType.data);
   // console.log(apiGetRevenueGroup.data);
-  return <Content
-    discountsData = {apiGetDiscounts.data}
-    discountTypeData ={apiGetDiscountType.data}
-    revenueGroupData = {apiGetRevenueGroup.data}
-    permission={permission.data.result[0]?.permission.id.toString()}
-    />;
+  return (
+    <Content
+      discountsData={apiGetDiscounts.data}
+      discountTypeData={apiGetDiscountType.data}
+      revenueGroupData={apiGetRevenueGroup.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
+    />
+  );
 };
 
 export default Page;

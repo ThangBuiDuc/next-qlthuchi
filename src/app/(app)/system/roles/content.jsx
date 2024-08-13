@@ -5,6 +5,7 @@ import Item from "./item";
 import { getListUserPermission } from "@/utils/funtionApi";
 import { useAuth } from "@clerk/nextjs";
 import TextInput from "@/app/_component/textInput";
+import { Accordion, AccordionItem } from "@nextui-org/accordion";
 
 const Skeleton = () => {
   return (
@@ -56,23 +57,29 @@ const Content = ({ permission, listPermissionFunction }) => {
               label={"Tìm kiếm"}
               className={"!w-[30%] self-end"}
             />
-            {users
-              .filter(
-                (item) =>
-                  item.email.includes(query) ||
-                  item.first_name.includes(query) ||
-                  item.last_name.includes(query)
-              )
-              .map((item) => (
-                <Fragment key={item.email}>
-                  <Item
-                    listPermissionFunction={listPermissionFunction}
-                    permission={permission}
-                    data={item}
-                    isRefetching={data.isRefetching}
-                  />
-                </Fragment>
-              ))}
+            <Accordion>
+              {users
+                .filter(
+                  (item) =>
+                    item.email.includes(query) ||
+                    item.first_name.includes(query) ||
+                    item.last_name.includes(query)
+                )
+                .map((item) => (
+                  <AccordionItem
+                    key={item.email}
+                    aria-label={`${item.email} - ${item.first_name} ${item.last_name}`}
+                    title={`${item.email} - ${item.first_name} ${item.last_name}`}
+                  >
+                    <Item
+                      listPermissionFunction={listPermissionFunction}
+                      permission={permission}
+                      data={item}
+                      isRefetching={data.isRefetching}
+                    />
+                  </AccordionItem>
+                ))}
+            </Accordion>
           </>
         ) : (
           <></>

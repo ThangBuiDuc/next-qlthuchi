@@ -11,14 +11,28 @@ import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
 import { useRef } from "react";
 import { getText } from "number-to-text-vietnamese";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
 const times = localFont({ src: "../../../../times.ttf" });
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+function numberWithCommas(x, config) {
+  return x
+    .toString()
+    .replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.result[0].config.numberComma.value
+    );
 }
 
-const ExportNotice = ({ data, student, school_year }) => {
+const ExportNotice = ({ data, student, school_year, disabled }) => {
   // console.log(student, selectPresent, data);
   const printRef = useRef();
   const handlePrint = useReactToPrint({
@@ -29,7 +43,11 @@ const ExportNotice = ({ data, student, school_year }) => {
 
   return (
     <>
-      <button className="btn w-fit" onClick={() => handlePrint()}>
+      <button
+        className="btn w-fit"
+        onClick={() => handlePrint()}
+        disabled={disabled}
+      >
         Xuất giấy báo
       </button>
       {/* PRINT DIV */}
@@ -94,7 +112,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Công nợ đầu kỳ
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.previous_batch_money !== null
                         ? total + curr.previous_batch_money
@@ -112,7 +130,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Ưu đãi, miễn giảm
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.discount !== null ? total + curr.discount : total,
                     0
@@ -128,7 +146,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Số phải nộp kỳ này
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.actual_amount_collected !== null
                         ? total + curr.actual_amount_collected
@@ -146,7 +164,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Số đã điều chỉnh
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.amount_edited !== null
                         ? total + curr.amount_edited
@@ -164,10 +182,10 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Số đã hoàn trả
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
-                      curr.amount_of_spend !== null
-                        ? total + curr.amount_of_spend
+                      curr.amount_spend !== null
+                        ? total + curr.amount_spend
                         : total,
                     0
                   )}{" "}
@@ -182,7 +200,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Số đã nộp trong kỳ
                 </p>
                 <p className="text-[12px] text-end w-[30%] border-r border-t border-black font-semibold pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.amount_collected !== null
                         ? total + curr.amount_collected
@@ -200,7 +218,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                   Công nợ còn phải nộp
                 </p>
                 <p className="text-[12px] text-end  border-r border-t  border-black font-semibold pr-1">
-                  {data.data.results[0].sub.reduce(
+                  {data.data?.results[0].sub.reduce(
                     (total, curr) =>
                       curr.next_batch_money !== null
                         ? total + curr.next_batch_money
@@ -212,7 +230,7 @@ const ExportNotice = ({ data, student, school_year }) => {
                 <p className="text-[12px] text-start col-span-2 border border-black italic pl-1">
                   Bằng chữ:{" "}
                   {getText(
-                    data.data.results[0].sub.reduce(
+                    data.data?.results[0].sub.reduce(
                       (total, curr) =>
                         curr.next_batch_money !== null
                           ? total + curr.next_batch_money
@@ -220,17 +238,17 @@ const ExportNotice = ({ data, student, school_year }) => {
                       0
                     )
                   )
-                    .charAt(0)
+                    ?.charAt(0)
                     .toUpperCase() +
                     getText(
-                      data.data.results[0].sub.reduce(
+                      data.data?.results[0].sub.reduce(
                         (total, curr) =>
                           curr.next_batch_money !== null
                             ? total + curr.next_batch_money
                             : total,
                         0
                       )
-                    ).slice(1)}
+                    )?.slice(1)}
                 </p>
               </div>
               <div className="grid grid-cols-2 mt-4">
@@ -246,7 +264,13 @@ const ExportNotice = ({ data, student, school_year }) => {
   );
 };
 
-const SubContent = ({ present, student_code, student, school_year }) => {
+const SubContent = ({
+  present,
+  student_code,
+  student,
+  school_year,
+  config,
+}) => {
   // console.log(school_year);
   // console.log(student);
   const data = useQuery({
@@ -364,7 +388,7 @@ const SubContent = ({ present, student_code, student, school_year }) => {
           item.discount ? item.discount : 0,
           item.actual_amount_collected ? item.actual_amount_collected : 0,
           item.amount_edited ? item.amount_edited : 0,
-          item.amount_of_spend ? item.amount_of_spend : 0,
+          item.amount_spend ? item.amount_spend : 0,
           item.amount_collected ? item.amount_collected : 0,
           item.next_batch_money ? item.next_batch_money : 0,
         ]);
@@ -399,7 +423,7 @@ const SubContent = ({ present, student_code, student, school_year }) => {
       ),
       data?.data?.results[0].sub.reduce(
         (total, curr) =>
-          curr.revenue_type_id === 1 ? total + curr.amount_of_spend : total,
+          curr.revenue_type_id === 1 ? total + curr.amount_spend : total,
         0
       ),
       data?.data?.results[0].sub.reduce(
@@ -443,7 +467,7 @@ const SubContent = ({ present, student_code, student, school_year }) => {
       ),
       data?.data?.results[0].sub.reduce(
         (total, curr) =>
-          curr.revenue_type_id === 2 ? total + curr.amount_of_spend : total,
+          curr.revenue_type_id === 2 ? total + curr.amount_spend : total,
         0
       ),
       data?.data?.results[0].sub.reduce(
@@ -478,7 +502,7 @@ const SubContent = ({ present, student_code, student, school_year }) => {
         0
       ),
       data?.data?.results[0].sub.reduce(
-        (total, curr) => total + curr.amount_of_spend,
+        (total, curr) => total + curr.amount_spend,
         0
       ),
       data?.data?.results[0].sub.reduce(
@@ -614,84 +638,88 @@ const SubContent = ({ present, student_code, student, school_year }) => {
   }
   return (
     <div className="flex flex-col gap-5 justify-center">
-      {data.data?.results?.length ? (
-        <>
-          <div className="flex justify-end gap-1">
-            <ExportNotice
-              data={data}
-              school_year={school_year}
-              student={student}
-            />
-            <button className=" btn w-fit" onClick={() => handleExcel()}>
-              Xuất Excel
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Khoản thu</th>
-                  <th>Công nợ đầu kỳ</th>
-                  <th>Ưu đãi miễn giảm</th>
-                  <th>Số phải nộp</th>
-                  <th>Đã điều chỉnh</th>
-                  <th>Đã hoàn trả</th>
-                  <th>Số đã nộp</th>
-                  <th>Công nợ cuối kỳ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.results.length ? (
-                  data.data.results[0].sub.map((item, index) => (
-                    <tr key={index}>
-                      <td>{++index}</td>
-                      <td>{item.name}</td>
-                      <td>
-                        {item.previous_batch_money
-                          ? numberWithCommas(item.previous_batch_money)
-                          : 0}
-                      </td>
-                      <td>
-                        {item.discount ? numberWithCommas(item.discount) : 0}
-                      </td>
-                      <td>
-                        {item.actual_amount_collected
-                          ? numberWithCommas(item.actual_amount_collected)
-                          : 0}
-                      </td>
-                      <td>
-                        {item.amount_edited
-                          ? numberWithCommas(item.amount_collected)
-                          : 0}
-                      </td>
-                      <td>
-                        {item.amount_of_spend
-                          ? numberWithCommas(item.amount_of_spend)
-                          : 0}
-                      </td>
-                      <td>
-                        {item.amount_collected
-                          ? numberWithCommas(item.amount_collected)
-                          : 0}
-                      </td>
-                      <td>
-                        {item.next_batch_money
-                          ? numberWithCommas(item.next_batch_money)
-                          : 0}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : (
-        <h6 className="text-center">Hiện tại chưa có dữ liệu!!</h6>
-      )}
+      <>
+        <div className="flex justify-end gap-1">
+          <ExportNotice
+            data={data}
+            school_year={school_year}
+            student={student}
+            disabled={data.isFetching && data.isLoading}
+          />
+          <button
+            className=" btn w-fit"
+            onClick={() => handleExcel()}
+            disabled={data.isFetching && data.isLoading}
+          >
+            Xuất Excel
+          </button>
+        </div>
+        {/* <div className="overflow-x-auto"> */}
+        <Table
+          aria-label="one debt Table"
+          className="max-h-[450px]"
+          isStriped
+          isHeaderSticky
+        >
+          <TableHeader>
+            <TableColumn>STT</TableColumn>
+            <TableColumn>Khoản thu</TableColumn>
+            <TableColumn>Công nợ đầu kỳ</TableColumn>
+            <TableColumn>Ưu đãi miễn giảm</TableColumn>
+            <TableColumn>Số phải nộp</TableColumn>
+            <TableColumn>Đã điều chỉnh</TableColumn>
+            <TableColumn>Đã hoàn trả</TableColumn>
+            <TableColumn>Số đã nộp</TableColumn>
+            <TableColumn>Công nợ cuối kỳ</TableColumn>
+          </TableHeader>
+          <TableBody
+            isLoading={data.isFetching && data.isLoading}
+            loadingContent={<Spinner color="primary" />}
+            emptyContent={"Không có dữ liệu!"}
+          >
+            {data.data?.results[0].sub.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{++index}</TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  {item.previous_batch_money
+                    ? numberWithCommas(item.previous_batch_money, config)
+                    : 0}
+                </TableCell>
+                <TableCell>
+                  {item.discount ? numberWithCommas(item.discount, config) : 0}
+                </TableCell>
+                <TableCell>
+                  {item.actual_amount_collected
+                    ? numberWithCommas(item.actual_amount_collected, config)
+                    : 0}
+                </TableCell>
+                <TableCell>
+                  {item.amount_edited
+                    ? numberWithCommas(item.amount_collected, config)
+                    : 0}
+                </TableCell>
+                <TableCell>
+                  {item.amount_spend
+                    ? numberWithCommas(item.amount_spend, config)
+                    : 0}
+                </TableCell>
+                <TableCell>
+                  {item.amount_collected
+                    ? numberWithCommas(item.amount_collected, config)
+                    : 0}
+                </TableCell>
+                <TableCell>
+                  {item.next_batch_money
+                    ? numberWithCommas(item.next_batch_money, config)
+                    : 0}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {/* </div> */}
+      </>
     </div>
   );
 };

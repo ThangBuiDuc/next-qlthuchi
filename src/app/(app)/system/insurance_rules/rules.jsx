@@ -210,6 +210,7 @@ const Rules = ({ rules, class_levels, permission }) => {
       <Table
         aria-label="Rules Table"
         isHeaderSticky
+        className="max-h-[450px]"
         bottomContent={
           !ruleData.isLoading && (
             <div className="flex w-full justify-center">

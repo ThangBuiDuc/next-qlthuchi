@@ -37,7 +37,7 @@ moment.updateLocale("vi", {
   ],
 });
 
-const Content = () => {
+const Content = ({ config }) => {
   const [query, setQuery] = useState({
     start_date: null,
     end_date: null,
@@ -80,7 +80,7 @@ const Content = () => {
         </div>
         {/* <button className="btn w-fit self-end">Tìm kiếm</button> */}
       </div>
-      <SubContent query={query} />
+      <SubContent query={query} config={config} />
       {/* {selected && <SubContent selected={selected} />} */}
     </div>
   );

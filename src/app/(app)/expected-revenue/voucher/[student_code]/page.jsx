@@ -58,6 +58,15 @@ const Page = async ({ params }) => {
     getDiscounts(),
   ]);
 
+  // console.log(
+  //   apiListSearch.data,
+  //   present.data,
+  //   apiListRevenue.data,
+  //   apiCalculationUnit.data,
+  //   student,
+  //   apiGetDiscounts.data
+  // );
+
   // const apiListSearch = await getListSearch();
 
   // const present = await getSchoolYear({ is_active: { _eq: true } });

@@ -1,4 +1,4 @@
-import { getSchoolYear } from "@/utils/funtionApi";
+import { getConfig, getSchoolYear } from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
@@ -32,12 +32,16 @@ const Page = async () => {
       </div>
     );
   }
-  const present = await getSchoolYear({ is_active: { _eq: true } });
 
-  if (present.status !== 200) {
+  const [present, apiConfig] = await Promise.all([
+    getSchoolYear({ is_active: { _eq: true } }),
+    getConfig(),
+  ]);
+
+  if (present.status !== 200 || apiConfig.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
-  return <Content present={present.data} />;
+  return <Content present={present.data} config={apiConfig.data} />;
 };
 
 export default Page;

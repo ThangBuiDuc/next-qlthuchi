@@ -79,7 +79,6 @@ const LayoutClient = ({ children }) => {
                 {children}
               </div>
             </Scrollbars>
-            {/* </div> */}
           </div>
         </div>
       </ApolloProvider>

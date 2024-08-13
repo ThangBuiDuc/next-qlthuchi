@@ -3,7 +3,7 @@ import { Spinner } from "@nextui-org/spinner";
 const Loading = () => {
   return (
     <div className="flex justify-center">
-      <Spinner />
+      <Spinner color="primary" />
     </div>
   );
 };

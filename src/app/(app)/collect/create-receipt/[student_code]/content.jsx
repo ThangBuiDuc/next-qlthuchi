@@ -4,8 +4,16 @@ import { listContext } from "../content";
 import SubContent from "./subContent";
 import { useQuery } from "@tanstack/react-query";
 import { getPreReceipt } from "@/utils/funtionApi";
+import { useSubscription, gql } from "@apollo/client";
+import { Spinner } from "@nextui-org/spinner";
 
-const Content = ({ student, present, InitialPreReceipt, permission }) => {
+const Content = ({
+  student,
+  present,
+  InitialPreReceipt,
+  permission,
+  config,
+}) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
@@ -18,6 +26,15 @@ const Content = ({ student, present, InitialPreReceipt, permission }) => {
     initialData: () => InitialPreReceipt,
   });
 
+  const receipt = useSubscription(gql`
+    subscription receipt {
+      count_receipt {
+        count
+        formality_id
+      }
+    }
+  `);
+
   return (
     <>
       {/* <ToastContainer /> */}
@@ -28,6 +45,8 @@ const Content = ({ student, present, InitialPreReceipt, permission }) => {
           preReceiptIsRefetch: preReceipt.isRefetching,
           student,
           permission,
+          config,
+          receipt: receipt.data,
         }}
       >
         <div className="flex flex-col  gap-[15px]">
@@ -46,8 +65,15 @@ const Content = ({ student, present, InitialPreReceipt, permission }) => {
             <p className="font-semibold ">
               Học sinh: {`${student.first_name} ${student.last_name}`}
             </p>
+            <p className="font-semibold ">
+              Trạng thái: {`${student.status_name}`}
+            </p>
           </div>
-          <SubContent student={student} selectPresent={selectPresent} />
+          {receipt.loading ? (
+            <Spinner />
+          ) : (
+            <SubContent student={student} selectPresent={selectPresent} />
+          )}
         </div>
       </listContext.Provider>
     </>

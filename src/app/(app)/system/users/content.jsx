@@ -103,7 +103,7 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
         >
           {data?.data?.data.result.map((item) =>
             permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
-              <TableRow>
+              <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
                 <TableCell>{item.gender.description}</TableCell>
@@ -134,7 +134,7 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
                 </TableCell>
               </TableRow>
             ) : (
-              <TableRow>
+              <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
                 <TableCell>{item.gender.description}</TableCell>

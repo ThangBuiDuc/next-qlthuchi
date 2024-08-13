@@ -1,6 +1,7 @@
-import { getPermission } from "@/utils/funtionApi";
+import { getPermission, getConfig } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 import Content from "./content";
+// import getConfig from "next/config"
 
 const Page = async () => {
   const pathName = "/report/cash-fund";
@@ -32,7 +33,13 @@ const Page = async () => {
       </div>
     );
   }
-  return <Content />;
+
+  const apiConfig = await getConfig();
+
+  if (apiConfig.status !== 200)
+    throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
+
+  return <Content config={apiConfig.data} />;
 };
 
 export default Page;

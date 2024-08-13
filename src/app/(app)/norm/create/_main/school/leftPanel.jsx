@@ -12,7 +12,7 @@ import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
-  const { listRevenue, calculationUnit } = useContext(listContext);
+  const { listRevenue, calculationUnit, config } = useContext(listContext);
 
   // useEffect(() => {
   //   if (norm.group) setNorm((pre) => ({ ...pre, type: null }));
@@ -193,6 +193,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 placeholder="Đơn giá"
                 value={norm.price ? norm.price : 0}
                 decimalsLimit={2}
+                groupSeparator={config.result[0].config.numberComma.value}
                 onValueChange={(value) => {
                   setNorm((pre) => ({
                     ...pre,
@@ -218,6 +219,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 placeholder="Đơn giá"
                 value={typeof norm.total === "number" ? norm.total : "NaN"}
                 decimalsLimit={2}
+                groupSeparator={config.result[0].config.numberComma.value}
                 onValueChange={(value) =>
                   setNorm((pre) => ({ ...pre, total: value }))
                 }

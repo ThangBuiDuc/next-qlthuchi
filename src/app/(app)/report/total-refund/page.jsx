@@ -1,4 +1,4 @@
-import { getRevenueGroup } from "@/utils/funtionApi";
+import { getConfig, getListSearch, getRevenueGroup } from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
@@ -33,12 +33,27 @@ const Page = async () => {
       </div>
     );
   }
-  const apiGetRevenueGroup = await getRevenueGroup();
 
-  if (apiGetRevenueGroup.status !== 200) {
+  const [apiListSearch, apiGetRevenueGroup, apiGetConfig] = await Promise.all([
+    getListSearch(),
+    getRevenueGroup(),
+    getConfig(),
+  ]);
+
+  if (
+    apiGetRevenueGroup.status !== 200 ||
+    apiListSearch.status !== 200 ||
+    apiGetConfig.status !== 200
+  ) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
-  return <Content revenueGroup={apiGetRevenueGroup.data.result} />;
+  return (
+    <Content
+      revenueGroup={apiGetRevenueGroup.data.result}
+      listSearch={apiListSearch.data}
+      config={apiGetConfig.data}
+    />
+  );
 };
 
 export default Page;

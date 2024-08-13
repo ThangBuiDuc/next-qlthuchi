@@ -10,6 +10,7 @@ const Content = ({
   listRevenue,
   calculationUnit,
   permission,
+  config,
   // preReceipt,
 }) => {
   const selectPresent = useMemo(
@@ -26,6 +27,7 @@ const Content = ({
           calculationUnit,
           selectPresent,
           permission,
+          config,
         }}
       >
         <div className="flex flex-col  gap-[15px]">

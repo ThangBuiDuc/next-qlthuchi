@@ -6,6 +6,8 @@ import { getPreBill } from "@/utils/funtionApi";
 // import Main from "./_filter/main";
 import { useQuery } from "@tanstack/react-query";
 import Refund from "./_refund/refund";
+import { gql, useSubscription } from "@apollo/client";
+import { Spinner } from "@nextui-org/spinner";
 
 export const listContext = createContext();
 
@@ -15,6 +17,7 @@ const Content = ({
   present,
   permission,
   revenueGroup,
+  config,
 }) => {
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -27,6 +30,15 @@ const Content = ({
     staleTime: Infinity,
     initialData: () => InitialPreBill,
   });
+
+  const bill = useSubscription(gql`
+    subscription billRefund {
+      count_bill {
+        bill_refund
+      }
+    }
+  `);
+
   const [selected, setSelected] = useState();
   return (
     <>
@@ -38,6 +50,8 @@ const Content = ({
           preBill: preBill.data,
           selectPresent,
           permission,
+          config,
+          bill: bill.data,
         }}
       >
         <div className="flex flex-col  gap-3">
@@ -49,8 +63,8 @@ const Content = ({
             <h6>{selectPresent.batch} - </h6>
             <h6>Năm học: {present.result[0].school_year}</h6>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-xs">Hình thức chi:</p>
+          <div className="flex items-center gap-1">
+            <h6>Hình thức chi:</h6>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
               placeholder="Hình thức chi!"
@@ -64,8 +78,14 @@ const Content = ({
             />
           </div>
 
-          {selected?.value === 1 && <Other selected={selected} />}
-          {selected?.value === 2 && <Refund selected={selected} />}
+          {bill.loading ? (
+            <Spinner color="primary" />
+          ) : (
+            <>
+              {selected?.value === 1 && <Other selected={selected} />}
+              {selected?.value === 2 && <Refund selected={selected} />}
+            </>
+          )}
         </div>
       </listContext.Provider>
     </>

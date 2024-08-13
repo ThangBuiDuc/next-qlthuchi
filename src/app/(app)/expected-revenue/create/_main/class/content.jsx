@@ -11,6 +11,15 @@ import { createExpectedRevenueRouter } from "@/utils/funtionApi";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/table";
+import { Spinner } from "@nextui-org/spinner";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -109,55 +118,54 @@ const Content = ({ selected }) => {
         autoHide
         autoHeight
       > */}
-      <div className="overflow-x-auto">
-        <table className="table table-pin-rows">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Khoản thu/Nhóm khoản thu</th>
-              <th>Loại khoản thu</th>
-              <th>Đơn giá/ Đơn vị tính</th>
-              <th>Tổng tiền</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(revenueNorms.isLoading && revenueNorms.isFetching) ||
-            revenueNorms.isRefetching ? (
-              <Skeleton />
-            ) : data?.data.result.length ? (
-              data.data.result.map((item, index) => (
-                <tr key={item.id} className="hover">
-                  <td>{++index}</td>
-                  <td>
-                    {item.revenue.name}
-                    <br />
-                    <span className="badge badge-ghost badge-sm">
-                      {item.revenue.revenue_group.name}
-                    </span>
-                  </td>
-                  <td>{item.revenue.revenue_group.revenue_type.name}</td>
-                  <td>
-                    {numberWithCommas(item.unit_price)}
-                    <br />
-                    <span className="badge badge-ghost badge-sm">
-                      {item.calculation_unit.name}
-                    </span>
-                  </td>
-                  <td>{item.amount}</td>
-                  <td>{numberWithCommas(item.unit_price * item.amount)}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="text-center" colSpan={5}>
-                  Chưa có định mức thu
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        className="max-h-[450px]"
+        aria-label="Create expected class table"
+        isHeaderSticky
+        isStriped
+      >
+        {/* head */}
+        <TableHeader>
+          <TableColumn>STT</TableColumn>
+          <TableColumn>Khoản thu/Nhóm khoản thu</TableColumn>
+          <TableColumn>Loại khoản thu</TableColumn>
+          <TableColumn>Đơn giá/ Đơn vị tính</TableColumn>
+          <TableColumn>Số lượng</TableColumn>
+          <TableColumn>Tổng tiền</TableColumn>
+        </TableHeader>
+        <TableBody
+          isLoading={revenueNorms.isFetching && revenueNorms.isLoading}
+          loadingContent={<Spinner color="primary" />}
+          emptyContent="Không có kết quả!"
+        >
+          {data?.data.result.map((item, index) => (
+            <TableRow key={item.id}>
+              <TableCell>{++index}</TableCell>
+              <TableCell>
+                {item.revenue.name}
+                <br />
+                <span className="badge badge-ghost badge-sm">
+                  {item.revenue.revenue_group.name}
+                </span>
+              </TableCell>
+              <TableCell>
+                {item.revenue.revenue_group.revenue_type.name}
+              </TableCell>
+              <TableCell>
+                {numberWithCommas(item.unit_price)}
+                <br />
+                <span className="badge badge-ghost badge-sm">
+                  {item.calculation_unit.name}
+                </span>
+              </TableCell>
+              <TableCell>{item.amount}</TableCell>
+              <TableCell>
+                {numberWithCommas(item.unit_price * item.amount)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       {/* </Scrollbars> */}
       {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
         <div className="flex justify-center gap-2">

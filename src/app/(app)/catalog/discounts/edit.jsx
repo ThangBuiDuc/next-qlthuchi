@@ -8,7 +8,6 @@ import { updateDiscount } from "@/utils/funtionApi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 function reducer(state, action) {
   switch (action.type) {
     case "change_code": {
@@ -21,13 +20,13 @@ function reducer(state, action) {
       return {
         ...state,
         description: action.payload.value,
-      }
+      };
     }
     case "change_ratio": {
       return {
         ...state,
         ratio: action.payload.value,
-      }
+      };
     }
     case "reset": {
       return action.payload.value;
@@ -39,20 +38,21 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
 
-
-
-
-  const [discountType,setDiscountType] = useState(
-    data.discount_type ? {
-      value: data.discount_type.id,
-      label: data.discount_type.name
-    } : null
+  const [discountType, setDiscountType] = useState(
+    data.discount_type
+      ? {
+          value: data.discount_type.id,
+          label: data.discount_type.name,
+        }
+      : null
   );
-  const [revenueGroup,setRevenueGroup] = useState(
-    data.revenue_group ? {
-      value: data.revenue_group.id,
-      label: data.revenue_group.name
-    } : null
+  const [revenueGroup, setRevenueGroup] = useState(
+    data.revenue_group
+      ? {
+          value: data.revenue_group.id,
+          label: data.revenue_group.name,
+        }
+      : null
   );
   const [infor, dispatchInfor] = useReducer(reducer, {
     code: data.code,
@@ -61,7 +61,7 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
   });
 
   const mutation = useMutation({
-    mutationFn: ({id, token, changes }) => updateDiscount(id, token, changes),
+    mutationFn: ({ id, token, changes }) => updateDiscount(id, token, changes),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["get_discount"],
@@ -89,26 +89,27 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
     },
   });
 
-  const handleOnSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    let id = data.id;
-    let changes = {
-      code: infor.code,
-      description: infor.description,
-      ratio: infor.ratio / 100,
-      discount_type_id: discountType?.value,
-      revenue_group_id: revenueGroup?.value
-    };
+  const handleOnSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      let id = data.id;
+      let changes = {
+        code: infor.code,
+        description: infor.description,
+        ratio: infor.ratio / 100,
+        discount_type_id: discountType?.value,
+        revenue_group_id: revenueGroup?.value,
+      };
 
-    console.log(id)
+      let token = await getToken({
+        template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+      });
 
-    let token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
-    });
-
-    console.log(token)
-    mutation.mutate({id, token, changes });
-  }, [discountType,revenueGroup,infor.code,infor.description,infor.ratio]);
+      console.log(token);
+      mutation.mutate({ id, token, changes });
+    },
+    [discountType, revenueGroup, infor.code, infor.description, infor.ratio]
+  );
 
   // console.log("data:",data)
 
@@ -137,22 +138,26 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
           >
             <h4 className="self-center">Cập nhật mã giảm giá</h4>
             <div className="grid grid-cols-2 gap-[20px]">
-              <Select
-                placeholder="Loại giảm giá"
-                className="text-black text-sm"
-                classNames={{
-                  control: () => "!rounded-[5px]",
-                  input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                  valueContainer: () => "!p-[0_8px]",
-                  menu: () => "!z-[11]",
-                }}
-                options={discountTypeData.result.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
-                value={discountType}
-                onChange={setDiscountType}
-              />
+              <div className="flex flex-col gap-1">
+                <p className="text-xs">Loại giảm giá:</p>
+                <Select
+                  placeholder="Loại giảm giá"
+                  className="text-black text-sm"
+                  classNames={{
+                    control: () => "!rounded-[5px]",
+                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
+                    valueContainer: () => "!p-[0_8px]",
+                    menu: () => "!z-[11]",
+                  }}
+                  options={discountTypeData.result.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
+                  value={discountType}
+                  onChange={setDiscountType}
+                />
+              </div>
+
               <TextInput
                 label={"Mã giảm giá (Không được trùng lặp)"}
                 value={infor.code}

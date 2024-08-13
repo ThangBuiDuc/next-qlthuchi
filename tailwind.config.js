@@ -2,11 +2,9 @@ const { nextui } = require("@nextui-org/theme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
-    "./node_modules/@nextui-org/theme/dist/components/(tooltip|popover|spinner|pagination|table|checkbox|spacer).js",
+    "./node_modules/@nextui-org/theme/dist/components/(accordion|button|input|modal|pagination|select|spinner|table|popover|divider|ripple|listbox|scroll-shadow|checkbox|spacer).js",
   ],
   theme: {
     extend: {
@@ -17,7 +15,7 @@ module.exports = {
       },
     },
   },
-
+  darkMode: "class",
   // daisyui: {
   //   themes: [
   //     {
