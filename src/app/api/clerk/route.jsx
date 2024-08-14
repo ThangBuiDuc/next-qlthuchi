@@ -8,7 +8,7 @@ export async function POST(req) {
   const user = await currentUser();
   if (user.id) {
     const res = await createClerkUser(userName, email, password);
-
+    // console.log(res.data);
     if (res.status !== 200)
       return NextResponse.json({ result: "Failed!" }, { status: 400 });
     return NextResponse.json({ ...res.data }, { status: 200 });
