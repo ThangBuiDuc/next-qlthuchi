@@ -105,7 +105,7 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
             permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
-                <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+                <TableCell className="whitespace-nowrap">{`${item.first_name} ${item.last_name}`}</TableCell>
                 <TableCell>{item.gender.description}</TableCell>
                 <TableCell>
                   <Moment format="DD/MM/YYYY">{item.date_of_birth}</Moment>
@@ -136,7 +136,7 @@ const Content = ({ provinces, districts, usersData, permission, gender }) => {
             ) : (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
-                <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
+                <TableCell className="whitespace-nowrap">{`${item.first_name} ${item.last_name}`}</TableCell>
                 <TableCell>{item.gender.description}</TableCell>
                 <TableCell>
                   <Moment format="DD/MM/YYYY">{item.date_of_birth}</Moment>

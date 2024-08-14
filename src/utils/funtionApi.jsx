@@ -19,12 +19,13 @@ export const getUsers = async (token) => {
 };
 
 //Lấy permission
-export const getPermission = async (token, path) => {
+export const getPermission = async (token, path, userId) => {
   const res = await axios({
     url: process.env.NEXT_PUBLIC_HASURA_GET_PERMISSION,
     method: "post",
     data: {
       _eq: path,
+      _eq1: userId,
     },
     headers: {
       "content-type": "Application/json",

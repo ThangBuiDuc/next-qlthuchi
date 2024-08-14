@@ -4,13 +4,14 @@ import { auth } from "@clerk/nextjs";
 const page = async () => {
   const pathName = "/system/transfer";
 
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     }),
-    pathName
+    pathName,
+    userId
   );
 
   if (permission.status !== 200)

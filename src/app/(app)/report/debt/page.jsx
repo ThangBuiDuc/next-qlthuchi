@@ -4,13 +4,13 @@ import { auth } from "@clerk/nextjs";
 import { getPermission } from "@/utils/funtionApi";
 const Page = async () => {
   const pathName = "/report/debt";
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   const token = await getToken({
     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
   });
 
-  const permission = await getPermission(token, pathName);
+  const permission = await getPermission(token, pathName, userId);
 
   if (permission.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");

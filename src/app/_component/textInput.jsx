@@ -56,7 +56,19 @@ const TextInput = ({
     <div
       className={` ${className ? className : ""} w-full flex flex-col gap-1 `}
     >
-      <p className="text-xs">{label}:</p>
+      <p className="text-xs">
+        {label}{" "}
+        {isRequire ? (
+          <>
+            {"("}
+            <span className="text-red-600">*</span>
+            {")"}
+          </>
+        ) : (
+          ""
+        )}
+        :
+      </p>
       <input
         disabled={disable}
         autoComplete={autoComplete}

@@ -11,7 +11,7 @@ import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
   const pathName = "/resume/add-update-student";
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   // const client = createApolloClient();
   // const { data } = client.subscribe({
@@ -30,7 +30,7 @@ const Page = async () => {
     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
   });
 
-  const permission = await getPermission(token, pathName);
+  const permission = await getPermission(token, pathName, userId);
 
   // console.log(permission.data);
 

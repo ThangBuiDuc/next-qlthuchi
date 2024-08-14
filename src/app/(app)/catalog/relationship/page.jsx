@@ -4,13 +4,14 @@ import { getPermission, getFamilyRalationship } from "@/utils/funtionApi";
 
 const Page = async () => {
   const pathName = "/catalog/relationship";
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     }),
-    pathName
+    pathName,
+    userId
   );
 
   if (permission.status !== 200)
@@ -34,13 +35,15 @@ const Page = async () => {
     );
   }
 
-  const relationshipData = await getFamilyRalationship()
+  const relationshipData = await getFamilyRalationship();
   if (relationshipData.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-
   return (
-    <Content permission={permission.data.result[0]?.permission.id.toString()} relationshipData={relationshipData.data}/>
+    <Content
+      permission={permission.data.result[0]?.permission.id.toString()}
+      relationshipData={relationshipData.data}
+    />
   );
 };
 

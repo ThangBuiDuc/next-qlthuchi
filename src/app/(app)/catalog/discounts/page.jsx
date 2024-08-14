@@ -9,14 +9,15 @@ import { auth } from "@clerk/nextjs";
 import Content from "./content";
 
 const Page = async () => {
-  const pathName = "/catalog/discounts";
-  const { getToken } = auth();
+  const pathName = "/system/users";
+  const { getToken, userId } = auth();
 
   const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     }),
-    pathName
+    pathName,
+    userId
   );
 
   if (permission.status !== 200)
