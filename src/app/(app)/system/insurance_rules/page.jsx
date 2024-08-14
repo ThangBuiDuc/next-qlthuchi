@@ -8,7 +8,7 @@ import {
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/system/users";
+  const pathName = "/system/insurance_rules";
   const { getToken } = auth();
 
   const permission = await getPermission(
