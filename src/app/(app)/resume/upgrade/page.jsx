@@ -10,7 +10,7 @@ import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
   const pathName = "/resume/upgrade";
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   const token = await getToken({
     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
@@ -19,7 +19,7 @@ const Page = async () => {
   // const permission = await getPermission(token, pathName);
 
   const [permission, apiUpgrade] = await Promise.all([
-    getPermission(token, pathName),
+    getPermission(token, pathName, userId),
     getUpgrade(),
   ]);
 

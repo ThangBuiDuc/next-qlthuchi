@@ -8,14 +8,15 @@ import {
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/system/users";
-  const { getToken } = auth();
+  const pathName = "/system/insurance_rules";
+  const { getToken, userId } = auth();
 
   const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     }),
-    pathName
+    pathName,
+    userId
   );
 
   if (permission.status !== 200)
@@ -40,7 +41,7 @@ const Page = async () => {
   }
 
   const apiGetInsuranceUnitPrice = await getInsuranceUnitPrice();
-  
+
   const apiGetInsuranceRules = await getInsuranceRules();
 
   const apiGetClassLevel = await getClassLevel();
@@ -56,7 +57,7 @@ const Page = async () => {
     <Content
       permission={permission.data.result[0]?.permission.id.toString()}
       rules={apiGetInsuranceRules.data}
-      class_levels = {apiGetClassLevel.data.result}
+      class_levels={apiGetClassLevel.data.result}
       price={apiGetInsuranceUnitPrice.data.result[0].unit_price}
     />
   );

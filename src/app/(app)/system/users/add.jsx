@@ -13,8 +13,8 @@ import { getWards } from "@/utils/funtionApi";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-  import { toast } from "react-toastify";
-  import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // const gender = [
 //   {
@@ -256,7 +256,11 @@ const Add = ({ provinces, districts, gender }) => {
                 isRequire={true}
               />
               <div className={`  w-full flex flex-col gap-1 `}>
-                <p className="text-xs">Giới tính:</p>
+                <p className="text-xs">
+                  Giới tính {"("}
+                  <span className="text-red-600">*</span>
+                  {")"}:
+                </p>
                 <Select
                   placeholder="Giới tính"
                   className="text-black text-sm"
@@ -277,7 +281,7 @@ const Add = ({ provinces, districts, gender }) => {
                 />
               </div>
 
-              <TextInput
+              {/* <TextInput
                 label={"Tên đăng nhập"}
                 value={infor.userName}
                 dispatch={dispatchInfor}
@@ -286,6 +290,14 @@ const Add = ({ provinces, districts, gender }) => {
                 className={"w-[70%]"}
                 isRequire={true}
                 autoComplete={"off"}
+              /> */}
+              <TextInput
+                label={"Email"}
+                value={infor.email}
+                dispatch={dispatchInfor}
+                action={"change_email"}
+                id={"add_email"}
+                isRequire={true}
               />
               <TextInput
                 label={"Mật khẩu"}
@@ -333,14 +345,6 @@ const Add = ({ provinces, districts, gender }) => {
                 isRequire={true}
               />
 
-              <TextInput
-                label={"Email"}
-                value={infor.email}
-                dispatch={dispatchInfor}
-                action={"change_email"}
-                id={"add_email"}
-                isRequire={true}
-              />
               <TextInput
                 label={"Địa chỉ"}
                 value={infor.address}
@@ -424,7 +428,8 @@ const Add = ({ provinces, districts, gender }) => {
             infor.userName &&
             infor.password &&
             infor.email &&
-            infor.phoneNumber ? (
+            infor.phoneNumber &&
+            infor.gender ? (
               <button
                 className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl self-center"
                 onClick={(e) => {

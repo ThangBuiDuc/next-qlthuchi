@@ -4,13 +4,14 @@ import Content from "./content";
 
 const Page = async () => {
   const pathName = "/system/cash-fund";
-  const { getToken } = auth();
+  const { getToken, userId } = auth();
 
   const permission = await getPermission(
     await getToken({
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     }),
-    pathName
+    pathName,
+    userId
   );
 
   if (permission.status !== 200)
