@@ -9,6 +9,7 @@ import { Spinner } from "@nextui-org/spinner";
 import { upgradeAPI } from "@/utils/funtionApi";
 // import moment from "moment";
 import { toast } from "react-toastify";
+import { useSubscription, gql } from "@apollo/client";
 // import LeftPanel from "./leftPanel";
 // import RightPanel from "./rightPanel";
 
@@ -16,6 +17,20 @@ const School = () => {
   const { listSearchSchoolYear, permission, upgrade } = useContext(listContext);
   const [selected, setSelected] = useState();
   const [mutating, setMutating] = useState(false);
+
+  const { data: year_upgrade, loading } = useSubscription(gql`
+    subscription year_upgrade {
+      result: year_upgrade(
+        where: { school_year: { is_active: { _eq: true } } }
+      ) {
+        id
+        is_upgrade
+        school_year_id
+      }
+    }
+  `);
+
+  console.log(year_upgrade);
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -70,7 +85,7 @@ const School = () => {
       {selected &&
         (mutating ? (
           <Spinner />
-        ) : (
+        ) : permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
           <div className="flex justify-center">
             <button
               className="btn"
@@ -82,6 +97,8 @@ const School = () => {
               Tiến hành lên lớp
             </button>
           </div>
+        ) : (
+          <></>
         ))}
       {/* {selected && (
         <div className="flex w-full divide-x divide-black h-full">

@@ -180,7 +180,7 @@ export async function PUT(req) {
           "start_at",
           "unit_price",
           "amount",
-          "caculation_unit_id",
+          "calculation_unit_id",
         ],
       },
       headers: {
