@@ -18,7 +18,7 @@ const isDateInRange = (date, startMonth, startDay, endMonth, endDay) => {
 const calculatorPrescribedMoney = (el, student, batch, end_date) => {
   let prescribed_money = el.unit_price * el.amount;
 
-  if (el.revenue_code === "HP" && student.status_id == 8) {
+  if (el.revenue_code === "HP" && student.status_id === 8) {
     if (batch == 1 && isDateInRange(student.join_date, 10, 15, 12, 31)) {
       return 0.7 * prescribed_money;
     }
@@ -175,7 +175,13 @@ export async function PUT(req) {
       method: "PUT",
       data: {
         objects: objects,
-        update_columns: ["prescribed_money", "start_at"],
+        update_columns: [
+          "prescribed_money",
+          "start_at",
+          "unit_price",
+          "amount",
+          "caculation_unit_id",
+        ],
       },
       headers: {
         "content-type": "Application/json",
