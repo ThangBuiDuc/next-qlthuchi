@@ -133,9 +133,15 @@ const EditModal = ({ isOpen, onClose, ruleToEdit, class_levels }) => {
     mutation.mutate({ token, id: ruleToEdit?.id, objects : updatedData });
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-1/4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={handleOverlayClick}>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/4" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-xl font-semibold mb-4">Chỉnh sửa luật BHYT</h2>
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1">

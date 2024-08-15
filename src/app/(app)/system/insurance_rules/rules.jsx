@@ -27,6 +27,8 @@ import Select from "react-select";
 import DeleteModal from "./delete";
 import ReActivateModal from "./reActive";
 import EditModal from "./edit";
+import AddModal from "./addModel";
+import { IoAddCircleOutline } from "react-icons/io5";
 
 const DateInput = ({ day, setDay, month, setMonth }) => {
   const handleDayChange = (e) => {
@@ -103,59 +105,62 @@ const Rules = ({ rules, class_levels, permission }) => {
 
   // console.log(items);
 
-  const [allowAdd, setAllowAdd] = useState(false);
+  // const [allowAdd, setAllowAdd] = useState(false);
 
   // Dữ liệu thêm
-  const [classLevel, setClassLevel] = useState();
-  const [startDay, setStartDay] = useState("");
-  const [startMonth, setStartMonth] = useState("");
-  const [endDay, setEndDay] = useState("");
-  const [endMonth, setEndMonth] = useState("");
-  const [months, setMonths] = useState("");
+  // const [classLevel, setClassLevel] = useState();
+  // const [startDay, setStartDay] = useState("");
+  // const [startMonth, setStartMonth] = useState("");
+  // const [endDay, setEndDay] = useState("");
+  // const [endMonth, setEndMonth] = useState("");
+  // const [months, setMonths] = useState("");
 
-  const mutation = useMutation({
-    mutationFn: ({ token, objects }) => createInsuaranceRule(token, objects),
-    onSuccess: () => {
-      setMutating(false);
-      queryClient.invalidateQueries(["get_rules"]);
-      setAllowAdd(false);
-      toast.success("Tạo luật BHYT thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
+  // const mutation = useMutation({
+  //   mutationFn: ({ token, objects }) => createInsuaranceRule(token, objects),
+  //   onSuccess: () => {
+  //     setMutating(false);
+  //     queryClient.invalidateQueries(["get_rules"]);
+  //     setAllowAdd(false);
+  //     toast.success("Tạo luật BHYT thành công!", {
+  //       position: "top-center",
+  //       autoClose: 2000,
+  //       hideProgressBar: false,
+  //       closeOnClick: true,
+  //       theme: "light",
+  //     });
+  //   },
 
-    onError: () => {
-      setMutating(false);
-      toast.error("Tạo luật BHYT không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
-    },
-  });
+  //   onError: () => {
+  //     setMutating(false);
+  //     toast.error("Tạo luật BHYT không thành công!", {
+  //       position: "top-center",
+  //       autoClose: 2000,
+  //       hideProgressBar: false,
+  //       closeOnClick: true,
+  //       theme: "light",
+  //     });
+  //   },
+  // });
 
-  const handleInsert = async () => {
-    let objects = {
-      class_level: classLevel.value,
-      start_day: startDay,
-      end_day: endDay,
-      start_month: startMonth,
-      end_month: endMonth,
-      months: months,
-    };
-    console.log(objects);
-    setMutating(true);
-    const token = await getToken({
-      template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
-    });
-    mutation.mutate({ token, objects: objects });
-  };
+  // const handleInsert = async () => {
+  //   let objects = {
+  //     class_level: classLevel.value,
+  //     start_day: startDay,
+  //     end_day: endDay,
+  //     start_month: startMonth,
+  //     end_month: endMonth,
+  //     months: months,
+  //   };
+  //   console.log(objects);
+  //   setMutating(true);
+  //   const token = await getToken({
+  //     template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+  //   });
+  //   mutation.mutate({ token, objects: objects });
+  // };
+
+  // Thêm mới
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Vô hiệu hoá
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -168,12 +173,6 @@ const Rules = ({ rules, class_levels, permission }) => {
   //Sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [ruleToEdit, setRuleToEdit] = useState(null);
-  const addRowRef = useRef(null); // Reference for the added row
-  useEffect(() => {
-    if (allowAdd && addRowRef.current) {
-      addRowRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [allowAdd]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -186,23 +185,18 @@ const Rules = ({ rules, class_levels, permission }) => {
         </label>
         {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (
           <>
-            {allowAdd ? (
-              <Button
-                color="default"
-                size="sm"
-                onClick={() => setAllowAdd(false)}
-              >
-                Huỷ
-              </Button>
-            ) : (
-              <Button
-                color="primary"
-                size="sm"
-                onClick={() => setAllowAdd(true)}
-              >
-                Thêm mới
-              </Button>
-            )}
+            <label
+              htmlFor={`modal_add`}
+              className="btn w-fit items-center bg-white text-black border-bordercl hover:bg-[#134a9abf] hover:text-white hover:border-bordercl"
+            >
+              <IoAddCircleOutline size={20} />
+              Thêm mới
+            </label>
+            <AddModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              class_levels={class_levels}
+            />
           </>
         )}
       </div>
@@ -240,87 +234,6 @@ const Rules = ({ rules, class_levels, permission }) => {
           loadingContent={<Spinner />}
           isLoading={ruleData.isLoading}
         >
-          {allowAdd && (
-            <TableRow ref={addRowRef}>
-              <TableCell>
-                {/* <Select
-                  isRequired
-                  label="Chọn khối"
-                  placeholder="Chọn khối"
-                  className="max-w-xs"
-                  variant="bordered"
-                >
-                  {class_levels.map((item) => (
-                    <SelectItem key={item.code}>{item.name}</SelectItem>
-                  ))}
-                </Select> */}
-                <Select
-                  placeholder="Chọn khối"
-                  className="text-black text-sm"
-                  classNames={{
-                    control: () => "!rounded-[5px]",
-                    input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
-                    valueContainer: () => "!p-[0_8px]",
-                    menu: () => "!z-[11]",
-                  }}
-                  options={
-                    class_levels
-                      ? class_levels.map((item) => ({
-                          value: item.code,
-                          label: item.name,
-                        }))
-                      : null
-                  }
-                  value={classLevel}
-                  onChange={setClassLevel}
-                />
-              </TableCell>
-              <TableCell>
-                <DateInput
-                  day={startDay}
-                  setDay={setStartDay}
-                  month={startMonth}
-                  setMonth={setStartMonth}
-                />
-              </TableCell>
-              <TableCell>
-                <DateInput
-                  day={endDay}
-                  setDay={setEndDay}
-                  month={endMonth}
-                  setMonth={setEndMonth}
-                />
-              </TableCell>
-              <TableCell>
-                <input
-                  type="number"
-                  value={months}
-                  onChange={(e) => setMonths(e.target.value)}
-                  className="block w-20 rounded-md py-1.5 px-2 ring-1 ring-inset ring-gray-400 focus:text-gray-800"
-                  placeholder="Số tháng"
-                />
-              </TableCell>
-              <TableCell></TableCell>
-              <TableCell>
-                {classLevel?.value &&
-                startDay &&
-                endDay &&
-                startMonth &&
-                endMonth &&
-                months ? (
-                  <Button size="sm" onClick={() => handleInsert()}>
-                    {mutating ? (
-                      <span className="loading loading-spinner loading-sm bg-primary"></span>
-                    ) : (
-                      "Lưu"
-                    )}
-                  </Button>
-                ) : (
-                  <></>
-                )}
-              </TableCell>
-            </TableRow>
-          )}
           {items.map((el) => (
             <TableRow key={el.id}>
               <TableCell>Khổi {el.class_level}</TableCell>
