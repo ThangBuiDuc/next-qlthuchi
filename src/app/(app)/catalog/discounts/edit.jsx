@@ -102,10 +102,10 @@ const Edit = ({ data, revenueGroupData, discountTypeData }) => {
       };
 
       let token = await getToken({
-        template: process.env.NEXT_PUBLIC_TEMPLATE_ADMIN,
+        template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
       });
 
-      console.log(token);
+      // console.log(token);
       mutation.mutate({ id, token, changes });
     },
     [discountType, revenueGroup, infor.code, infor.description, infor.ratio]
