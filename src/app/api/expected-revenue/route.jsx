@@ -82,7 +82,13 @@ export async function PUT(req) {
         method: "PUT",
         data: {
           objects: objects.reduce((total, curr) => [...total, ...curr], []),
-          update_columns: ["prescribed_money", "start_at"],
+          update_columns: [
+            "prescribed_money",
+            "unit_price",
+            "amount",
+            "calculation_unit_id",
+            "start_at",
+          ],
         },
         headers: {
           "content-type": "Application/json",

@@ -1,13 +1,27 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
-import { handleTransfer } from "@/utils/funtionApi";
+import { handleTransfer, updateCountReminder } from "@/utils/funtionApi";
 import moment from "moment";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useSubscription, gql } from "@apollo/client";
+import { Spinner } from "@nextui-org/spinner";
 
 const Content = ({ transfer, permission }) => {
+  const { getToken, userId } = useAuth();
   const { result } = transfer;
+  const { data: countReminder, loading } = useSubscription(gql`
+    subscription count_reminder {
+      result: count_reminder(where: { batch: { is_active: { _eq: true } } }) {
+        batch_id
+        content
+        id
+      }
+    }
+  `);
 
+  // console.log(countReminder);
   const [mutating, setMutating] = useState(false);
 
   const mutation = useMutation({
@@ -17,7 +31,22 @@ const Content = ({ transfer, permission }) => {
         id: result[0].id,
         previous_batch_id: result[0].previous_batch_id,
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await updateCountReminder(
+        countReminder.result[0].batch_id,
+        {
+          batch_id: countReminder.result[0].batch_id,
+          content: {
+            ...countReminder.result[0].content,
+            transfer: {
+              time: moment().format(),
+              action_by: userId,
+              is_transfer: true,
+            },
+          },
+        },
+        await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_USER })
+      );
       setMutating(false);
       toast.success("Kết chuyển công nợ thành công!", {
         position: "top-center",
@@ -67,7 +96,14 @@ const Content = ({ transfer, permission }) => {
           </h6>
         </div>
       </div>
-      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+      {loading ? (
+        <Spinner color="primary" />
+      ) : countReminder?.result[0].content.transfer.is_transfer ? (
+        <h6 className="text-center">
+          Không thể thực hiện kết chuyển công nợ vì đã kết chuyển công nợ trước
+          đó!
+        </h6>
+      ) : permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
         mutating ? (
           <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
         ) : (

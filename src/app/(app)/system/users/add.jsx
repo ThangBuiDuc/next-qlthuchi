@@ -425,7 +425,6 @@ const Add = ({ provinces, districts, gender }) => {
             </div>
             {infor.firtsName &&
             infor.lastName &&
-            infor.userName &&
             infor.password &&
             infor.email &&
             infor.phoneNumber &&

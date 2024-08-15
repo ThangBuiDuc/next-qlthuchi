@@ -30,7 +30,7 @@ export async function POST(req) {
 	,"batch_id"
 	,"next_batch_money"
 	,"revenue_group_id"
-FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next_batch_money < 0 AND revenue_group_id != 12;`);
+FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next_batch_money <> 0 AND revenue_group_id != 12;`);
     const updates = sql_debt.rows.map((item) => ({
       _set: {
         next_batch_money: 0,
@@ -67,7 +67,7 @@ FROM "public"."expected_revenues" WHERE batch_id = ${previous_batch_id} AND next
       update_columns
     );
 
-    console.log(res);
+    // console.log(res);
     if (res.status === 200)
       return NextResponse.json({ result: "Succes!" }, { status: 201 });
     else return NextResponse.json({ result: "Failed!" }, { status: 400 });

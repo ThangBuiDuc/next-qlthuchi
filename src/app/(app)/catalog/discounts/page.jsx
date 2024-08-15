@@ -9,7 +9,7 @@ import { auth } from "@clerk/nextjs";
 import Content from "./content";
 
 const Page = async () => {
-  const pathName = "/system/users";
+  const pathName = "/catalog/discounts";
   const { getToken, userId } = auth();
 
   const permission = await getPermission(
