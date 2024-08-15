@@ -1598,3 +1598,18 @@ export const updateCountReminder = async (batch_id, objects, token) => {
 
   return res;
 };
+
+//Cập nhật thông tin bộ đếm lên lớp trong năm
+export const updateYearUpgrade = async (_set, where, token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_YEAR_UPGRADE,
+    method: "put",
+    data: { _set, where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
