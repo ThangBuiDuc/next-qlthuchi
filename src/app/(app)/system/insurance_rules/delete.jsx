@@ -50,10 +50,15 @@ const DeleteModal = ({ isOpen, onClose, ruleToDelete }) => {
     });
     mutation.mutate({ token, id: ruleToDelete?.id });
   };
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={handleOverlayClick}>
+      <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-xl font-semibold mb-4">Xác nhận vô hiệu hoá</h2>
         <p className="mb-4">Bạn có chắc chắn muốn vô hiệu hoá luật này không?</p>
         <div className="flex justify-end gap-4">
