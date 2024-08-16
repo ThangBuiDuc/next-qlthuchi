@@ -53,7 +53,7 @@ export async function PUT(req) {
 
     for (const level of class_level) {
       const sql_student = await client.query(
-        `SELECT code, date_of_birth::date as dob FROM v_student WHERE status_id = 1 AND class_level_code = $1;`,
+        `SELECT code, date_of_birth::date as dob FROM v_student WHERE status_id IN (1,8) AND class_level_code = $1;`,
         [level]
       );
 

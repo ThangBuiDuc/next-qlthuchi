@@ -18,7 +18,10 @@ const isDateInRange = (date, startMonth, startDay, endMonth, endDay) => {
 const calculatorPrescribedMoney = (el, student, batch, end_date) => {
   let prescribed_money = el.unit_price * el.amount;
 
-  if (el.revenue_code === "HP" && student.status_id === 8) {
+  if (
+    (el.revenue_code === "HP" || el.revenue_code === "BT") &&
+    student.status_id == 8
+  ) {
     if (batch == 1 && isDateInRange(student.join_date, 10, 15, 12, 31)) {
       return 0.7 * prescribed_money;
     }
