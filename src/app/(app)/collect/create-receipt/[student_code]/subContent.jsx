@@ -66,7 +66,7 @@ const Skeleton = () => {
   );
 };
 
-const Modal = ({ data, modalRef }) => {
+const Modal = ({ data, modalRef, setTotalValue }) => {
   const ref = useRef();
   const { selectPresent, preReceipt, student, config, receipt } =
     useContext(listContext);
@@ -100,6 +100,7 @@ const Modal = ({ data, modalRef }) => {
     onSuccess: () => {
       setMutating(false);
       modalRef.current.close();
+      setTotalValue(null);
       toast.success("Lập biên lai thu thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -1056,6 +1057,7 @@ const SubContent = ({ student, selectPresent }) => {
                   </form>
                   <Modal
                     modalRef={ref}
+                    setTotalValue = {setTotalValue}
                     data={data
                       ?.filter(
                         (item) =>

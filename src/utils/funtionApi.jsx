@@ -1570,3 +1570,76 @@ export const updateInsuranceRule = async (token, id, objects) => {
     },
   });
 };
+
+//Lấy thông tin đơn vị
+export const getSchool = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_SHOOL,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy loại khoản thu chi
+export const getRevenueTypes = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE_TYPES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy khoản thu chi
+export const getRevenue = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_REVENUE,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh mục cấp
+export const getSchoolLevel = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_SCHOOL_LEVEL,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Lấy danh mục lớp
+export const getClasses = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_CLASSES,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+  return res;
+};
+
+//Thêm lớp
+export const createClass = async (token, objects) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_CREATE_CLASS,
+    method: "post",
+    data: { objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+};

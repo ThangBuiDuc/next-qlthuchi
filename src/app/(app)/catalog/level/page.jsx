@@ -1,6 +1,12 @@
+import {
+  getClassLevel,
+  getSchoolLevel,
+  getClasses,
+  getPermission,
+} from "@/utils/funtionApi";
 import Content from "./content";
-import { getRevenue, getPermission } from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
+
 
 const Page = async () => {
   const pathName = "/catalog/provinces";
@@ -35,12 +41,25 @@ const Page = async () => {
     );
   }
 
-  const apiRevenue = await getRevenue();
+  const apiClassLevel = await getClassLevel();
+  const apiShoolLevel = await getSchoolLevel();
+  const apiClasses = await getClasses();
 
-  if (apiRevenue.status !== 200)
+  if (
+    apiClassLevel.status !== 200 ||
+    apiShoolLevel.status !== 200 ||
+    apiClasses.status !== 200
+  )
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  return <Content data={apiRevenue.data} />;
+  return (
+    <Content
+      classlevel={apiClassLevel.data}
+      schoolLevel={apiShoolLevel.data}
+      classes={apiClasses.data}
+      permission={permission.data.result[0]?.permission.id.toString()}
+    />
+  );
 };
 
 export default Page;
