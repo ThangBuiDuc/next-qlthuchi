@@ -18,7 +18,7 @@ export default function Content({
   classes,
   permission,
 }) {
-  console.log(classlevel, schoolLevel, classes);
+  // console.log(classlevel, schoolLevel, classes);
   const [selectedOption, setSelectedOption] = useState(null);
   const [grade, setGrade] = useState();
 

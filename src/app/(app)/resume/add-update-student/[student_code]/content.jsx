@@ -111,7 +111,7 @@ const Parent = ({ student_code, studentRaw, catalogStudent }) => {
                 type={"text"}
                 id={`query`}
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-                placeholder="Họ đệm"
+                placeholder="Tên"
                 value={parent.last_name}
                 onChange={(e) => {
                   setParent((pre) => ({ ...pre, last_name: e.target.value }));

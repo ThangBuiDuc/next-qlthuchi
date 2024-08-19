@@ -33,7 +33,7 @@ const Search = ({
       meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
   });
 
-  console.log(data);
+  // console.log(data);
 
   const [page, setPage] = useState(1);
   const rowsPerPage = Number(config.result[0].config.page.value);

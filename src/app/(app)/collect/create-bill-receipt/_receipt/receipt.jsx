@@ -30,7 +30,7 @@ function createCode(lastCount) {
 }
 
 const Receipt = ({ selected }) => {
-  const { preBill, listSearch } = useContext(listContext);
+  const { preBill, listSearch, bill } = useContext(listContext);
   const [billReceipt, setBillReceipt] = useState({
     payer: "",
     location: "",
@@ -289,14 +289,14 @@ const Receipt = ({ selected }) => {
   //       )
   //   );
   // };
-
+  // console.log(preBill.count_bill[0].bill_receipt);
   return (
     <>
       <div className="grid grid-cols-2 items-center gap-2">
         <p className="col-span-2">
           Phiếu thu số:{" "}
           <span className="font-semibold">{`PT${createCode(
-            preBill.count_bill[0].bill_receipt
+            bill.count_bill[0].bill_receipt
           )}`}</span>
         </p>
         <div className="flex gap-2 items-center">
