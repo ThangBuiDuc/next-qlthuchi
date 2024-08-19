@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Select from "react-select";
 import {
   Table,
@@ -11,6 +13,7 @@ import {
 } from "@nextui-org/table";
 import { Pagination } from "@nextui-org/pagination";
 import AddClass from "./addClass";
+import { getClasses } from "@/utils/funtionApi";
 
 export default function Content({
   classlevel,
@@ -18,6 +21,7 @@ export default function Content({
   classes,
   permission,
 }) {
+  const queryClient = useQueryClient();
   // console.log(classlevel, schoolLevel, classes);
   const [selectedOption, setSelectedOption] = useState(null);
   const [grade, setGrade] = useState();
@@ -32,6 +36,11 @@ export default function Content({
     setSelectedOption(selected.value);
     setGrade(null);
   };
+  const classesData = useQuery({
+    queryKey: ["get_classes"],
+    queryFn: async () => await getClasses(),
+    initialData: () => ({ data: classes }),
+  });
   //   const [page, setPage] = useState(1);
   //   const rowsPerPage = 10;
 
@@ -153,8 +162,8 @@ export default function Content({
                   <TableColumn>Tên</TableColumn>
                 </TableHeader>
                 <TableBody emptyContent={"Không tìm thấy kết quả"}>
-                  {classes.result
-                    .filter((item) => item.class_level_code === grade.value)
+                  {classesData?.data?.data?.result
+                    ?.filter((item) => item.class_level_code === grade.value)
                     .map((item, index) => (
                       <TableRow key={index}>
                         <TableCell>{index + 1}</TableCell>

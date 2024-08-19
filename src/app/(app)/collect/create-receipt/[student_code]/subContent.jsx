@@ -79,7 +79,7 @@ const Modal = ({ data, modalRef, setTotalValue }) => {
     value: preReceipt.formality[1].id,
   });
 
-  console.log(receipt);
+  // console.log(receipt);
   // const middleIndex = Math.round(data.length / 2);
   // const firstPart = data.slice(0, middleIndex);
   // const secondPart = data.slice(middleIndex);
@@ -512,9 +512,32 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
     queryKey: ["get_history_receipt", where],
   });
 
-  // console.log(data)
+  console.log(data)
   // console.log(priority)
   // console.log("revenue_type",revenue_type)
+  // Huỷ tích tiền về 0
+  useEffect(() => {
+    if (!data.isChecked) {
+      setData((pre) =>
+        pre.map((el) =>
+          el.id === group_id
+            ? {
+                ...el,
+                expected_revenues: el.expected_revenues.map((item) =>
+                  item.id === data.id
+                    ? {
+                        ...item,
+                        nowMoney: 0,
+                      }
+                    : item
+                ),
+              }
+            : el
+        )
+      );
+    }
+  }, [data.isChecked]); 
+  
 
   const amount_collected_ref = useRef();
   return (
@@ -873,7 +896,7 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
-  console.log(data);
+  // console.log(data);
 
   return (
     <div className="flex flex-col gap-4">

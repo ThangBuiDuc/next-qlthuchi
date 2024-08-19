@@ -62,7 +62,7 @@ export default function AddClass({ classlevel, classes }) {
       setGrade();
       setCode();
       setName();
-      //   queryClient.invalidateQueries(["get_rules"]);
+        queryClient.invalidateQueries(["get_classes"]);
       toast.success("Thêm mới lớp học thành công!", {
         position: "top-center",
         autoClose: 2000,
