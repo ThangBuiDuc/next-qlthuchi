@@ -32,7 +32,9 @@ import {
   WidthType,
   BorderStyle,
   VerticalAlign,
+  HeightRule,
 } from "docx";
+import { getText } from "number-to-text-vietnamese";
 
 // const times = localFont({ src: "../../../../times.ttf" });
 
@@ -93,6 +95,7 @@ const handleExportDoc = (data, present, school_year, config) => {
             line: 1.5 * 240,
           },
         }),
+
         new TableDoc({
           rows: [
             new TableRowDoc({
@@ -206,12 +209,24 @@ const handleExportDoc = (data, present, school_year, config) => {
             type: WidthType.PERCENTAGE,
           },
         }),
+
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "",
+            }),
+          ],
+        }),
         new TableDoc({
           rows: [
             new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
               children: [
                 new TableCellDoc({
-                  // verticalAlign: AlignmentType.CENTER,
+                  verticalAlign: AlignmentType.CENTER,
                   // margins: {
                   //   left: 50,
                   //   right: 50,
@@ -222,6 +237,7 @@ const handleExportDoc = (data, present, school_year, config) => {
                   },
                   children: [
                     new Paragraph({
+                      alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
                           text: `TT`,
@@ -234,7 +250,7 @@ const handleExportDoc = (data, present, school_year, config) => {
                   ],
                 }),
                 new TableCellDoc({
-                  // verticalAlign: AlignmentType.CENTER,
+                  verticalAlign: AlignmentType.CENTER,
                   // margins: {
                   //   left: 50,
                   //   right: 50,
@@ -245,6 +261,7 @@ const handleExportDoc = (data, present, school_year, config) => {
                   },
                   children: [
                     new Paragraph({
+                      alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
                           text: `Nội dung`,
@@ -257,7 +274,7 @@ const handleExportDoc = (data, present, school_year, config) => {
                   ],
                 }),
                 new TableCellDoc({
-                  // verticalAlign: AlignmentType.CENTER,
+                  verticalAlign: AlignmentType.CENTER,
                   // margins: {
                   //   left: 50,
                   //   right: 50,
@@ -268,9 +285,770 @@ const handleExportDoc = (data, present, school_year, config) => {
                   },
                   children: [
                     new Paragraph({
+                      alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
                           text: `Số tiền (đồng)`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `1`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Công nợ đầu kỳ`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) =>
+                                total + curr.previous_batch_money,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `2`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Ưu đãi, miễn giảm`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) => total + curr.discount,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `3`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Số phải nộp kỳ này`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) =>
+                                total + curr.actual_amount_collected,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `4`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Số đã điều chỉnh`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) => total + curr.amount_edited,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `5`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Số đã hoàn trả`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) => total + curr.amount_spend,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `6`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Số đã nộp trong kỳ`,
+                          //bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) => total + curr.amount_collected,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  rowSpan: 2,
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 10,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `7`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Công nợ còn phải nộp`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: AlignmentType.CENTER,
+                  // margins: {
+                  //   left: 50,
+                  //   right: 50,
+                  // },
+                  width: {
+                    size: 30,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${numberWithCommas(
+                            item.sub.reduce(
+                              (total, curr) => total + curr.next_batch_money,
+                              0
+                            ),
+                            config
+                          )}`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRowDoc({
+              height: {
+                value: 350,
+                rule: HeightRule.EXACT,
+              },
+              children: [
+                new TableCellDoc({
+                  columnSpan: 2,
+                  verticalAlign: AlignmentType.CENTER,
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  width: {
+                    size: 60,
+                    type: WidthType.PERCENTAGE,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.START,
+                      children: [
+                        new TextRun({
+                          text: `Bằng chữ: ${
+                            getText(
+                              item.sub.reduce(
+                                (total, curr) => total + curr.next_batch_money,
+                                0
+                              )
+                            )
+                              .charAt(0)
+                              .toUpperCase() +
+                            getText(
+                              item.sub.reduce(
+                                (total, curr) => total + curr.next_batch_money,
+                                0
+                              )
+                            ).slice(1)
+                          } đồng`,
+                          italics: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+          width: {
+            size: 100,
+            type: WidthType.PERCENTAGE,
+          },
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "",
+            }),
+          ],
+        }),
+        new TableDoc({
+          rows: [
+            new TableRowDoc({
+              children: [
+                new TableCellDoc({
+                  verticalAlign: VerticalAlign.CENTER,
+                  width: {
+                    type: WidthType.PERCENTAGE,
+                    size: 50,
+                  },
+                  borders: {
+                    bottom: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    top: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    left: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    right: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `Kế toán`,
+                          bold: true,
+                          font: "Times New Roman",
+                          size: 24,
+                        }),
+                      ],
+                      spacing: {
+                        before: 40,
+                        after: 40,
+                      },
+                    }),
+                  ],
+                }),
+                new TableCellDoc({
+                  verticalAlign: VerticalAlign.CENTER,
+                  width: {
+                    type: WidthType.PERCENTAGE,
+                    size: 50,
+                  },
+                  borders: {
+                    bottom: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    top: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    left: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                    right: {
+                      size: 0,
+                      color: "ffffff",
+                    },
+                  },
+                  margins: {
+                    left: 50,
+                    right: 50,
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      spacing: {
+                        before: 40,
+                        after: 40,
+                      },
+                      children: [
+                        new TextRun({
+                          text: `Hình thức đóng tiền: `,
                           bold: true,
                           font: "Times New Roman",
                           size: 24,

@@ -2,10 +2,11 @@
 import {
   meilisearchGetToken,
   meilisearchStudentsGet,
+  updateStatusStudent,
 } from "@/utils/funtionApi";
 // import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import {
   Table,
@@ -17,7 +18,11 @@ import {
 } from "@nextui-org/table";
 import { Pagination } from "@nextui-org/pagination";
 import { Spinner } from "@nextui-org/spinner";
+import { useAuth } from "@clerk/nextjs";
+import moment from "moment";
 // import Select from "react-select";
+import { TbReload } from "react-icons/tb";
+import { toast } from "react-toastify";
 
 const TableView = ({
   listStudent,
@@ -25,6 +30,8 @@ const TableView = ({
   config,
   selectedKeys,
   setSelectedKeys,
+  selected,
+  queryClient,
 }) => {
   const [page, setPage] = useState(1);
   const rowsPerPage = Number(config?.result[0].config.page.value);
@@ -76,6 +83,19 @@ const TableView = ({
         <TableColumn>Họ và tên</TableColumn>
         <TableColumn>Ngày sinh</TableColumn>
         <TableColumn>Trạng thái</TableColumn>
+        <TableColumn>
+          <div
+            className="tooltip  flex cursor-pointer  w-fit h-full items-end tooltip-left"
+            data-tip="Tải lại danh sách tìm kiếm"
+            onClick={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["status-change", selected],
+              })
+            }
+          >
+            <TbReload size={30} />
+          </div>
+        </TableColumn>
       </TableHeader>
       <TableBody
         emptyContent="Không tìm thấy kết quả tìm kiếm!"
@@ -84,9 +104,9 @@ const TableView = ({
       >
         {items?.map((item, index) => {
           return (
-            <TableRow key={item.student_code}>
+            <TableRow key={item.code}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{item.student_code}</TableCell>
+              <TableCell>{item.code}</TableCell>
               <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
               <TableCell>
                 {item.date_of_birth.split("-").reverse().join("-")}
@@ -100,6 +120,7 @@ const TableView = ({
               >
                 {item.status_name}
               </TableCell>
+              <TableCell></TableCell>
             </TableRow>
           );
         })}
@@ -110,10 +131,12 @@ const TableView = ({
 
 const Content = ({ listSearch, present, config, catalogStudent }) => {
   // console.log(config);
+  const queryClient = useQueryClient();
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
     []
   );
+  const { getToken } = useAuth();
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [selected, setSelected] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState();
@@ -124,6 +147,7 @@ const Content = ({ listSearch, present, config, catalogStudent }) => {
     data: listStudent,
     isLoading,
     isFetching,
+    isRefetching,
   } = useQuery({
     queryFn: async () =>
       meilisearchStudentsGet(
@@ -138,7 +162,46 @@ const Content = ({ listSearch, present, config, catalogStudent }) => {
     setSelectedKeys(new Set([]));
   }, [selected]);
 
-  useCallback(() => {}, [selectedKeys]);
+  const mutation = useMutation({
+    mutationFn: async () =>
+      updateStatusStudent(
+        await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_USER }),
+        listStudent
+          ?.filter((item) => selectedKeys.has(item.code))
+          .map((item) => ({
+            _set: {
+              status_id: selectedStatus.value,
+              updated_at: moment().format(),
+            },
+            where: {
+              code: { _eq: item.code },
+            },
+          }))
+      ),
+
+    onSuccess: () => {
+      setMutating(false);
+      setSelectedKeys(new Set([]));
+      queryClient.invalidateQueries(["status-change", selected]);
+      toast.success("Cập nhật trạng thái học sinh thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+    onError: () => {
+      setMutating(false);
+      toast.error("Cập nhật trạng thái học sinh không thành công!", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
 
   // console.log(listStudent);
 
@@ -183,10 +246,12 @@ const Content = ({ listSearch, present, config, catalogStudent }) => {
 
       <TableView
         listStudent={listStudent}
-        isLoading={isFetching && isLoading}
+        isLoading={(isFetching && isLoading) || isRefetching}
         config={config}
         selectedKeys={selectedKeys}
         setSelectedKeys={setSelectedKeys}
+        selected={selected}
+        queryClient={queryClient}
       />
 
       <div className="flex justify-center gap-2 items-center">
@@ -207,12 +272,20 @@ const Content = ({ listSearch, present, config, catalogStudent }) => {
           value={selectedStatus}
           onChange={setSelectedStatus}
         />
-        <button
-          disabled={selectedKeys.size === 0 || !selectedStatus}
-          className="btn w-fit"
-        >
-          Cập nhật
-        </button>
+        {mutating ? (
+          <Spinner color="primary" />
+        ) : (
+          <button
+            onClick={() => {
+              setMutating(true);
+              mutation.mutate();
+            }}
+            disabled={selectedKeys.size === 0 || !selectedStatus}
+            className="btn w-fit"
+          >
+            Cập nhật
+          </button>
+        )}
       </div>
     </div>
   );
