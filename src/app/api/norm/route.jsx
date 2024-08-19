@@ -19,8 +19,6 @@ export async function PUT(req) {
     password: process.env.DB_PASS,
   });
 
-  
-
   const isDateInRange = (date, startMonth, startDay, endMonth, endDay) => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -53,7 +51,7 @@ export async function PUT(req) {
 
     for (const level of class_level) {
       const sql_student = await client.query(
-        `SELECT code, date_of_birth::date as dob FROM v_student WHERE status_id IN (1,8) AND class_level_code = $1;`,
+        `SELECT code, date_of_birth::date as dob FROM v_student WHERE status_id IN (1,8) AND class_level_code = $1 AND year_active IS TRUE;`,
         [level]
       );
 

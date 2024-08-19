@@ -77,8 +77,11 @@ const Parent = ({ student_code, studentRaw, catalogStudent }) => {
   };
 
   return (
-    <dialog id="modal_add_parent" className="modal">
-      <div className="modal-box">
+    <dialog id={`modal_add_parent`} className="modal !z-[20]">
+      <div
+        style={{ overflowY: "unset" }}
+        className="modal-box w-11/12 max-w-5xl bg-white "
+      >
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
