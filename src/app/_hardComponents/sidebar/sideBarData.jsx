@@ -57,6 +57,22 @@ export const sideBarData = [
       //   path: "/catalog/voucher",
       // },
       {
+        title: "Thông tin đơn vị",
+        path: "/catalog/school-infor",
+      },
+      {
+        title: "Loại khoản thu/chi",
+        path: "/catalog/revenue-types",
+      },
+      {
+        title: "Khoản thu/chi",
+        path: "/catalog/revenue",
+      },
+      {
+        title: "Cấp, khối, lớp",
+        path: "/catalog/level",
+      },
+      {
         title: "Giảm giá",
         path: "/catalog/discounts",
       },

@@ -1,5 +1,8 @@
 import Content from "./content";
-import { getRevenue, getPermission } from "@/utils/funtionApi";
+import {
+  getRevenueTypes,
+  getPermission,
+} from "@/utils/funtionApi";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
@@ -35,12 +38,12 @@ const Page = async () => {
     );
   }
 
-  const apiRevenue = await getRevenue();
+  const apiRevenueTypes = await getRevenueTypes();
 
-  if (apiRevenue.status !== 200)
+  if (apiRevenueTypes.status !== 200)
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
 
-  return <Content data={apiRevenue.data} />;
+  return <Content data={apiRevenueTypes.data} />;
 };
 
 export default Page;
