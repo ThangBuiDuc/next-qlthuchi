@@ -33,9 +33,7 @@ const School = () => {
       }
     }
   `);
-
-  // console.log(year_upgrade);
-
+  console.log(upgrade);
   const mutation = useMutation({
     mutationFn: () =>
       upgradeAPI({

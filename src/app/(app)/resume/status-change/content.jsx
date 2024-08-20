@@ -167,7 +167,9 @@ const Content = ({ listSearch, present, config, catalogStudent }) => {
       updateStatusStudent(
         await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_USER }),
         listStudent
-          ?.filter((item) => selectedKeys.has(item.code))
+          ?.filter((item) =>
+            selectedKeys === "all" ? true : selectedKeys.has(item.code)
+          )
           .map((item) => ({
             _set: {
               status_id: selectedStatus.value,
