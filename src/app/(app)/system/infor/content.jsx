@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const content = ({ user }) => {
+const Content = ({ user }) => {
   //   console.log(user.result[0]);
   const [pass, setPass] = useState("");
   const [mutating, setMutating] = useState(false);
@@ -140,4 +140,4 @@ const content = ({ user }) => {
   );
 };
 
-export default content;
+export default Content;
