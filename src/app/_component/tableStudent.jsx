@@ -33,6 +33,8 @@ const Search = ({
       meilisearchStudentSearch(queryObject, await meilisearchGetToken(), 1),
   });
 
+  // console.log(data);
+
   const [page, setPage] = useState(1);
   const rowsPerPage = Number(config.result[0].config.page.value);
 
@@ -85,11 +87,14 @@ const Search = ({
         <TableColumn>Mã học sinh</TableColumn>
         <TableColumn>Họ tên</TableColumn>
         <TableColumn>Lớp</TableColumn>
+        <TableColumn>Trạng thái</TableColumn>
         <TableColumn></TableColumn>
       </TableHeader>
 
       <TableBody
-        emptyContent={"Không tìm thấy kết quả"}
+        emptyContent={
+          "Không tìm thấy kết quả. Thực hiện chức năng LÊN LỚP nếu chưa thực hiện!"
+        }
         loadingContent={<Spinner color="primary" />}
         isLoading={isLoading}
       >
@@ -122,6 +127,15 @@ const Search = ({
                 }}
               /> */}
               {el.class_name}
+            </TableCell>
+            <TableCell
+              className={`${
+                el.status_id === 1 || el.status_id === 8
+                  ? "text-green-600"
+                  : "text-gray-600"
+              }`}
+            >
+              {el.status_name}
             </TableCell>
             <TableCell>
               <p className="self-center">

@@ -70,7 +70,7 @@ function numberWithCommas(x, config) {
 }
 
 const PrintComponent = ({ printRef, billReceipt, preBill }) => {
-  const { config } = useContext(listContext);
+  const { config, bill } = useContext(listContext);
   return (
     <div className="hidden">
       <div className={`flex flex-col ${times.className}`} ref={printRef}>
@@ -92,7 +92,7 @@ const PrintComponent = ({ printRef, billReceipt, preBill }) => {
           {moment().year()}
         </p>
         <p className=" text-[18px] text-end">
-          Số: {`PT${createCode(preBill.count_bill[0].bill_receipt)}`}
+          Số: {`PT${createCode(bill.count_bill[0].bill_receipt)}`}
         </p>
         <p className=" text-[18px]">
           Họ tên người nộp tiền: {billReceipt.payer}
@@ -723,7 +723,7 @@ const ListReceipt = ({
   selected,
 }) => {
   const queryClient = useQueryClient();
-  const { selectPresent, preBill, permission, revenueGroup } =
+  const { selectPresent, preBill, permission, revenueGroup, bill } =
     useContext(listContext);
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -798,7 +798,7 @@ const ListReceipt = ({
     const objects = {
       amount_collected: parseInt(billReceipt.nowMoney),
       batch_id: selectPresent.id,
-      code: `PT${createCode(preBill.count_bill[0].bill_receipt)}`,
+      code: `PT${createCode(bill.count_bill[0].bill_receipt)}`,
       created_by: user.id,
       location: billReceipt.location,
       name: billReceipt.bill_name,

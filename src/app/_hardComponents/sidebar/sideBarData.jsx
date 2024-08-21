@@ -13,6 +13,10 @@ export const sideBarData = [
     path: "/system",
     subNav: [
       {
+        title: "Thông tin cá nhân",
+        path: "/system/infor",
+      },
+      {
         title: "Thiết lập hệ thống",
         path: "/system/setting",
       },
@@ -110,6 +114,10 @@ export const sideBarData = [
       {
         title: "Lên lớp",
         path: "/resume/upgrade",
+      },
+      {
+        title: "Chuyển trạng thái học sinh",
+        path: "/resume/status-change",
       },
     ],
   },

@@ -13,14 +13,14 @@ const options = [
     value: 0,
     label: "Cấp học",
   },
-  {
-    value: 1,
-    label: "Khối lớp",
-  },
-  {
-    value: 2,
-    label: "Lớp học",
-  },
+  // {
+  //   value: 1,
+  //   label: "Khối lớp",
+  // },
+  // {
+  //   value: 2,
+  //   label: "Lớp học",
+  // },
 ];
 
 const Content = ({ listSearchSchoolYear, present, permission, upgrade }) => {
@@ -37,6 +37,7 @@ const Content = ({ listSearchSchoolYear, present, permission, upgrade }) => {
         value={{
           listSearchSchoolYear,
           selectPresent,
+          // school_year: present.result[0],
           permission,
           upgrade,
         }}
@@ -44,18 +45,6 @@ const Content = ({ listSearchSchoolYear, present, permission, upgrade }) => {
         <div className="flex flex-col gap-[15px] h-full">
           <div className="flex gap-1 items-center w-full justify-center">
             <h5>Học kỳ: </h5>
-            {/* <Select
-              noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Học kỳ"
-              options={present.result[0].batchs.map((item) => ({
-                ...item,
-                value: item.id,
-                label: item.batch,
-              }))}
-              value={selectPresent}
-              onChange={setSelectPresent}
-              className="text-black"
-            /> */}
             <h5>{selectPresent.batch} - </h5>
             <h5>Năm học: {present.result[0].school_year}</h5>
           </div>

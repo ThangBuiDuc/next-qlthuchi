@@ -96,6 +96,7 @@ const Student = ({
         date_of_birth: studentRaw.date_of_birth,
         address: studentRaw.address,
         status_id: studentRaw.status.id,
+        gender_id: studentRaw.gender.id,
       },
       where1: {
         student_code: {

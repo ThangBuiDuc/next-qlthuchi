@@ -50,6 +50,7 @@ const UpdateModal = ({ data, student_code }) => {
   });
   const updateRef = useRef();
   const [updateDescription, setUpdateDescription] = useState("");
+  // console.log(student_code);
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -555,6 +556,8 @@ const SubContent = ({ student, selectPresent }) => {
     throw new Error();
   }
 
+  // console.log(student);
+
   return (
     <div className="flex flex-col gap-4">
       <Table
@@ -628,15 +631,9 @@ const SubContent = ({ student, selectPresent }) => {
                         </div>
                       </label>
                       {/* UPDATE MODAL */}
-                      <UpdateModal
-                        data={item}
-                        student_code={student.student_code}
-                      />
+                      <UpdateModal data={item} student_code={student.code} />
                       {/* DELETE MODAL */}
-                      <DeleteModal
-                        data={item}
-                        student_code={student.student_code}
-                      />
+                      <DeleteModal data={item} student_code={student.code} />
                     </div>
                   )}
                 </TableCell>

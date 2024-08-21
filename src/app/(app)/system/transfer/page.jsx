@@ -1,4 +1,8 @@
-import { getTransfer, getPermission } from "@/utils/funtionApi";
+import {
+  getTransfer,
+  getPermission,
+  // getCountReminder,
+} from "@/utils/funtionApi";
 import Content from "./content";
 import { auth } from "@clerk/nextjs";
 const page = async () => {
@@ -35,16 +39,19 @@ const page = async () => {
     );
   }
 
-  const ApiTransfer = await getTransfer();
+  const [ApiTransfer] = await Promise.all([getTransfer()]);
 
   if (ApiTransfer.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
 
+  // console.log(ApiCountReminder.data);
+
   return (
     <Content
       transfer={ApiTransfer.data}
       permission={permission.data.result[0]?.permission.id.toString()}
+      // countReminder={ApiCountReminder.data}
     />
   );
 };

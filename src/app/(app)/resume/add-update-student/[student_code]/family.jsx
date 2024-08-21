@@ -73,8 +73,11 @@ const UpdateModal = ({ student_code, data, catalogStudent }) => {
   };
 
   return (
-    <dialog id={`update_modal_${data.id}`} className="modal">
-      <div className="modal-box">
+    <dialog id={`update_modal_${data.id}`} className="modal !z-[20]">
+      <div
+        style={{ overflowY: "unset" }}
+        className="modal-box w-11/12 max-w-5xl bg-white "
+      >
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -104,7 +107,7 @@ const UpdateModal = ({ student_code, data, catalogStudent }) => {
                 type={"text"}
                 id={`query`}
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
-                placeholder="Họ đệm"
+                placeholder="Tên"
                 value={parent.last_name}
                 onChange={(e) => {
                   setParent((pre) => ({ ...pre, last_name: e.target.value }));

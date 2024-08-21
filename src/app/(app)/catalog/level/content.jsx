@@ -162,7 +162,8 @@ export default function Content({
                   <TableColumn>Tên</TableColumn>
                 </TableHeader>
                 <TableBody emptyContent={"Không tìm thấy kết quả"}>
-                  {classesData?.data?.data?.result?.filter((item) => item.class_level_code === grade.value)
+                  {classesData?.data?.data?.result
+                    ?.filter((item) => item.class_level_code === grade.value)
                     .map((item, index) => (
                       <TableRow key={index}>
                         <TableCell>{index + 1}</TableCell>

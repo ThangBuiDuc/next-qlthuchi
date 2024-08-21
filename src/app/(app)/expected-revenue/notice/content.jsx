@@ -570,6 +570,10 @@ const Content = ({ listSearch, present, config, revenueGroup }) => {
   );
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    setSelectedKeys(new Set([]));
+  }, [selected]);
   // console.log(selectedKeys === "all");
   // const { getToken } = useAuth();
   const {

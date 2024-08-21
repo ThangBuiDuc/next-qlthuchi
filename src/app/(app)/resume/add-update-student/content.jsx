@@ -294,10 +294,21 @@ const Content = (props) => {
 
   // if (countStudent.error)
   //   throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
-
+  // console.log(props);
   return (
     <>
       <div className="flex flex-col gap-[30px]">
+        <div className="flex gap-1 items-center w-full justify-center">
+          <h5>Học kỳ: </h5>
+          <h5>
+            {
+              props.present.result[0].batchs.find((item) => item.is_active)
+                .batch
+            }{" "}
+            -{" "}
+          </h5>
+          <h5>Năm học: {props.present.result[0].school_year}</h5>
+        </div>
         <div className="flex justify-start gap-2">
           {props.permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
             countStudent.loading ? (

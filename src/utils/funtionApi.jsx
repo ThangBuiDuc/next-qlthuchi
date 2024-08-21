@@ -1571,6 +1571,49 @@ export const updateInsuranceRule = async (token, id, objects) => {
   });
 };
 
+//Lấy thông tin bộ đếm hành động hệ thống trong kỳ
+export const getCountReminder = async () => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_COUNT_REMINDER,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+    },
+  });
+
+  return res;
+};
+
+//Cập nhật thông tin bộ đếm hành động hệ thống trong kỳ
+export const updateCountReminder = async (batch_id, objects, token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_COUNT_REMINDER,
+    method: "put",
+    data: { batch_id, objects },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Cập nhật thông tin bộ đếm lên lớp trong năm
+export const updateYearUpgrade = async (_set, where, token) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_YEAR_UPGRADE,
+    method: "put",
+    data: { _set, where },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
 //Lấy thông tin đơn vị
 export const getSchool = async () => {
   const res = await axios({
@@ -1642,4 +1685,52 @@ export const createClass = async (token, objects) => {
       authorization: `Bearer ${token}`,
     },
   });
+
+  return res;
+};
+
+//Lấy thông tin người dùng
+export const getUser = async (token, userId) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_HASURA_GET_USER}/${userId}`,
+    method: "get",
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
+
+//Lấy thông tin nhiều học sinh qua Meilisearch
+export const meilisearchStudentsGet = async (token, filter) => {
+  const res = await axios({
+    url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_student/documents/fetch`,
+    method: "post",
+    data: {
+      filter,
+    },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data.results;
+};
+
+//Cập nhật trạng thái học sinh
+export const updateStatusStudent = async (token, updates) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_UPDATE_STATUS_STUDENT,
+    method: "put",
+    data: { updates },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
 };

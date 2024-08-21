@@ -77,17 +77,19 @@ function reducer(state, action) {
 }
 
 const Edit = ({ data, provinces, districts, gender }) => {
-  console.log(1);
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-
+  console.log(data);
   const [infor, dispatchInfor] = useReducer(reducer, {
     firtsName: data.first_name,
     lastName: data.last_name,
     address: data.address,
     phoneNumber: data.phone_number,
     email: data.email,
-    gender: data.gender?.id,
+    gender: {
+      value: data.gender?.id,
+      label: data.gender?.description,
+    },
     dob: new Date(data.date_of_birth),
   });
 
