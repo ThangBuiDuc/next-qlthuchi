@@ -86,7 +86,7 @@ const mapRevenueObjects = (
         revenue_group_id: el.revenue_group_id,
         amount: el.amount,
         calculation_unit_id: el.calculation_unit_id,
-        unit_price: el.unit_price,
+        unit_price: parseInt(el.unit_price),
         student_code: student.code,
         batch_id: batch_id,
         // prescribed_money: el.unit_price * el.amount,
@@ -98,7 +98,7 @@ const mapRevenueObjects = (
         ),
         created_by: userId,
         start_at: time,
-        next_batch_money: el.unit_price * el.amount,
+        next_batch_money: parseInt(el.unit_price) * el.amount,
       }));
     })
     .reduce((total, curr) => [...total, ...curr], []); // Flatten the array of arrays
@@ -172,6 +172,8 @@ export async function PUT(req) {
       batch,
       end_date
     );
+
+    console.log(objects);
 
     const res = await axios({
       url: process.env.NEXT_PUBLIC_HASURA_CREATE_EXPECTED_REVENUE,
