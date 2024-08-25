@@ -4,14 +4,14 @@ import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
 const httpLink = new HttpLink({
-  uri: "https://hns-quanlythuchi.hasura.app/v1/graphql",
+  uri: "https://hasurahns.hpu.edu.vn/v1/graphql",
 });
 
 const wsLink =
   typeof window !== "undefined"
     ? new GraphQLWsLink(
         createClient({
-          url: "wss://hns-quanlythuchi.hasura.app/v1/graphql",
+          url: "wss://hasurahns.hpu.edu.vn/v1/graphql",
         })
       )
     : null;

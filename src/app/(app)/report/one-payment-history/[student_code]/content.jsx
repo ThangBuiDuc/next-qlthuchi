@@ -29,7 +29,7 @@ function numberWithCommas(x, config) {
 const TableView = ({ data, config, isLoading }) => {
   const header = [
     ...new Map(
-      data.map((item) => [
+      data?.map((item) => [
         item["batch_id"],
         {
           batch_id: item.batch_id,
@@ -354,6 +354,8 @@ const Content = ({ student_code, config }) => {
 
     saveAs(new Blob([buf]), "Tong-hop-da-thu-1-hs.xlsx");
   };
+
+  console.log(data);
   return (
     <div className="flex flex-col gap-5 justify-center">
       <h5 className="text-center">Lịch sử thanh toán theo một học sinh</h5>
@@ -368,7 +370,7 @@ const Content = ({ student_code, config }) => {
         Xuất Excel
       </button>
       <TableView
-        data={data.data.results}
+        data={data.data?.results}
         config={config}
         isLoading={data.isLoading && data.isFetching}
       />

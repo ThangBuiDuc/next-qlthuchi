@@ -33,6 +33,7 @@ const Class = () => {
           }}
         />
       </div>
+      <div className="divider"></div>
       {selected && (
         <div className="flex w-full divide-x divide-black h-full">
           {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT && (

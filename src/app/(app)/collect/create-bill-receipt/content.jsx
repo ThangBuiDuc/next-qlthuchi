@@ -78,7 +78,7 @@ const Content = ({
             <p className="text-xs">Hình thức thu:</p>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Hình thức thu!"
+              placeholder="Hình thức thu"
               options={preBill.data.bill_formality.map((item) => ({
                 value: item.id,
                 label: item.name,

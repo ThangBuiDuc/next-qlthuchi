@@ -375,7 +375,7 @@ const LeftPanel = ({ selected }) => {
                       className="btn w-fit"
                       onClick={() => handleOnclick()}
                     >
-                      Hoàn thành
+                      Lập định mức
                     </button>
                     <div
                       className="tooltip flex items-center justify-center"

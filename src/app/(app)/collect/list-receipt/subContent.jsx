@@ -372,7 +372,7 @@ const ModalPrint = ({ data }) => {
   );
 };
 
-const CancelModal = ({ receipt_code, cancelRef }) => {
+const CancelModal = ({ receipt_code, cancelRef, condition }) => {
   const [note, setNote] = useState("");
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
@@ -458,7 +458,7 @@ const CancelModal = ({ receipt_code, cancelRef }) => {
   );
 };
 
-const RowTable = ({ data, isRefetching, permission }) => {
+const RowTable = ({ data, isRefetching, permission, condition }) => {
   const { config } = useContext(listContext);
   const printRef = useRef();
   const cancelRef = useRef();
@@ -531,7 +531,11 @@ const RowTable = ({ data, isRefetching, permission }) => {
                       ✕
                     </button>
                   </form>
-                  <CancelModal receipt_code={data.code} cancelRef={cancelRef} />
+                  <CancelModal
+                    receipt_code={data.code}
+                    cancelRef={cancelRef}
+                    condition={condition}
+                  />
                 </div>
               </dialog>
             </>
@@ -615,6 +619,7 @@ const SubContent = ({ condition, permission }) => {
                   isRefetching={isRefetching}
                   refetch={refetch}
                   permission={permission}
+                  condition={condition}
                 />
               ))
             )}

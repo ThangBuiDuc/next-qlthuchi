@@ -1204,7 +1204,7 @@ export const meilisearchReportPaymentHistoryGet = async (token) => {
   return res.data;
 };
 
-//Lấy thông tin lịch sử thanh toán theo nhiều học sinh
+//Lấy thông tin lịch sử thanh toán theo một học sinh
 export const meilisearchReportPaymentHistoryOneGet = async (token, filter) => {
   const res = await axios({
     url: `${process.env.NEXT_PUBLIC_MEILISEARCH_URL}/indexes/hns_qlthuchi_v_payment_history_one/documents/fetch`,

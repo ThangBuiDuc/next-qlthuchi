@@ -399,8 +399,8 @@ const TableView = ({ reduction, isLoading, config, present, school_year }) => {
             <TableRow key={item.student_code}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item.student_code}</TableCell>
-              <TableCell>{`${item.first_name} ${item.last_name}`}</TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap">{`${item.first_name} ${item.last_name}`}</TableCell>
+              <TableCell className="whitespace-nowrap">
                 {item.date_of_birth.split("-").reverse().join("-")}
               </TableCell>
               <TableCell>{item.class_code[0]}</TableCell>
@@ -435,7 +435,7 @@ const Content = ({ present, config }) => {
     queryFn: async () =>
       meilisearchReductionGet(
         await meilisearchGetToken(),
-        `batch_id = ${selectPresent.id} AND (ud_ratio > 0 OR cs_ratio > 0 OR tt_ratio > 0)`
+        `batch_id = ${selectPresent.id} AND (ud_ratio != "0.00" OR cs_ratio != "0.00" OR tt_ratio != "0.00")`
       ),
   });
 
