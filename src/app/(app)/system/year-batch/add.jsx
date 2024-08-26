@@ -40,7 +40,7 @@ moment.updateLocale("vi", {
   ],
 });
 
-const Add = ({ school_year }) => {
+const Add = () => {
   const queryClient = useQueryClient();
   const [mutating, setMutating] = useState(false);
   const { getToken } = useAuth();
@@ -148,7 +148,7 @@ const Add = ({ school_year }) => {
               className={"col-span-2 !w-[50%]"}
               value={schoolYear}
               action={setSchoolYear}
-              placeholder={school_year}
+              placeholder={"2023-2024"}
             />
             <div className="flex flex-col gap-2">
               <h6 className="text-center">Học kỳ: 1</h6>

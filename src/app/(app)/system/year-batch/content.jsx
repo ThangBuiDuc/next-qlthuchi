@@ -22,10 +22,10 @@ const Content = ({ present, permission }) => {
 
   const { getToken } = useAuth();
 
-  const [activeBatch, setActiveBatch] = useState(selectPresent.batchs);
+  const [activeBatch, setActiveBatch] = useState(selectPresent?.batchs);
   const [mutating, setMutating] = useState(false);
 
-  useEffect(() => setActiveBatch(selectPresent.batchs), [selectPresent]);
+  useEffect(() => setActiveBatch(selectPresent?.batchs), [selectPresent]);
 
   const mutation = useMutation({
     mutationFn: ({ token, updates }) => updateBatch(token, updates),
@@ -79,72 +79,90 @@ const Content = ({ present, permission }) => {
             <IoIosAddCircleOutline size={20} />
             Năm học mới
           </label>
-          <Add school_year={selectPresent.school_year} />
+          <Add />
           {/* <Add provinces={provinces} districts={districts} /> */}
         </>
       )}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2">
-          <h6 className="text-center">Năm học: {selectPresent.school_year}</h6>
-          <div className="flex justify-evenly">
-            <p>
-              Ngày bắt đầu:{" "}
-              {selectPresent.start_day.split("-").reverse().join("-")}
-            </p>
-            <p>
-              Ngày kết thúc:{" "}
-              {selectPresent.end_day.split("-").reverse().join("-")}
-            </p>
-          </div>
-        </div>
-        {activeBatch
-          .sort((a, b) => a.batch - b.batch)
-          .map((item) => (
-            <div className="flex flex-col gap-2 justify-center" key={item.id}>
-              <h6 className="text-center">Học kỳ: {item.batch}</h6>
-              <p className="text-center">
-                Ngày bắt đầu: {item.start_day.split("-").reverse().join("-")}
-              </p>
-              <p className="text-center">
-                Ngày kết thúc: {item.end_day.split("-").reverse().join("-")}
-              </p>
-              <div className="flex gap-1 justify-center">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-success"
-                  checked={item.is_active}
-                  // value={item.is_active}
 
-                  onChange={() => {
-                    // console.log(e.target.value);
-                    setActiveBatch((pre) =>
-                      pre.map((el) => ({
-                        ...el,
-                        is_active: el.id === item.id ? true : false,
-                      }))
-                    );
-                  }}
-                />
-                <p>Đang hoạt động</p>
+      {present?.result.length === 0 ? (
+        <div className="flex gap-1 items-center w-full justify-center p-10">
+          <h5>
+            Hệ thống chưa khởi tạo năm học, vui lòng tạo năm học mới để thực
+            hiện các chức năng!
+          </h5>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <h6 className="text-center">
+                Năm học: {selectPresent.school_year}
+              </h6>
+              <div className="flex justify-evenly">
+                <p>
+                  Ngày bắt đầu:{" "}
+                  {selectPresent.start_day.split("-").reverse().join("-")}
+                </p>
+                <p>
+                  Ngày kết thúc:{" "}
+                  {selectPresent.end_day.split("-").reverse().join("-")}
+                </p>
               </div>
             </div>
-          ))}
-      </div>
-      {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
-        mutating ? (
-          <div className="w-full flex justify-center mt-2">
-            <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+            {activeBatch
+              .sort((a, b) => a.batch - b.batch)
+              .map((item) => (
+                <div
+                  className="flex flex-col gap-2 justify-center"
+                  key={item.id}
+                >
+                  <h6 className="text-center">Học kỳ: {item.batch}</h6>
+                  <p className="text-center">
+                    Ngày bắt đầu:{" "}
+                    {item.start_day.split("-").reverse().join("-")}
+                  </p>
+                  <p className="text-center">
+                    Ngày kết thúc: {item.end_day.split("-").reverse().join("-")}
+                  </p>
+                  <div className="flex gap-1 justify-center">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-success"
+                      checked={item.is_active}
+                      // value={item.is_active}
+
+                      onChange={() => {
+                        // console.log(e.target.value);
+                        setActiveBatch((pre) =>
+                          pre.map((el) => ({
+                            ...el,
+                            is_active: el.id === item.id ? true : false,
+                          }))
+                        );
+                      }}
+                    />
+                    <p>Đang hoạt động</p>
+                  </div>
+                </div>
+              ))}
           </div>
-        ) : (
-          <button
-            className="btn w-fit self-center"
-            onClick={() => handleOnClick()}
-          >
-            Cập nhật
-          </button>
-        )
-      ) : (
-        <></>
+          {permission === process.env.NEXT_PUBLIC_PERMISSION_READ_EDIT ? (
+            mutating ? (
+              <div className="w-full flex justify-center mt-2">
+                <span className="loading loading-spinner loading-sm bg-primary self-center"></span>
+              </div>
+            ) : (
+              <button
+                className="btn w-fit self-center"
+                onClick={() => handleOnClick()}
+              >
+                Cập nhật
+              </button>
+            )
+          ) : (
+            <></>
+          )}
+        </>
       )}
     </div>
   );

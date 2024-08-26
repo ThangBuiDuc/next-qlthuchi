@@ -21,6 +21,7 @@ const Content = ({ transfer, permission }) => {
     }
   `);
 
+  console.log(result);
   // console.log(countReminder);
   const [mutating, setMutating] = useState(false);
 
@@ -67,6 +68,17 @@ const Content = ({ transfer, permission }) => {
       });
     },
   });
+
+  if (result.length === 0) {
+    return (
+      <div className="flex gap-1 items-center w-full justify-center p-10">
+        <h5>
+          Hệ thống chưa khởi tạo năm học, vui lòng tạo năm học mới để thực hiện
+          các chức năng!
+        </h5>
+      </div>
+    );
+  }
 
   if (!result[0].previous_batch_id) {
     return (

@@ -42,6 +42,16 @@ const Page = async () => {
     getSchoolYear({ is_active: { _eq: true } }),
   ]);
 
+  if (present.data.result.length === 0)
+    return (
+      <div className="flex gap-1 items-center w-full justify-center p-10">
+        <h5>
+          Hệ thống chưa khởi tạo năm học, vui lòng tạo năm học mới để thực hiện
+          các chức năng!
+        </h5>
+      </div>
+    );
+
   // const apiListSearch = await getListSearch();
 
   // const present = await getSchoolYear({ is_active: { _eq: true } });
