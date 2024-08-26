@@ -40,7 +40,7 @@ function sumArrayObjectsById(arr) {
 }
 
 function numberWithCommas(x, config) {
-  console.log(x);
+  // console.log(x);
   return x
     .toString()
     .replace(

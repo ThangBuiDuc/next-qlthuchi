@@ -360,7 +360,7 @@ const CancelModal = ({ bill_refund_code, cancelRef, pageIndex, refetch }) => {
       cancelRef.current.close();
       refetch({ refetchPage: (_, index) => index === pageIndex });
       setMutating(false);
-      toast.success("Huỷ biên lai thu thành công!", {
+      toast.success("Huỷ phiếu chi thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -371,7 +371,7 @@ const CancelModal = ({ bill_refund_code, cancelRef, pageIndex, refetch }) => {
     onError: () => {
       cancelRef.current.close();
       setMutating(false);
-      toast.error("Huỷ biên lai thu không thành công!", {
+      toast.error("Huỷ phiếu chi không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,

@@ -72,7 +72,7 @@ const Content = ({ user }) => {
         <TextInput
           disable
           label={"Ngày sinh"}
-          value={user.result[0].date_of_birth}
+          value={user.result[0].date_of_birth.split("-").reverse().join("-")}
           id={"dob"}
         />
 

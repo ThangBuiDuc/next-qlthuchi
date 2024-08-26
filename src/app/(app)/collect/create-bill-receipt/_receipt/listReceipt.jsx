@@ -891,7 +891,7 @@ const ListReceipt = ({
               className="btn w-fit self-center"
               onClick={() => handleOnClick()}
             >
-              Hoàn thành
+              Lập phiếu thu
             </button>
           )
         ) : (

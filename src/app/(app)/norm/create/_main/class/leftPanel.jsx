@@ -66,6 +66,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 .revenue_groups.filter((item) =>
                   item.scope.some((el) => el === school_level_code)
                 )
+                .filter((item) => item.id !== 12)
                 .filter((item) => item.revenues.length > 0)
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({
@@ -376,7 +377,7 @@ const LeftPanel = ({ selected }) => {
                       className="btn w-fit"
                       onClick={() => handleOnclick()}
                     >
-                      Hoàn thành
+                      Lập định mức
                     </button>
                     <div
                       className="tooltip flex items-center justify-center"

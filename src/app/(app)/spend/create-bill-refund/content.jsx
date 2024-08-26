@@ -67,7 +67,7 @@ const Content = ({
             <h6>Hình thức chi:</h6>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
-              placeholder="Hình thức chi!"
+              placeholder="Hình thức chi"
               options={preBill.data.bill_formality.map((item) => ({
                 value: item.id,
                 label: item.name,

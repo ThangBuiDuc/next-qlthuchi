@@ -47,6 +47,17 @@ const Page = async ({ params }) => {
   if (present.status !== 200 || !student || apiConfig.status !== 200) {
     throw new Error("Đã có lỗi xảy ra. Vui lòng thử lại!");
   }
+
+  if (present.data.result.length === 0)
+    return (
+      <div className="flex gap-1 items-center w-full justify-center p-10">
+        <h5>
+          Hệ thống chưa khởi tạo năm học, vui lòng tạo năm học mới để thực hiện
+          các chức năng!
+        </h5>
+      </div>
+    );
+
   return (
     <Content
       student_code={params.student_code}

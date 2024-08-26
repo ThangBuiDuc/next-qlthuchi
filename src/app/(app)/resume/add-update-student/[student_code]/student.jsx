@@ -93,7 +93,7 @@ const Student = ({
       _set: {
         first_name: studentRaw.first_name,
         last_name: studentRaw.last_name,
-        date_of_birth: studentRaw.date_of_birth,
+        date_of_birth: moment(studentRaw.date_of_birth).format("MM/DD/YYYY"),
         address: studentRaw.address,
         status_id: studentRaw.status.id,
         gender_id: studentRaw.gender.id,
@@ -197,7 +197,15 @@ const Student = ({
         <div className="flex flex-col gap-1">
           <p className="text-xs">Ngày sinh:</p>
           <Datetime
-            value={moment(studentRaw.date_of_birth).format("DD-MM-YYYY")}
+            closeOnSelect
+            value={
+              moment.isMoment(studentRaw.date_of_birth)
+                ? studentRaw.date_of_birth
+                : moment(studentRaw.date_of_birth)
+            }
+            onChange={(value) =>
+              setStudentRaw((pre) => ({ ...pre, date_of_birth: value }))
+            }
             timeFormat={false}
             dateFormat={"DD-MM-YYYY"}
             inputProps={{
