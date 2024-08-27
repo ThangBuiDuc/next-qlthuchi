@@ -18,6 +18,7 @@ import {
   TableCell,
 } from "@nextui-org/table";
 import { Spinner } from "@nextui-org/spinner";
+import Swal from "sweetalert2";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -84,23 +85,33 @@ const SubContent = ({ selectPresent, student, permission }) => {
         batch_id: selectPresent.id,
       }),
     onSuccess: () => {
-      setMutating(false);
-      toast.success("Lập dự kiến thu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.success("Lập dự kiến thu thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Lập dự kiến thu",
+        text: "Lập dự kiến thu thành công",
+        icon: "success",
       });
     },
     onError: () => {
-      setMutating(false);
-      toast.error("Lập dự kiến thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Lập dự kiến thu không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Lập dự kiến thu",
+        text: "Lập dự kiến thu không thành công",
+        icon: "error",
       });
     },
   });
@@ -178,8 +189,21 @@ const SubContent = ({ selectPresent, student, permission }) => {
                   <button
                     className="btn w-fit"
                     onClick={() => {
-                      setMutating(true);
-                      mutation.mutate();
+                      // setMutating(true);
+                      // mutation.mutate();
+                      Swal.fire({
+                        title: "Lập dự kiến thu",
+                        text: "Bạn có chắc chắn muốn lập dự kiến thu? Dự kiến thu trùng sẽ được thay thế dự kiến mới nhất!",
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonColor: "#134a9abf",
+                        confirmButtonText: "Lập dự kiến",
+                        cancelButtonText: "Huỷ",
+                        allowOutsideClick: () => !Swal.isLoading(),
+                        preConfirm: async () => await mutation.mutateAsync(),
+                        icon: "question",
+                        showLoaderOnConfirm: true,
+                      });
                     }}
                   >
                     Lập dự kiến thu

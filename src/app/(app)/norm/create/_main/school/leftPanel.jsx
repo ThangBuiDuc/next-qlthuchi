@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import "moment/locale/vi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import Swal from "sweetalert2";
 
 const Item = ({ norm, setNorm, school_level_code }) => {
   const { listRevenue, calculationUnit, config } = useContext(listContext);
@@ -274,13 +275,13 @@ const LeftPanel = ({ selected }) => {
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", selected],
       });
-      toast.success("Tạo mới định mức thu cho cấp học thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
+      // toast.success("Tạo mới định mức thu cho cấp học thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
       setNorm({
         group: null,
         type: null,
@@ -290,22 +291,32 @@ const LeftPanel = ({ selected }) => {
         quantity: 1,
         total: 100000,
       });
-      setMutating(false);
+      // setMutating(false);
+      Swal.fire({
+        title: "Lập định mức thu cho cấp học",
+        text: "Lập định mức thu cho cấp học thành công",
+        icon: "success",
+      });
     },
     onError: () => {
-      toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      }),
-        setMutating(false);
+      // toast.error("Tạo mới định mức thu cho cấp học không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // }),
+      //   setMutating(false);
+      Swal.fire({
+        title: "Lập định mức thu cho cấp học",
+        text: "Lập định mức thu cho cấp học không thành công",
+        icon: "error",
+      });
     },
   });
 
   const handleOnclick = useCallback(async () => {
-    setMutating(true);
+    // setMutating(true);
     let time = moment().format();
     let objects = {
       revenue_code: norm.revenue.code,
@@ -340,7 +351,22 @@ const LeftPanel = ({ selected }) => {
       template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
     });
 
-    mutation.mutate({ token, objects, log });
+    Swal.fire({
+      title: "Lập định mức thu cho cấp học",
+      text: "Bạn có chắc chắn muốn lập định mức thu cho cấp học? Những định mức thu trùng sẽ bị thay thế bằng các định mức thu mới!",
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonColor: "#134a9abf",
+      confirmButtonText: "Lập định mức",
+      cancelButtonText: "Huỷ",
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () =>
+        await mutation.mutateAsync({ token, objects, log }),
+      icon: "question",
+      showLoaderOnConfirm: true,
+    });
+
+    // mutation.mutate({ token, objects, log });
   }, [norm, selected]);
   return (
     <div className="flex flex-col pr-3 w-[40%] gap-2">

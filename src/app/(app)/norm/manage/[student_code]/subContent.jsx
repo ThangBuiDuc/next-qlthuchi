@@ -26,6 +26,7 @@ import {
   TableCell,
 } from "@nextui-org/table";
 import { Spinner } from "@nextui-org/spinner";
+import Swal from "sweetalert2";
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -118,26 +119,37 @@ const UpdateModal = ({ data, student_code }) => {
       // document.getElementById(`modal_delete_${data.id}`).checked = false;
       updateRef.current.checked = false;
       setUpdateDescription("");
-      setMutating(false);
+      // setMutating(false);
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", student_code],
       });
-      toast.success("Sửa định mức thu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // toast.success("Sửa định mức thu thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+
+      Swal.fire({
+        title: "Cập nhật định mức thu",
+        text: "Cập nhật định mức thu thành công",
+        icon: "success",
       });
     },
     onError: () => {
-      setMutating(false);
-      toast.error("Sửa định mức thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Sửa định mức thu không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Cập nhật định mức thu không",
+        text: "Cập nhật định mức thu không thành công",
+        icon: "error",
       });
     },
   });
@@ -328,8 +340,21 @@ const UpdateModal = ({ data, student_code }) => {
             <button
               className="btn w-fit self-center"
               onClick={() => {
-                setMutating(true);
-                updateMutation.mutate();
+                // setMutating(true);
+                // updateMutation.mutate();
+                Swal.fire({
+                  title: "Cập nhật định mức thu",
+                  text: "Bạn có chắc chắn muốn cập nhật định mức thu?",
+                  showConfirmButton: true,
+                  showCancelButton: true,
+                  confirmButtonColor: "#134a9abf",
+                  confirmButtonText: "Cập nhật",
+                  cancelButtonText: "Huỷ",
+                  allowOutsideClick: () => !Swal.isLoading(),
+                  preConfirm: async () => await updateMutation.mutateAsync(),
+                  icon: "question",
+                  showLoaderOnConfirm: true,
+                });
               }}
             >
               Sửa
@@ -386,26 +411,36 @@ const DeleteModal = ({ data, student_code }) => {
       // document.getElementById(`modal_delete_${data.id}`).checked = false;
       deleteRef.current.checked = false;
       setDeleteDescription("");
-      setMutating(false);
+      // setMutating(false);
       queryClient.invalidateQueries({
         queryKey: ["get_revenue_norms", student_code],
       });
-      toast.success("Xoá định mức thu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // toast.success("Xoá định mức thu thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Xoá định mức thu",
+        text: "Xoá định mức thu thành công",
+        icon: "success",
       });
     },
     onError: () => {
-      setMutating(false);
-      toast.error("Xoá định mức thu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Xoá định mức thu không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Xoá định mức thu",
+        text: "Xoá định mức thu không thành công",
+        icon: "error",
       });
     },
   });
@@ -443,8 +478,21 @@ const DeleteModal = ({ data, student_code }) => {
             <button
               className="btn w-fit self-center"
               onClick={() => {
-                setMutating(true);
-                deleteMutation.mutate();
+                // setMutating(true);
+                // deleteMutation.mutate();
+                Swal.fire({
+                  title: "Xoá định mức thu",
+                  text: "Bạn có chắc chắn muốn xoá định mức thu?",
+                  showConfirmButton: true,
+                  showCancelButton: true,
+                  confirmButtonColor: "#134a9abf",
+                  confirmButtonText: "Xoá",
+                  cancelButtonText: "Huỷ",
+                  allowOutsideClick: () => !Swal.isLoading(),
+                  preConfirm: async () => await deleteMutation.mutateAsync(),
+                  icon: "question",
+                  showLoaderOnConfirm: true,
+                });
               }}
             >
               Xoá
