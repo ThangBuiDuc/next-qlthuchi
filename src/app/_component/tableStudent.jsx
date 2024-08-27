@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, cloneElement } from "react";
 import {
   meilisearchGetToken,
   meilisearchStudentSearch,
@@ -25,6 +25,7 @@ const Search = ({
   dataTip,
   children,
   modal,
+  modalChill,
 }) => {
   // const [result, setResult] = useState(null);
   const { data, isRefetching, isLoading } = useQuery({
@@ -60,125 +61,128 @@ const Search = ({
   // }, [data]);
 
   return (
-    <Table
-      aria-label="Student Table"
-      // removeWrapper
-      className="max-h-[450px]"
-      isStriped
-      isHeaderSticky
-      bottomContent={
-        !isLoading && (
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              // showShadow
-              color="primary"
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        )
-      }
-    >
-      <TableHeader>
-        <TableColumn>STT</TableColumn>
-        <TableColumn>Mã học sinh</TableColumn>
-        <TableColumn>Họ tên</TableColumn>
-        <TableColumn>Lớp</TableColumn>
-        <TableColumn>Trạng thái</TableColumn>
-        <TableColumn></TableColumn>
-      </TableHeader>
-
-      <TableBody
-        emptyContent={
-          "Không tìm thấy kết quả. Thực hiện chức năng LÊN LỚP nếu chưa thực hiện!"
+    <>
+      <Table
+        aria-label="Student Table"
+        // removeWrapper
+        className="max-h-[450px]"
+        isStriped
+        isHeaderSticky
+        bottomContent={
+          !isLoading && (
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                // showShadow
+                color="primary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          )
         }
-        loadingContent={<Spinner color="primary" />}
-        isLoading={isLoading}
       >
-        {items?.map((el, index) => (
-          <TableRow key={el.code}>
-            <TableCell>
-              {/* <div
+        <TableHeader>
+          <TableColumn>STT</TableColumn>
+          <TableColumn>Mã học sinh</TableColumn>
+          <TableColumn>Họ tên</TableColumn>
+          <TableColumn>Lớp</TableColumn>
+          <TableColumn>Trạng thái</TableColumn>
+          <TableColumn></TableColumn>
+        </TableHeader>
+
+        <TableBody
+          emptyContent={
+            "Không tìm thấy kết quả. Thực hiện chức năng LÊN LỚP nếu chưa thực hiện!"
+          }
+          loadingContent={<Spinner color="primary" />}
+          isLoading={isLoading}
+        >
+          {items?.map((el, index) => (
+            <TableRow key={el.code}>
+              <TableCell>
+                {/* <div
                       dangerouslySetInnerHTML={{ __html: el._formatted.code }}
                     /> */}
-              {index + 1}
-            </TableCell>
-            <TableCell>
-              {/* <div
+                {index + 1}
+              </TableCell>
+              <TableCell>
+                {/* <div
                       dangerouslySetInnerHTML={{ __html: el._formatted.code }}
                     /> */}
-              {el.code}
-            </TableCell>
-            <TableCell>
-              {/* <div
+                {el.code}
+              </TableCell>
+              <TableCell>
+                {/* <div
                 dangerouslySetInnerHTML={{
                   __html: `${el._formatted.first_name} ${el._formatted.last_name}`,
                 }}
                 /> */}
-              {`${el.first_name} ${el.last_name}`}
-            </TableCell>
-            <TableCell>
-              {/* <div
+                {`${el.first_name} ${el.last_name}`}
+              </TableCell>
+              <TableCell>
+                {/* <div
                 dangerouslySetInnerHTML={{
                   __html: el._formatted.class_name,
                 }}
               /> */}
-              {el.class_name}
-            </TableCell>
-            <TableCell
-              className={`${
-                el.status_id === 1 || el.status_id === 8
-                  ? "text-green-600"
-                  : "text-gray-600"
-              }`}
-            >
-              {el.status_name}
-            </TableCell>
-            <TableCell>
-              <p className="self-center">
-                {isRefetching ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <>
-                    {/* <div className="tooltip" data-tip="Cập nhật">
+                {el.class_name}
+              </TableCell>
+              <TableCell
+                className={`${
+                  el.status_id === 1 || el.status_id === 8
+                    ? "text-green-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {el.status_name}
+              </TableCell>
+              <TableCell>
+                <div>
+                  {isRefetching ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <>
+                      {/* <div className="tooltip" data-tip="Cập nhật">
                       <Link href={`add-update-student/${el.code}`}>
                         <CiCircleMore size={25} />
                       </Link>
                     </div> */}
 
-                    {modal ? (
-                      <div
-                        className="tooltip cursor-pointer !z-[21]"
-                        data-tip={dataTip}
-                        onClick={() =>
-                          document
-                            .getElementById(`modal_${el.code}`)
-                            .showModal()
-                        }
-                      >
-                        {children}
-                      </div>
-                    ) : (
-                      <Tooltip content={dataTip} showArrow>
-                        <Link
-                          className="flex w-fit !z-[21]"
-                          href={`${redirect}/${el.code}`}
+                      {modal ? (
+                        <div
+                          className="tooltip cursor-pointer !z-[21]"
+                          data-tip={dataTip}
+                          onClick={() =>
+                            document
+                              .getElementById(`modal_${el.code}`)
+                              .showModal()
+                          }
                         >
                           {children}
-                        </Link>
-                      </Tooltip>
-                    )}
-                  </>
-                )}
-              </p>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                          {modal && cloneElement(modalChill, { hit: el })}
+                        </div>
+                      ) : (
+                        <Tooltip content={dataTip} showArrow>
+                          <Link
+                            className="flex w-fit !z-[21]"
+                            href={`${redirect}/${el.code}`}
+                          >
+                            {children}
+                          </Link>
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   );
 };
 

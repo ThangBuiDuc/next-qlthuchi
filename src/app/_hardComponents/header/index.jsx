@@ -4,17 +4,23 @@ import { FcMenu } from "react-icons/fc";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
+import { useUser } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
 
 const SignOutButton = () => {
+  const { user } = useUser();
+
   const { signOut } = useClerk();
   const router = useRouter();
 
   return (
-    <button onClick={() => signOut(() => router.push("/sign-in"))}>
-      Đăng xuất
-    </button>
+    <div className="flex flex-col gap-1">
+      <h6>{user?.publicMetadata.full_name}</h6>
+      <button onClick={() => signOut(() => router.push("/sign-in"))}>
+        Đăng xuất
+      </button>
+    </div>
   );
 };
 

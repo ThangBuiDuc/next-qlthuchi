@@ -132,13 +132,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
                 .revenue_groups.find((item) => item.id === norm.group.value)
-                .revenues.filter((item) =>
-                  getMonthsBetween(
-                    parseInt(selectPresent.start_day.split("-")[1]),
-                    parseInt(selectPresent.end_day.split("-")[1])
-                  ).includes(item.position)
-                )
-                .map((item) => {
+                .revenues.map((item) => {
                   return {
                     ...item,
                     value: item.id,
@@ -197,6 +191,38 @@ const Item = ({ norm, setNorm, school_level_code }) => {
             <div className={`w-full relative `}>
               <input
                 autoComplete="off"
+                id={`month_${norm.id}`}
+                // intlConfig={{ locale: "vi-VN", currency: "VND" }}
+                className={`text-left block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                placeholder="Thu tại tháng"
+                value={norm.month ? norm.month : 0}
+                // decimalsLimit={2}
+                type="number"
+                onWheel={(e) => e.target.blur()}
+                onChange={(e) =>
+                  setNorm((pre) => ({
+                    ...pre,
+                    month:
+                      parseInt(selectPresent.end_day.split("-")[1]) <
+                        parseInt(e.target.value) ||
+                      parseInt(selectPresent.start_day.split("-")[1]) >
+                        parseInt(e.target.value)
+                        ? moment().month() + 1
+                        : parseInt(e.target.value),
+                  }))
+                }
+              />
+              <label
+                htmlFor={`month_${norm.id}`}
+                className={`text-left cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+              >
+                Thu tại tháng
+              </label>
+            </div>
+
+            <div className={`w-full relative `}>
+              <input
+                autoComplete="off"
                 type={"number"}
                 id={`quantity_${norm.id}`}
                 className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
@@ -243,7 +269,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 Đơn giá
               </label>
             </div>
-            <div className={`w-full relative col-span-2`}>
+            <div className={`w-full relative`}>
               <CurrencyInput
                 autoComplete="off"
                 disabled
@@ -285,6 +311,7 @@ const Content = ({ selected }) => {
     price: 100000,
     quantity: 1,
     total: 100000,
+    month: moment().month() + 1,
   });
   const [mutating, setMutating] = useState(false);
 
@@ -301,6 +328,7 @@ const Content = ({ selected }) => {
         price: 100000,
         quantity: 1,
         total: 100000,
+        month: moment().month() + 1,
       });
   }, [selected]);
 
@@ -312,15 +340,10 @@ const Content = ({ selected }) => {
         norm,
         batch_id: selectPresent.id,
         time,
-        revenue: listRevenue.revenue_types
-          .find((item) => item.id === norm.type.value)
-          .revenue_groups.find((item) => item.id === norm.group.value)
-          .revenues.filter((item) =>
-            getMonthsBetween(
-              parseInt(norm.revenue.position),
-              parseInt(selectPresent.end_day.split("-")[1])
-            ).includes(item.position)
-          ),
+        arrMonth: getMonthsBetween(
+          norm.month,
+          parseInt(selectPresent.end_day.split("-")[1])
+        ),
         // .filter((item) => item.position >= norm.revenue.position),
       }),
     onSuccess: () => {
@@ -392,7 +415,8 @@ const Content = ({ selected }) => {
                   norm.calculation_unit &&
                   norm.price &&
                   norm.quantity &&
-                  norm.total ? (
+                  norm.total &&
+                  norm.month ? (
                     <>
                       <button
                         className="btn w-fit"

@@ -22,7 +22,7 @@ const Import = () => {
         <h6>Lập dự kiến vé ăn cho tháng {moment().month() + 2}</h6>
       </div> */}
       <div className="flex gap-1 items-center w-full">
-        <h6>Lập dự kiến theo: </h6>
+        <h6>Nhập vé ăn theo: </h6>
         <Select
           noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
           placeholder="Vui lòng chọn!"

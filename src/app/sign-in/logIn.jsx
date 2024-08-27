@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 const LogIn = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [login, setLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [progress, setProgress] = useState("");
@@ -15,10 +16,12 @@ const LogIn = () => {
   const { isLoaded, signIn, setActive } = useSignIn();
 
   async function logIn(e) {
+    setLogin(true);
     e.preventDefault();
     setProgress("");
     if (email === "") {
       setProgress("blankEmail");
+      setLogin(false);
     } else {
       // var pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       // Check the sign in response to
@@ -45,8 +48,13 @@ const LogIn = () => {
           }
         })
         .catch((err) => {
-          if (email === "") setProgress("blankEmail");
-          else setProgress(err.errors[0].message);
+          if (email === "") {
+            setProgress("blankEmail");
+            setLogin(false);
+          } else {
+            setProgress(err.errors[0].message);
+            setLogin(false);
+          }
         });
     }
   }
@@ -102,7 +110,7 @@ const LogIn = () => {
           )}
         </div>
         <div>
-          {!isLoaded ? (
+          {!isLoaded || login ? (
             <button>
               <span className="loading loading-spinner loading-sm bg-primary"></span>
             </button>

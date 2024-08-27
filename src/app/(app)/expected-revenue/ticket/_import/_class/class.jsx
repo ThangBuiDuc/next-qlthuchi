@@ -44,13 +44,13 @@ const Item = ({
       <td>{data.ticket_remain}</td>
       {ticketCollected.map((item) => (
         <td key={`${data.student_code}${item.code}_thu`}>
-          {item.position === data.position ? data.amount : 0}
+          {item.month === data.month ? data.amount : 0}
         </td>
       ))}
       {ticketAte.map((item) => {
         const ticketCount = ticketData
           .filter((el) => el.student_code === data.student_code)
-          .find((el) => item.position === el.position);
+          .find((el) => item.month === el.month);
         return (
           <td key={`${data.student_code}${item.revenue_code}_an`}>
             {ticketCount ? (
@@ -61,7 +61,7 @@ const Item = ({
                 onChange={(e) =>
                   setTicketData((pre) =>
                     pre.map((item) =>
-                      item.position === ticketCount.position &&
+                      item.month === ticketCount.month &&
                       item.student_code === data.student_code
                         ? { ...item, ticket_count: Number(e.target.value) }
                         : item
@@ -152,7 +152,7 @@ const Content = ({ selected }) => {
       // });
       queryClient.invalidateQueries({ queryKey: ["ticket_student", selected] });
       toast.success("Cập nhật vé ăn cho lớp học thành công!", {
-        position: "top-center",
+        month: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -162,7 +162,7 @@ const Content = ({ selected }) => {
     },
     onError: () => {
       toast.error("Cập nhật vé ăn cho lớp học không thành công!", {
-        position: "top-center",
+        month: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -190,11 +190,11 @@ const Content = ({ selected }) => {
 
   if (!ticketData) return <LoadingCustom />;
 
-  console.log(data.data.results);
+  // console.log(data.data.results);
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
-        <table className="table">
+        <table className="table table-pin-rows">
           {/* head */}
           <thead>
             <tr>
@@ -203,14 +203,14 @@ const Content = ({ selected }) => {
               <th>Số vé ăn còn lại</th>
               {[
                 ...new Map(
-                  data.data.results.map((item) => [item.position, item])
+                  data.data.results.map((item) => [item.month, item])
                 ).values(),
               ]
-                .sort((a, b) => a.position - b.position)
+                .sort((a, b) => a.month - b.month)
                 .map((item) => {
                   return (
                     <th key={`${item.code}_thu`}>
-                      Vé ăn đã thu tháng {item.position}
+                      Vé ăn đã thu tháng {item.month}
                     </th>
                   );
                 })}
@@ -218,14 +218,14 @@ const Content = ({ selected }) => {
                 ...new Map(
                   data.data.results
                     .reduce((total, curr) => [...total, ...curr.ticket], [])
-                    .map((item) => [item.position, item])
+                    .map((item) => [item.month, item])
                 ).values(),
               ]
-                .sort((a, b) => a.position - b.position)
+                .sort((a, b) => a.month - b.month)
                 .map((item) => {
                   return (
                     <th key={`${item.revenue_code}_an`}>
-                      Vé ăn đã ăn tháng {item.position}
+                      Vé ăn đã ăn tháng {item.month}
                     </th>
                   );
                 })}
@@ -240,16 +240,16 @@ const Content = ({ selected }) => {
                   data={item}
                   ticketCollected={[
                     ...new Map(
-                      data.data.results.map((item) => [item.position, item])
+                      data.data.results.map((item) => [item.month, item])
                     ).values(),
-                  ].sort((a, b) => a.position - b.position)}
+                  ].sort((a, b) => a.month - b.month)}
                   ticketAte={[
                     ...new Map(
                       data.data.results
                         .reduce((total, curr) => [...total, ...curr.ticket], [])
-                        .map((item) => [item.position, item])
+                        .map((item) => [item.month, item])
                     ).values(),
-                  ].sort((a, b) => a.position - b.position)}
+                  ].sort((a, b) => a.month - b.month)}
                 />
               </Fragment>
             ))}

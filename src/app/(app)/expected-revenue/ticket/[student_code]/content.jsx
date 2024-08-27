@@ -1,6 +1,6 @@
 "use client";
 import { getTicketStudent, updateTicket } from "@/utils/funtionApi";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState, Fragment, useCallback } from "react";
 import LoadingCustom from "@/app/_component/loadingCustom";
@@ -41,15 +41,15 @@ const Item = ({
       <td>{data.ticket_remain}</td>
       {ticketCollected.map((item) => (
         <td key={`${data.student_code}${item.code}_thu`}>
-          {item.position === data.position ? data.amount : 0}
+          {item.month === data.month ? data.amount : 0}
         </td>
       ))}
       {ticketAte.map((item) => {
         const ticketCount = ticketData
           .filter((el) => el.student_code === data.student_code)
-          .find((el) => item.position === el.position);
+          .find((el) => item.month === el.month);
         return (
-          <td key={`${data.student_code}${item.revenue_code}_an`}>
+          <td key={`${data.student_code}${item.month}_an`}>
             {ticketCount ? (
               <input
                 className="input border border-bordercl"
@@ -58,7 +58,7 @@ const Item = ({
                 onChange={(e) =>
                   setTicketData((pre) =>
                     pre.map((item) =>
-                      item.position === ticketCount.position &&
+                      item.month === ticketCount.month &&
                       item.student_code === data.student_code
                         ? { ...item, ticket_count: Number(e.target.value) }
                         : item
@@ -84,6 +84,7 @@ const Content = ({ present, student, permission }) => {
   const [ticketData, setTicketData] = useState();
   const [error, setError] = useState([]);
   // const { user } = useUser();
+  const queryClient = useQueryClient();
 
   const selectPresent = useMemo(
     () => present.result[0].batchs.find((item) => item.is_active === true),
@@ -131,6 +132,8 @@ const Content = ({ present, student, permission }) => {
       );
   }, [data?.data]);
 
+  // console.log(data?.data);
+
   const mutation = useMutation({
     mutationFn: async ({ ticketData, time }) =>
       updateTicket(
@@ -147,10 +150,10 @@ const Content = ({ present, student, permission }) => {
         }))
       ),
     onSuccess: () => {
-      // queryClient.invalidateQueries({
-      //   queryKey: ["get_revenue_norms", selected],
-      // });
-      toast.success("Cập nhật vé ăn cho lớp học thành công!", {
+      queryClient.invalidateQueries({
+        queryKey: ["ticket_student", student.code],
+      });
+      toast.success("Cập nhật vé ăn cho học sinh thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -160,7 +163,7 @@ const Content = ({ present, student, permission }) => {
       setMutating(false);
     },
     onError: () => {
-      toast.error("Cập nhật vé ăn cho lớp học không thành công!", {
+      toast.error("Cập nhật vé ăn cho học sinh không thành công!", {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -211,14 +214,14 @@ const Content = ({ present, student, permission }) => {
                 <th>Số vé ăn còn lại</th>
                 {[
                   ...new Map(
-                    data.data.results.map((item) => [item.position, item])
+                    data.data.results.map((item) => [item.month, item])
                   ).values(),
                 ]
-                  .sort((a, b) => a.position - b.position)
+                  .sort((a, b) => a.month - b.month)
                   .map((item) => {
                     return (
                       <th key={`${item.code}_thu`}>
-                        Vé ăn đã thu tháng {item.position}
+                        Vé ăn đã thu tháng {item.month}
                       </th>
                     );
                   })}
@@ -226,14 +229,14 @@ const Content = ({ present, student, permission }) => {
                   ...new Map(
                     data.data.results
                       .reduce((total, curr) => [...total, ...curr.ticket], [])
-                      .map((item) => [item.position, item])
+                      .map((item) => [item.month, item])
                   ).values(),
                 ]
-                  .sort((a, b) => a.position - b.position)
+                  .sort((a, b) => a.month - b.month)
                   .map((item) => {
                     return (
-                      <th key={`${item.revenue_code}_an`}>
-                        Vé ăn đã ăn tháng {item.position}
+                      <th key={`${item.month}_an`}>
+                        Vé ăn đã ăn tháng {item.month}
                       </th>
                     );
                   })}
@@ -248,9 +251,9 @@ const Content = ({ present, student, permission }) => {
                     data={item}
                     ticketCollected={[
                       ...new Map(
-                        data.data.results.map((item) => [item.position, item])
+                        data.data.results.map((item) => [item.month, item])
                       ).values(),
-                    ].sort((a, b) => a.position - b.position)}
+                    ].sort((a, b) => a.month - b.month)}
                     ticketAte={[
                       ...new Map(
                         data.data.results
@@ -258,9 +261,9 @@ const Content = ({ present, student, permission }) => {
                             (total, curr) => [...total, ...curr.ticket],
                             []
                           )
-                          .map((item) => [item.position, item])
+                          .map((item) => [item.month, item])
                       ).values(),
-                    ].sort((a, b) => a.position - b.position)}
+                    ].sort((a, b) => a.month - b.month)}
                   />
                 </Fragment>
               ))}

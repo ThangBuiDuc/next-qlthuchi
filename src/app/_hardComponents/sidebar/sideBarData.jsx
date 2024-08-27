@@ -140,6 +140,7 @@ export const sideBarData = [
       { title: "Giảm giá", path: "/expected-revenue/voucher" },
       { title: "Quản lý dự kiến thu", path: "/expected-revenue/manage" },
       { title: "Vé ăn", path: "/expected-revenue/ticket" },
+      { title: "Quyết toán vé ăn", path: "/expected-revenue/ticket-solve" },
       { title: "Xuất giấy báo đóng tiền", path: "/expected-revenue/notice" },
     ],
   },

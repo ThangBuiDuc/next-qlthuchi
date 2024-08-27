@@ -51,7 +51,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
     <div className="flex flex-col gap-2 w-full">
       <div className="grid grid-cols-2 auto-rows-auto gap-2">
         <div className="flex flex-col gap-1">
-          <p className="text-xs">Loại khoản thu:</p>
+          <p className="text-xs text-left">Loại khoản thu:</p>
           <Select
             noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
             placeholder="Loại khoản thu"
@@ -76,7 +76,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                   total: 100000,
                 }));
             }}
-            className="text-black text-sm"
+            className="text-black text-sm text-left"
             classNames={{
               control: () => "!rounded-[5px]",
               input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
@@ -87,7 +87,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
         </div>
         {norm.type && (
           <div className="flex flex-col gap-1">
-            <p className="text-xs">Nhóm khoản thu:</p>
+            <p className="text-xs text-left">Nhóm khoản thu:</p>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
               placeholder="Nhóm khoản thu"
@@ -116,7 +116,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                     total: 100000,
                   }));
               }}
-              className="text-black text-sm"
+              className="text-black text-sm text-left"
               classNames={{
                 control: () => "!rounded-[5px]",
                 input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
@@ -129,19 +129,19 @@ const Item = ({ norm, setNorm, school_level_code }) => {
 
         {norm.group && (
           <div className="flex flex-col gap-1">
-            <p className="text-xs">Khoản thu:</p>
+            <p className="text-xs text-left">Khoản thu:</p>
             <Select
               noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
               placeholder="Khoản thu"
               options={listRevenue.revenue_types
                 .find((item) => item.id === norm.type.value)
                 .revenue_groups.find((item) => item.id === norm.group.value)
-                .revenues.filter((item) =>
-                  getMonthsBetween(
-                    parseInt(selectPresent.start_day.split("-")[1]),
-                    parseInt(selectPresent.end_day.split("-")[1])
-                  ).includes(item.position)
-                )
+                .revenues // .revenues.filter((item) =>
+                //   getMonthsBetween(
+                //     parseInt(selectPresent.start_day.split("-")[1]),
+                //     parseInt(selectPresent.end_day.split("-")[1])
+                //   ).includes(item.position)
+                // )
                 .map((item) => {
                   return {
                     ...item,
@@ -161,7 +161,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                   total: 100000,
                 }))
               }
-              className="text-black text-sm"
+              className="text-black text-sm text-left"
               classNames={{
                 control: () => "!rounded-[5px]",
                 input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
@@ -174,7 +174,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
         {norm.revenue && (
           <>
             <div className="flex flex-col gap-1">
-              <p className="text-xs ">Đơn vị tính:</p>
+              <p className="text-xs text-left">Đơn vị tính:</p>
               <Select
                 noOptionsMessage={() => "Không tìm thấy kết quả phù hợp!"}
                 placeholder="Đơn vị tính"
@@ -188,7 +188,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 onChange={(e) =>
                   setNorm((pre) => ({ ...pre, calculation_unit: e }))
                 }
-                className="text-black text-sm"
+                className="text-black text-sm text-left"
                 classNames={{
                   control: () => "!rounded-[5px]",
                   input: () => "!pr-2.5 !pb-2.5 !pt-4 !m-0",
@@ -201,9 +201,41 @@ const Item = ({ norm, setNorm, school_level_code }) => {
             <div className={`w-full relative `}>
               <input
                 autoComplete="off"
+                id={`month_${norm.id}`}
+                // intlConfig={{ locale: "vi-VN", currency: "VND" }}
+                className={`text-left block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                placeholder="Thu tại tháng"
+                value={norm.month ? norm.month : 0}
+                // decimalsLimit={2}
+                type="number"
+                onWheel={(e) => e.target.blur()}
+                onChange={(e) =>
+                  setNorm((pre) => ({
+                    ...pre,
+                    month:
+                      parseInt(selectPresent.end_day.split("-")[1]) <
+                        parseInt(e.target.value) ||
+                      parseInt(selectPresent.start_day.split("-")[1]) >
+                        parseInt(e.target.value)
+                        ? moment().month() + 1
+                        : parseInt(e.target.value),
+                  }))
+                }
+              />
+              <label
+                htmlFor={`month_${norm.id}`}
+                className={`text-left cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+              >
+                Thu tại tháng
+              </label>
+            </div>
+
+            <div className={`w-full relative `}>
+              <input
+                autoComplete="off"
                 type={"number"}
                 id={`quantity_${norm.id}`}
-                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                className={`text-left block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
                 placeholder="Số lượng"
                 value={norm.quantity}
                 onWheel={(e) => e.target.blur()}
@@ -218,7 +250,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               />
               <label
                 htmlFor={`quantity_${norm.id}`}
-                className={`cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+                className={` text-left cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
               >
                 Số lượng
               </label>
@@ -228,7 +260,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
                 autoComplete="off"
                 id={`price_${norm.id}`}
                 intlConfig={{ locale: "vi-VN", currency: "VND" }}
-                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                className={`text-left block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
                 placeholder="Đơn giá"
                 value={norm.price ? norm.price : 0}
                 decimalsLimit={2}
@@ -242,18 +274,18 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               />
               <label
                 htmlFor={`price_${norm.id}`}
-                className={`cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+                className={`text-left cursor-text absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
               >
                 Đơn giá
               </label>
             </div>
-            <div className={`w-full relative col-span-2`}>
+            <div className={`w-full relative`}>
               <CurrencyInput
                 autoComplete="off"
                 disabled
                 id={`total_${norm.id}`}
                 intlConfig={{ locale: "vi-VN", currency: "VND" }}
-                className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
+                className={`text-left block px-2.5 pb-2.5 pt-4 w-full text-sm text-black bg-transparent rounded-[5px] border-[1px] border-gray-300 appearance-none dark:text-white dark:border-gray-600  focus:outline-none focus:ring-0  peer`}
                 placeholder="Đơn giá"
                 value={typeof norm.total === "number" ? norm.total : "NaN"}
                 decimalsLimit={2}
@@ -263,7 +295,7 @@ const Item = ({ norm, setNorm, school_level_code }) => {
               />
               <label
                 htmlFor={`total_${norm.id}`}
-                className={`!cursor-not-allowe absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
+                className={`text-left !cursor-not-allowed absolute text-sm text-gray-500  duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white peer-focus:bg-white px-2 peer-focus:px-2 peer-focus:text-[#898989]   peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1`}
               >
                 Tổng tiền
               </label>
@@ -290,31 +322,27 @@ const Modal = ({ hit }) => {
     price: 100000,
     quantity: 1,
     total: 100000,
+    month: moment().month() + 1,
   });
 
   const mutation = useMutation({
     mutationFn: ({ norm, time, selectPresent }) =>
       createTicketExpectedRevenueRouter({
         type: "STUDENT",
-        data: [hit.code],
+        data: [hit?.code],
         norm,
         batch_id: selectPresent.id,
         time,
-        revenue: listRevenue.revenue_types
-          .find((item) => item.id === norm.type.value)
-          .revenue_groups.find((item) => item.id === norm.group.value)
-          .revenues.filter((item) =>
-            getMonthsBetween(
-              parseInt(selectPresent.start_day.split("-")[1]),
-              parseInt(selectPresent.end_day.split("-")[1])
-            ).includes(item.position)
-          ),
+        arrMonth: getMonthsBetween(
+          norm.month,
+          parseInt(selectPresent.end_day.split("-")[1])
+        ),
       }),
     onSuccess: () => {
       // queryClient.invalidateQueries({
       //   queryKey: ["get_revenue_norms", selected],
       // });
-      document.getElementById(`modal_${hit.code}`).close();
+      document.getElementById(`modal_${hit?.code}`).close();
       toast.success("Tạo mới dự kiến thu vé ăn cho học sinh thành công!", {
         position: "top-center",
         autoClose: 2000,
@@ -356,7 +384,7 @@ const Modal = ({ hit }) => {
   }, [norm]);
 
   return (
-    <dialog id={`modal_${hit.code}`} className="modal">
+    <dialog id={`modal_${hit?.code}`} className="modal">
       <div className="modal-box" style={{ overflowY: "unset" }}>
         <form method="dialog">
           {/* if there is a button in form, it will close the modal */}
@@ -372,7 +400,7 @@ const Modal = ({ hit }) => {
                 <Item
                   norm={norm}
                   setNorm={setNorm}
-                  school_level_code={hit.school_level_code}
+                  school_level_code={hit?.school_level_code}
                 />
               </>
             )}
@@ -389,7 +417,8 @@ const Modal = ({ hit }) => {
                     norm.calculation_unit &&
                     norm.price &&
                     norm.quantity &&
-                    norm.total ? (
+                    norm.total &&
+                    norm.month ? (
                       <>
                         <button
                           className="btn w-fit"
@@ -398,8 +427,8 @@ const Modal = ({ hit }) => {
                           Hoàn thành
                         </button>
                         <div
-                          className="tooltip flex items-center justify-center"
-                          data-tip="Dự kiến sẽ tự động cân đối tiền của số vé thừa kỳ trước. Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
+                          className="tooltip flex items-center justify-center !z-30"
+                          data-tip="Cân nhắc kiểm tra nếu đã lập dự kiến thu trước đó!"
                         >
                           <IoIosInformationCircleOutline
                             size={20}
@@ -429,17 +458,17 @@ const Modal = ({ hit }) => {
 //       <tr className="hover">
 //         <td
 //           // className="w-[20%] self-center"
-//           dangerouslySetInnerHTML={{ __html: hit._formatted.code }}
+//           dangerouslySetInnerHTML={{ __html: hit?._formatted.code }}
 //         />
 //         <td
 //           // className="w-[40%] self-center"
 //           dangerouslySetInnerHTML={{
-//             __html: `${hit._formatted.first_name} ${hit._formatted.last_name}`,
+//             __html: `${hit?._formatted.first_name} ${hit?._formatted.last_name}`,
 //           }}
 //         />
 //         <td
 //           // className="w-[20%] self-center"
-//           dangerouslySetInnerHTML={{ __html: hit._formatted.class_name }}
+//           dangerouslySetInnerHTML={{ __html: hit?._formatted.class_name }}
 //         />
 //         <td className="self-center">
 //           {isRefetching ? (
@@ -450,7 +479,7 @@ const Modal = ({ hit }) => {
 //                 className="tooltip cursor-pointer"
 //                 data-tip="Lập dự kiến"
 //                 onClick={() =>
-//                   document.getElementById(`modal_${hit.code}`).showModal()
+//                   document.getElementById(`modal_${hit?.code}`).showModal()
 //                 }
 //               >
 //                 <CiCircleMore size={25} />
@@ -580,6 +609,7 @@ const Student = () => {
         queryObject={selected}
         dataTip={"Lập dự kiến"}
         modal
+        modalChill={<Modal />}
         config={config}
       >
         <CiCircleMore size={25} />
