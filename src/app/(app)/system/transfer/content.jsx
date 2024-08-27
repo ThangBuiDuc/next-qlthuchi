@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useSubscription, gql } from "@apollo/client";
 import { Spinner } from "@nextui-org/spinner";
+import Swal from "sweetalert2";
 
 const Content = ({ transfer, permission }) => {
   const { getToken, userId } = useAuth();
@@ -21,7 +22,7 @@ const Content = ({ transfer, permission }) => {
     }
   `);
 
-  console.log(result);
+  // console.log(result);
   // console.log(countReminder);
   const [mutating, setMutating] = useState(false);
 
@@ -48,23 +49,34 @@ const Content = ({ transfer, permission }) => {
         },
         await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_USER })
       );
-      setMutating(false);
-      toast.success("Kết chuyển công nợ thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.success("Kết chuyển công nợ thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+
+      Swal.fire({
+        title: "Kết chuyển công nợ",
+        text: "Kết chuyển công nợ thành công",
+        icon: "success",
       });
     },
     onError: () => {
-      setMutating(false);
-      toast.error("Kết chuyển công nợ không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Kết chuyển công nợ không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Kết chuyển công nợ không",
+        text: "Kết chuyển công nợ không thành công",
+        icon: "success",
       });
     },
   });
@@ -122,8 +134,21 @@ const Content = ({ transfer, permission }) => {
           <button
             className="btn w-fit self-center"
             onClick={() => {
-              setMutating(true);
-              mutation.mutate();
+              // setMutating(true);
+              // mutation.mutate();
+              Swal.fire({
+                title: "Kết chuyển công nợ",
+                text: "Bạn có chắc chắn muốn kết chuyển công nợ? Hành động này chỉ thực hiện một lần trong một học kỳ!",
+                showConfirmButton: true,
+                showCancelButton: true,
+                confirmButtonColor: "#134a9abf",
+                confirmButtonText: "Kết chuyển",
+                cancelButtonText: "Huỷ",
+                allowOutsideClick: () => !Swal.isLoading(),
+                preConfirm: async () => await mutation.mutateAsync(),
+                icon: "warning",
+                showLoaderOnConfirm: true,
+              });
             }}
           >
             Kết chuyển

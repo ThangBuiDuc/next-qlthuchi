@@ -11,6 +11,7 @@ import moment from "moment";
 import { toast } from "react-toastify";
 import { useSubscription, gql } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
+import Swal from "sweetalert2";
 // import LeftPanel from "./leftPanel";
 // import RightPanel from "./rightPanel";
 
@@ -33,7 +34,7 @@ const School = () => {
       }
     }
   `);
-  console.log(upgrade);
+  // console.log(upgrade);
   const mutation = useMutation({
     mutationFn: () =>
       upgradeAPI({
@@ -52,23 +53,33 @@ const School = () => {
         { school_year_id: { _eq: year_upgrade.result[0].school_year_id } },
         await getToken({ template: process.env.NEXT_PUBLIC_TEMPLATE_USER })
       );
-      setMutating(false);
-      toast.success("Tiến hành lên lớp cho cấp học thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.success("Tiến hành lên lớp cho cấp học thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Tiến hành lên lớp",
+        text: "Tiến hành lên lớp thành công",
+        icon: "success",
       });
     },
     onError: () => {
-      setMutating(false);
-      toast.error("Tiến hành lên lớp cho cấp học không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Tiến hành lên lớp cho cấp học không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+      Swal.fire({
+        title: "Tiến hành lên lớp",
+        text: "Tiến hành lên lớp không thành công",
+        icon: "error",
       });
     },
   });
@@ -109,8 +120,22 @@ const School = () => {
           <button
             className="btn"
             onClick={() => {
-              setMutating(true);
-              mutation.mutate();
+              // setMutating(true);
+              // mutation.mutate();
+
+              Swal.fire({
+                title: "tiến hành lên lớp",
+                text: "Bạn có chắc chắn muốn tiến hành lên lớp? Hành động này chỉ có thể thực hiện một lần một năm!",
+                showConfirmButton: true,
+                showCancelButton: true,
+                confirmButtonColor: "#134a9abf",
+                confirmButtonText: "Lên lớp",
+                cancelButtonText: "Huỷ",
+                allowOutsideClick: () => !Swal.isLoading(),
+                preConfirm: async () => await mutation.mutateAsync(),
+                icon: "question",
+                showLoaderOnConfirm: true,
+              });
             }}
           >
             Tiến hành lên lớp

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Content = ({ user }) => {
   //   console.log(user.result[0]);
@@ -21,25 +22,36 @@ const Content = ({ user }) => {
         },
       }),
     onSuccess: () => {
-      setMutating(false);
-      setPass("");
-      toast.success("Cập nhật mật khẩu thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      Swal.fire({
+        title: "Cập nhật mật khẩu",
+        text: "Cập nhật mật khẩu thành công",
+        icon: "success",
       });
+      // setMutating(false);
+      setPass("");
+      // toast.success("Cập nhật mật khẩu thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
     },
 
     onError: () => {
-      setMutating(false);
-      toast.error("Cập nhật mật khẩu không thành công!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
+      // setMutating(false);
+      // toast.error("Cập nhật mật khẩu không thành công!", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   theme: "light",
+      // });
+
+      Swal.fire({
+        title: "Cập nhật mật khẩu",
+        text: "Cập nhật mật khẩu không thành công",
+        icon: "error",
       });
     },
   });
@@ -127,8 +139,21 @@ const Content = ({ user }) => {
       ) : (
         <button
           onClick={() => {
-            setMutating(true);
-            mutation.mutate();
+            // setMutating(true);
+            // mutation.mutate();
+            Swal.fire({
+              title: "Cập nhật mật khẩu",
+              text: "Bạn có chắc chắn muốn cập nhật mật khẩu?",
+              showConfirmButton: true,
+              showCancelButton: true,
+              confirmButtonColor: "#134a9abf",
+              confirmButtonText: "Cập nhật",
+              cancelButtonText: "Huỷ",
+              allowOutsideClick: () => !Swal.isLoading(),
+              preConfirm: async () => await mutation.mutateAsync(),
+              icon: "warning",
+              showLoaderOnConfirm: true,
+            });
           }}
           disabled={!pass}
           className="btn w-fit self-center"
