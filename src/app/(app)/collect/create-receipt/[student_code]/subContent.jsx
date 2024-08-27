@@ -536,8 +536,7 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
         )
       );
     }
-  }, [data.isChecked]); 
-  
+  }, [data.isChecked]);
 
   const amount_collected_ref = useRef();
   return (
@@ -806,15 +805,21 @@ const SubContent = ({ student, selectPresent }) => {
 
   const allocateFunds = () => {
     if (!data) return;
-  
+
     let remainingValue = totalValue;
     let lastAllocatedItem = null;
-  
+
     // Filter checked items
     const checkedItems = data.filter((item) =>
       item.expected_revenues.some((revenue) => revenue.isChecked)
     );
-  
+
+    // Reset nowMoney to 0 for all checked items
+    checkedItems.forEach((item) => {
+      const revenue = item.expected_revenues[0];
+      revenue.nowMoney = 0;
+    });
+
     // Step 1: Allocate to items with previous_batch_money > 0
     const itemsWithPreviousBatchMoney = checkedItems
       .filter((item) => item.expected_revenues[0].previous_batch_money > 0)
@@ -826,7 +831,7 @@ const SubContent = ({ student, selectPresent }) => {
         if (a.revenue_type.id === 1 && b.revenue_type.id === 2) {
           return 1;
         }
-  
+
         // Priority 3: Sort within revenue_type.id === 1 by revenue.code
         if (a.revenue_type.id === 1 && b.revenue_type.id === 1) {
           if (
@@ -842,28 +847,25 @@ const SubContent = ({ student, selectPresent }) => {
             return 1;
           }
         }
-  
+
         // Priority 4: Sort by actual_amount_collected
         return (
           a.expected_revenues[0].actual_amount_collected -
           b.expected_revenues[0].actual_amount_collected
         );
       });
-  
+
     // Allocate funds to these items
     itemsWithPreviousBatchMoney.forEach((item) => {
       const revenue = item.expected_revenues[0];
-  
-      const allocation = Math.min(
-        remainingValue,
-        revenue.previous_batch_money
-      );
-      revenue.nowMoney = (revenue.nowMoney || 0) + allocation;  // Accumulate allocation
+
+      const allocation = Math.min(remainingValue, revenue.previous_batch_money);
+      revenue.nowMoney = (revenue.nowMoney || 0) + allocation; // Accumulate allocation
       remainingValue -= allocation;
-  
+
       lastAllocatedItem = revenue;
     });
-  
+
     // Step 2: If remainingValue > 0, allocate to all checked items
     if (remainingValue > 0) {
       const remainingItems = checkedItems.sort((a, b) => {
@@ -874,7 +876,7 @@ const SubContent = ({ student, selectPresent }) => {
         if (a.revenue_type.id === 1 && b.revenue_type.id === 2) {
           return 1;
         }
-  
+
         // Priority 3: Sort within revenue_type.id === 1 by revenue.code
         if (a.revenue_type.id === 1 && b.revenue_type.id === 1) {
           if (
@@ -890,38 +892,38 @@ const SubContent = ({ student, selectPresent }) => {
             return 1;
           }
         }
-  
+
         // Priority 4: Sort by actual_amount_collected
         return (
           a.expected_revenues[0].actual_amount_collected -
           b.expected_revenues[0].actual_amount_collected
         );
       });
-  
+
       // Allocate funds to these items
       remainingItems.forEach((item) => {
         const revenue = item.expected_revenues[0];
-  
+
         const allocation = Math.min(
           remainingValue,
           revenue.actual_amount_collected
         );
-        revenue.nowMoney = (revenue.nowMoney || 0) + allocation;  // Accumulate allocation
+        revenue.nowMoney = (revenue.nowMoney || 0) + allocation; // Accumulate allocation
         remainingValue -= allocation;
-  
+
         lastAllocatedItem = revenue;
       });
-  
+
       // Allocate remaining value to the last item
       if (remainingValue > 0 && lastAllocatedItem) {
         lastAllocatedItem.nowMoney += remainingValue;
       }
     }
-  
+
     // Set data once after all allocations are complete
     setData([...data]);
-  };  
-  
+  };
+
   if (expectedRevenue.isError) {
     throw new Error();
   }
@@ -1110,7 +1112,7 @@ const SubContent = ({ student, selectPresent }) => {
                   </form>
                   <Modal
                     modalRef={ref}
-                    setTotalValue = {setTotalValue}
+                    setTotalValue={setTotalValue}
                     data={data
                       ?.filter(
                         (item) =>
