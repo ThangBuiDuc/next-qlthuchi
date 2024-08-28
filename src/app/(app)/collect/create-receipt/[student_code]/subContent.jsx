@@ -17,6 +17,7 @@ import {
   createReceipt,
   getExpectedRevenue,
   getHistoryReceipt,
+  getDiscountsHistory,
 } from "@/utils/funtionApi";
 import { useAuth, useUser } from "@clerk/nextjs";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,7 +29,6 @@ import { BiSolidCategory } from "react-icons/bi";
 import { getText } from "number-to-text-vietnamese";
 import { useReactToPrint } from "react-to-print";
 import localFont from "next/font/local";
-import { set } from "lodash";
 
 const times = localFont({ src: "../../../../times.ttf" });
 
@@ -512,6 +512,19 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
     queryKey: ["get_history_receipt", where],
   });
 
+  const historyDiscount = useQuery({
+    queryFn: async () =>
+      getDiscountsHistory(
+        await getToken({
+          template: process.env.NEXT_PUBLIC_TEMPLATE_USER,
+        }),
+        data.id
+      ),
+    queryKey: ["get_history_discounts", data.id],
+  });
+
+  console.log(historyDiscount?.data?.data);
+
   // console.log(data)
   // console.log(priority)
   // console.log("revenue_type",revenue_type)
@@ -539,6 +552,9 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
   }, [data.isChecked]);
 
   const amount_collected_ref = useRef();
+  const discount_ref = useRef();
+
+  // console.log(data);
   return (
     <tr className="hover">
       <td className={`${typeof i === "number" ? "text-right" : ""}`}>
@@ -547,7 +563,126 @@ const Item = ({ data, index, setData, revenue_type, i, group_id }) => {
       <td>{data.revenue.name}</td>
       <td>{revenue_type.name}</td>
       <td>{numberWithCommas(data.previous_batch_money, config)} ₫</td>
-      <td>{numberWithCommas(data.discount, config)} ₫</td>
+      <td onClick={() => discount_ref.current.showModal()}>
+        <>
+          <div className="tooltip tooltip-top" data-tip="Xem chi tiết giảm giá">
+            {numberWithCommas(data.discount + data.external_deduction, config)}{" "}
+            ₫
+            <dialog ref={discount_ref} className="modal">
+              <div className="modal-box !max-w-2xl">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <div className="flex flex-col gap-6">
+                  <h6>
+                    Danh sách các giảm giá đã được áp dụng với khoản thu:{" "}
+                    {data.revenue.name}
+                  </h6>
+                  <div className="flex flex-col gap-3">
+                    <h6>Danh sách các mã giảm giá</h6>
+                    <div className="overflow-x-auto">
+                      <table className="table">
+                        {/* head */}
+                        <thead>
+                          <tr>
+                            <th>TT</th>
+                            <th>Nhóm</th>
+                            <th>Mã</th>
+                            <th>Mô tả</th>
+                            <th>Phần trăm</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {historyDiscount.isFetching &&
+                          historyDiscount.isLoading ? (
+                            [...Array(4).keys()].map((item) => (
+                              <tr key={item}>
+                                {[...Array(5).keys()].map((el) => (
+                                  <td key={el}>
+                                    <>
+                                      <div className="skeleton h-4 w-full"></div>
+                                    </>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))
+                          ) : historyDiscount.data.data
+                              .expected_revenues_discounts.length === 0 ? (
+                            <tr>
+                              <td colSpan={5}>Không có mã giảm giá được áp dụng</td>
+                            </tr>
+                          ) : (
+                            historyDiscount.data.data.expected_revenues_discounts.map(
+                              (item, index) => (
+                                <tr key={index} className="hover">
+                                  <td>{index + 1}</td>
+                                  <td>{item.discount.revenue_group.name}</td>
+                                  <td>{item.discount.code}</td>
+                                  <td>{item.discount.description}</td>
+                                  <td>{item.discount.ratio * 100} %</td>
+                                </tr>
+                              )
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <h6>Danh sách các giảm trừ ngoài</h6>
+                    <div className="overflow-x-auto">
+                      <table className="table">
+                        {/* head */}
+                        <thead>
+                          <tr>
+                            <th>TT</th>
+                            <th>Số tiền</th>
+                            <th>Lí do</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {historyDiscount.isFetching &&
+                          historyDiscount.isLoading ? (
+                            [...Array(2).keys()].map((item) => (
+                              <tr key={item}>
+                                {[...Array(3).keys()].map((el) => (
+                                  <td key={el}>
+                                    <>
+                                      <div className="skeleton h-4 w-full"></div>
+                                    </>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))
+                          ) : historyDiscount.data.data
+                              .external_deduction.length === 0 ? (
+                            <tr>
+                              <td colSpan={3}>Không có khoản giảm trừ ngoài được áp dụng</td>
+                            </tr>
+                          ) : (
+                            historyDiscount.data.data.external_deduction.map(
+                              (item, index) => (
+                                <tr key={index} className="hover">
+                                  <td>{index + 1}</td>
+                                  <td>{numberWithCommas(item.value, config)} đ</td>
+                                  <td>{item.reason}</td>
+                                </tr>
+                              )
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </dialog>
+          </div>
+        </>
+      </td>
       <td>{numberWithCommas(data.actual_amount_collected, config)} ₫</td>
       {/* <td className="text-center">{data.fullyear ? "✓" : "✗"}</td> */}
       <td>{numberWithCommas(data.amount_edited, config)} ₫</td>
