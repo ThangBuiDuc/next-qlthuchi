@@ -1734,3 +1734,18 @@ export const updateStatusStudent = async (token, updates) => {
 
   return res;
 };
+
+//Lấy các mã giảm giá được áp dụng của một khoản thu khi lập biên lai thu
+export const getDiscountsHistory = async (token, expected_revenue_id) => {
+  const res = await axios({
+    url: process.env.NEXT_PUBLIC_HASURA_GET_DISCOUNTS_HISTORY,
+    method: "post",
+    data: { expected_revenue_id },
+    headers: {
+      "content-type": "Application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res;
+};
