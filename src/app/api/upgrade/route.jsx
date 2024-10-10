@@ -31,7 +31,7 @@ export async function PUT(req) {
     await client.connect();
     if (type === "SCHOOL") {
       const sql_student = await client.query(
-        `SELECT code,class_code,class_level_code FROM v_student WHERE school_year_id = ${old_school_year_id} AND class_level_code < 9 AND status_id IN (1)`
+        `SELECT code,class_code,class_level_code FROM v_student WHERE school_year_id = ${old_school_year_id} AND class_level_code < 9 AND status_id IN (1,8)`
       );
       // console.log(sql_student.rows);
       const objects = sql_student.rows.map((item) => ({

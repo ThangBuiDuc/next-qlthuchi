@@ -10,7 +10,7 @@ import Content from "./content";
 import { auth } from "@clerk/nextjs";
 
 const Page = async () => {
-  const pathName = "/expected-revenue/ticket-solve";
+  const pathName = "/spend/ticket-solve";
 
   const { getToken, userId } = auth();
 
