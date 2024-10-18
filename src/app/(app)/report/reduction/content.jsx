@@ -315,14 +315,14 @@ const handleExportExcel = async (reduction, present, school_year) => {
     "",
     "",
     "",
-    reduction.results.reduce((t, c) => t + c.ud_value, 0),
+    reduction.results.reduce((t, c) => t + parseFloat(c.ud_value || 0), 0),
     "",
-    reduction.results.reduce((t, c) => t + c.cs_value, 0),
+    reduction.results.reduce((t, c) => t + parseFloat(c.cs_value || 0), 0),
     "",
-    reduction.results.reduce((t, c) => t + c.tt_value, 0),
-    reduction.results.reduce((t, c) => t + c.total, 0),
+    reduction.results.reduce((t, c) => t + parseFloat(c.tt_value || 0), 0),
+    reduction.results.reduce((t, c) => t + parseFloat(c.total || 0), 0),
   ]);
-
+  
   // worksheet.addRow({
   //   col3: "Họ và tên học sinh",
   // });
