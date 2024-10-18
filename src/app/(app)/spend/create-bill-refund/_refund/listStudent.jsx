@@ -799,7 +799,9 @@ const ListStudent = () => {
     onAfterPrint: () =>
       handleExportExcel(
         selectedKeys === "all"
-          ? listRefund
+          ? listRefund.filter((item) =>
+              item.expected_revenues.some((el) => el.next_batch_money != 0)
+            )
           : listRefund.reduce(
               (total, curr) =>
                 selectedKeys.has(curr.student_code) ? [...total, curr] : total,
@@ -861,21 +863,25 @@ const ListStudent = () => {
       bill_refund_details: {
         data:
           selectedKeys === "all"
-            ? listRefund.reduce(
-                (total, curr) => [
-                  ...total,
-                  ...curr.expected_revenues
-                    .filter((item) => item.expected_revenue_id)
-                    .map((el) => ({
-                      expected_revenue_id: el.expected_revenue_id,
-                      batch_id: selectPresent.id,
-                      amount_spend: el.next_batch_money * -1,
-                      created_by: user.id,
-                      start_at: moment().format(),
-                    })),
-                ],
-                []
-              )
+            ? listRefund
+                .filter((item) =>
+                  item.expected_revenues.some((el) => el.next_batch_money != 0)
+                )
+                .reduce(
+                  (total, curr) => [
+                    ...total,
+                    ...curr.expected_revenues
+                      .filter((item) => item.expected_revenue_id)
+                      .map((el) => ({
+                        expected_revenue_id: el.expected_revenue_id,
+                        batch_id: selectPresent.id,
+                        amount_spend: el.next_batch_money * -1,
+                        created_by: user.id,
+                        start_at: moment().format(),
+                      })),
+                  ],
+                  []
+                )
             : listRefund
                 .filter((item) => selectedKeys.has(item.student_code))
                 .reduce(
@@ -905,15 +911,19 @@ const ListStudent = () => {
         ...pre,
         nowMoney:
           selectedKeys === "all"
-            ? listRefund.reduce(
-                (total, curr) =>
-                  total +
-                  curr.expected_revenues.reduce(
-                    (t, c) => t + c.next_batch_money * -1,
-                    0
-                  ),
-                0
-              )
+            ? listRefund
+                .filter((item) =>
+                  item.expected_revenues.some((el) => el.next_batch_money != 0)
+                )
+                .reduce(
+                  (total, curr) =>
+                    total +
+                    curr.expected_revenues.reduce(
+                      (t, c) => t + c.next_batch_money * -1,
+                      0
+                    ),
+                  0
+                )
             : listRefund
                 .filter((item) => selectedKeys.has(item.student_code))
                 .reduce(
@@ -1020,7 +1030,9 @@ const ListStudent = () => {
               <TableView
                 isLoading={(isLoading && isFetching) || isRefetching}
                 config={config}
-                listRefund={listRefund}
+                listRefund={listRefund.filter((item) =>
+                  item.expected_revenues.some((el) => el.next_batch_money != 0)
+                )}
                 selectedKeys={selectedKeys}
                 setSelectedKeys={setSelectedKeys}
               />

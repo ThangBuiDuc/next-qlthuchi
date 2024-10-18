@@ -438,7 +438,7 @@ const RowTable = ({ data, pageIndex, isRefetching, refetch, permission }) => {
             <>
               <div
                 className="tooltip items-center flex cursor-pointer w-fit"
-                data-tip="Huỷ biên lai"
+                data-tip="Huỷ phiếu chi"
                 onClick={() => cancelRef.current.showModal()}
               >
                 <IoTrashBinOutline size={25} />
