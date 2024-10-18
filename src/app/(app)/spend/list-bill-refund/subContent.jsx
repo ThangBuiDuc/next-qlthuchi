@@ -384,7 +384,7 @@ const CancelModal = ({ bill_refund_code, cancelRef, pageIndex, refetch }) => {
   return (
     <div className="flex flex-col p-2 gap-2">
       <h5 className="text-center">
-        Huỷ phiếu thu tiền mặt: {bill_refund_code}
+        Huỷ phiếu chi tiền mặt: {bill_refund_code}
       </h5>
 
       <label className="form-control">
