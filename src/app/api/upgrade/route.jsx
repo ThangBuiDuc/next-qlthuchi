@@ -61,12 +61,27 @@ export async function PUT(req) {
         )}`,
       }));
 
+      const updates = sql_student.rows.map((item) => ({
+        _set: {
+          status_id: 1,
+        },
+        where: {
+          code: {
+            _eq: item.code,
+          },
+          status_id: {
+            _eq: 8,
+          },
+        },
+      }));
+
       const res = await axios({
         url: process.env.NEXT_PUBLIC_HASURA_UPGRADE,
         method: "PUT",
         data: {
           objects,
           objects1,
+          updates,
         },
         headers: {
           "content-type": "Application/json",
